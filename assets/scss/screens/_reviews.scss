@@ -1,0 +1,111 @@
+.review-page-container{
+  margin-top: 85px;
+  .review-page {
+    min-height: calc(100vh - 100px);
+    padding-bottom: 30px;
+    .card {
+      margin-bottom: 20px;
+      .review-section {
+        cursor: pointer;
+        .heading {
+          font-size: 18px;
+          font-family: 'open_sans_regular';
+          color: $primary;
+          margin-top: 5px;
+          margin-bottom: 10px;
+          @media(max-width: 600px) {
+            text-align: center;
+            margin-top: 10px;
+          }
+        }
+        .userName {
+          font-size: 24px;
+          font-family: 'open_sans_regular';
+          color: $primary;
+          margin-top: 15px;
+          margin-bottom: 5px;
+          @media(max-width: 600px) {
+            text-align: center;
+            margin-top: 10px;
+          }
+        }
+        .star-box {
+          margin-left: 10px;
+          @media(max-width: 600px) {
+            display: block;
+            margin-left: 0px;
+          }
+        }
+        .user-img-container {
+          width: 100%;
+          height: 230px;
+          max-height: 230px;
+          margin: 0 auto;
+          overflow: hidden;
+          background-color: #eee;
+          display: flex;
+          cursor: pointer;
+          .user-img {
+            width: 100%;
+            display: inline-block;
+            vertical-align: middle;
+            -webkit-transition: all .2s ease-in-out;
+            transition: all .2s ease-in-out;
+            max-height: 230px;
+            object-fit: cover;
+            height: auto;
+          }
+        }
+        .sep-section {
+          position: relative;
+          .dep-section {
+            margin-right: 20px;
+            @media(max-width: 600px){
+              text-align: center;
+            }
+          }
+          .ariv-section {
+            margin-left: 20px;
+            margin-right: 10px;
+            @media(max-width: 600px){
+              text-align: center;
+            }
+          }
+          .detailsHeading {
+            font-family: 'open_sans_regular';
+            font-weight: bold;
+            color: $content-text;
+          }
+          .separator-icon {
+            position: absolute;
+            right: -10px;
+            top: 0px;
+            font-size: 36px;
+            color: $gray;
+            @media(max-width: 1000px){
+              font-size: 24px;
+              right: -15px;
+            }
+          }
+          .location {
+            font-family: 'open_sans_regular';
+            font-weight: 600;
+            color: $primary;
+            margin-top: 7px;
+          }
+          .travel-date{
+            margin-top: 7px;
+          }
+          .icon {
+            color: $heading-text;
+          }
+        }
+      }
+    }
+  }
+  .loading {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+  }
+}

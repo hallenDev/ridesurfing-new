@@ -1,0 +1,20 @@
+.lg-primary {
+  padding: 0 3.6rem !important;
+  line-height: 40px !important;
+}
+.leftIcon-btn {
+  width: 100%;
+  &.pswrd-btn {
+    &:focus{
+      background: $secondary-btn !important;
+    }
+  }
+  .icon{
+    font-size: 20px;
+  }
+  &.login-btn {
+    &:focus{
+      background: $secondary-btn !important;
+    }
+  }
+}

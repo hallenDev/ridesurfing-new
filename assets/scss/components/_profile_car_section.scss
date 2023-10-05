@@ -1,0 +1,56 @@
+.profile-car-section {
+  .table-user-information {
+    tr:first-child {
+      td{
+        border: none !important;
+        background: 'red';
+      }
+    }
+    .info-label {
+      font-size: 14px;
+      font-family: 'open_sans_regular';
+    }
+    .info-val {
+      font-size: 14px;
+      text-align: right;
+      font-weight: 600;
+      color: $primary;
+    }
+  }
+  .car-profile-images {
+    margin-top: 20px;
+    .imgWrapper {
+      display: inline-block;
+      position: relative;
+      cursor: pointer;
+      width: 190px;
+      height: 190px;
+      margin-right: 8px;
+      margin-left: 2px;
+      overflow: hidden;
+      .uploadPic {
+        box-shadow: 0 0 1px #3c4d61;
+        border-radius: 2px;
+        -webkit-transition: all 0.2s ease-in-out;
+        -o-transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;
+        display: inline-block;
+        width: 190px;
+        height: 190px;
+        object-fit: cover;
+      }
+      .close-icon {
+        z-index: 2;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 20px;
+        text-align: center;
+        filter: drop-shadow(1px 2px 1px #fff);
+      }
+    }
+  }
+}
+.carImgWrapper {
+  width: 300px;
+}

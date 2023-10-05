@@ -1,0 +1,174 @@
+.trip-details {
+  margin-top: 85px;
+  position: relative;
+  min-height: 100vh;
+  .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .trip-details-tab {
+    .box-align {
+      .card {
+        box-shadow: none;
+        border: 1px solid #e8e8e8;
+        min-height: 280px;
+        position: relative;
+        @media(max-width: 992px) {
+          min-height: 250px;
+        }
+        .left-section {
+          @include auto-centered(920px)
+          padding: 0px 15px;
+          @media(max-width: 450px) {
+            padding: 0px 5px;
+          }
+          .trip-detail-heading {
+            font-size: 24px;
+            font-family: 'open_sans_regular';
+            color: $primary;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            @media(max-width: 520px) {
+              font-size: 20px;
+            }
+            @media(max-width: 400px) {
+              font-size: 16px;
+            }
+          }
+          i.fa-circle {
+            font-size: 10px;
+          }
+        }
+        .right-section {
+          padding: 0px 20px;
+        }
+        .seat-book {
+          text-align: center;
+          display: block;
+          margin-bottom: 5px;
+          .book-label {
+            padding-top: 20px;
+            user-select: none;
+          }
+          .avb-seat {
+            .seat {
+              padding-top: 20px;
+            }
+            .user-val {
+              font-size: 28px;
+            }
+          }
+          .icon-container {
+            .icon-btn {
+              background: $secondary-btn;
+              padding: 5px;
+              color: $white;
+              font-size: 10px;
+              cursor: pointer;
+            }
+            .seat-left {
+              margin-left: 5px;
+              padding: 0px 5px;
+              margin-right: 5px;
+              user-select: none;
+              color: $primary;
+            }
+          }
+          .icon-container.disabled {
+            .icon-btn {
+              background: $gray-lighter;
+            }
+          }
+          .book-btn {
+            margin-left: 20px;
+            &:focus {
+              background: $secondary-btn;
+            }
+            @media(max-width: 360px) {
+              display: block;
+              margin: 0 auto;
+              margin-top: 10px;
+            }
+          }
+        }
+        .accept-text {
+          font-family: 'open_sans_regular';
+          padding: 10px 10px 10px;;
+          text-align: center;
+        }
+        .label-status {
+          @media(min-width: 993px){
+            position: absolute;
+            right: 20px;
+            top: 20px;
+          }
+          @media(max-width: 993px){
+            margin-top: 10px;
+          }
+          .label {
+            margin-top: 10px;
+            border-radius: 2px;
+            padding: .2em .6em .3em;
+            font-size: 10px;
+            font-family: 'open_sans_light';
+            color: $white;
+            i.fa-circle {
+              font-size: 10px;
+            }
+            &.active-label {
+              background: $success;
+            }
+            &.exp-label {
+              background: $danger;
+            }
+            &.cancel-label {
+              background: $yellow-shade;
+            }
+          }
+        }
+        .arrow-icon {
+          position: absolute;
+          right: -20px;
+          top: 0px;
+          font-size: 30px;
+          color: $gray;
+          @media(min-width: 1001px){
+            display: block;
+          }
+          @media(max-width: 700px){
+            font-size: 24px;
+            right: -15px;
+          }
+        }
+        .box-align {
+          @media(max-width: 992px) {
+            text-align: center;
+            margin-bottom: 5px;
+          }
+        }
+        .left-sep-section {
+          position: relative;
+          text-align: left;
+        }
+        .right-sep-section {
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+.profile-page {
+  .chatLink {
+    background: $secondary-btn;
+    color: $white;
+    padding: 6px 12px;
+    font-size: 14;
+    font-family: 'open_sans_light';
+    .chat-icon {
+      margin-right: 5px;
+    }
+  }
+}

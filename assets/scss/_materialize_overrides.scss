@@ -1,0 +1,74 @@
+// find all variables that can be overridden here:
+// https://github.com/Dogfalo/materialize/blob/master/sass/components/_variables.scss
+
+// Table of Contents:
+//
+//  1. Colors
+//  2. Badges
+//  3. Buttons
+//  4. Cards
+//  5. Collapsible
+//  6. Chips
+//  7. Date Picker
+//  8. Dropdown
+//  9. Fonts
+//  10. Forms
+//  11. Global
+//  12. Grid
+//  13. Navigation Bar
+//  14. Side Navigation
+//  15. Photo Slider
+//  16. Spinners | Loaders
+//  17. Tabs
+//  18. Tables
+//  19. Toasts
+//  21. Footer
+//  22. Flow Text
+//  23. Collections
+//  24. Progress Bar
+
+
+
+// 1. Colors
+$primary-color: $primary;
+$primary-color-dark: $primary;
+$secondary-color: $primary;
+
+// 3. Buttons
+$button-height: 40px;
+$button-padding: 0 3rem;
+$button-font-size: 18px;
+
+// 9. Fonts
+$roboto-font-path: "../../node_modules/materialize-css/dist/fonts/roboto/" !default;
+
+
+// 10. Forms
+$input-border-color: rgba($black,0.54);
+$input-margin: 0px;
+$input-margin-bottom: 0px;
+$label-font-size: 1rem;
+
+// 12. Grid
+$gutter-width: 1.875rem;
+
+
+// 13. Navigation Bar
+$navbar-height: 60px;
+
+// 17 tabs
+$tabs-bg-color: transparent;
+$tabs-text-color: $gray-darker;
+$tabs-underline-color: $white;
+
+// 20 Typography
+$h1-fontsize: 72px;
+$h2-fontsize: 48px;
+$h3-fontsize: 36px;
+$h4-fontsize: 28px;
+$h5-fontsize: 24px;
+$h6-fontsize: 20px;
+
+
+@import '../../node_modules/materialize-css/sass/materialize.scss';
+@import url(https://fonts.googleapis.com/icon?family=Material+Icons);

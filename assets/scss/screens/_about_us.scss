@@ -1,0 +1,11 @@
+.aboutUs-page {
+  margin-top: 100px;
+  min-height: calc(100vh - 100px);
+  @media(min-width: 1080px){
+    @include auto-centered(60%);
+  }
+  .content {
+    font-family: 'open_sans_regular';
+    font-size: 14px;
+  }
+}

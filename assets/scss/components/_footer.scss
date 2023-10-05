@@ -1,0 +1,102 @@
+footer{
+  padding-top: 40px;
+  text-align: center;
+  background: $primary;
+  color: $heading-text;
+  .row {
+    margin-bottom: 0px !important;
+  }
+  .heading{
+    @media(min-width: 992px){
+      text-align: right;
+      margin-bottom: -65px;
+    }
+  }
+  @media(max-width: 991px){
+    text-align: center;
+  }
+  @media(max-width: 767px){
+    margin-top: 0px;
+  }
+  .logo {
+    width: 220px;
+    margin-right: 20px;
+    transition: all 0.5s ease;
+  }
+  .footer-link, .media-link{
+    color: #fff;
+    font-size: 14px;
+    font-family: 'open_sans_light';
+    &:hover{
+      color: #3977e3;
+    }
+  }
+  hr{
+    border-top: 1px solid $heading-text;
+  }
+  .social-container {
+    @media(min-width: 992px){
+      text-align: left;
+    }
+    a.media-link {
+      font-size: 30px;
+    }
+  }
+  .list {
+    list-style: none;
+    padding-left: 0px;
+    @media(min-width: 992px){
+      float: left;
+    }
+    @media(max-width: 992px){
+      display: flex;
+      justify-content: center;
+    }
+    li{
+      @media(min-width: 992px){
+        float: left;
+      }
+      .footer-link{
+        padding: 0px 10px;
+        line-height: 30px;
+        @media(max-width: 767px){
+          display: block;
+        }
+        .hide-mb{
+          @media(max-width: 420px){
+            display: none;
+          }
+        }
+      }
+    }
+  }
+  .right-box{
+    @media(min-width: 992px){
+      text-align: right;
+    }
+  }
+  .media-link{
+    font-size: 22px;
+    margin: 10px;
+    padding: 10px;
+    display: inline-block;
+    @media(max-width: 767px){
+      margin: 4px;
+    }
+  }
+
+
+  .powered-by {
+    margin: 0px 10px 10px 0px;
+    color: #fff;
+    font-family: 'open_sans_light';
+    font-size: 14px;
+    position: relative;
+    @media(min-width: 992px){
+      top: 100px;
+    }
+  }
+  .card-img{
+    margin-top: 10px;
+  }
+}

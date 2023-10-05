@@ -1,0 +1,86 @@
+.profile-card-section {
+  h5 span.payout {
+    font-size: 12px;
+  }
+  .cardsList {
+    margin-bottom: 20px;
+    .list-group {
+      background: $gray-lightest;
+      padding: 5px 15px;
+      border: 1px solid $gray-light;
+      margin-bottom: 5px;
+      .cardNumber {
+        font-family: 'open_sans_light';
+        @media(max-width: 400px){
+          font-size: 12px;
+        }
+        .active-status {
+          float: right;
+          font-family: 'open_sans_regular';
+        }
+        .prime-card {
+          background-color: rgba(92,184,92,0.5);
+          color: $white;
+          font-size: 11px;
+          padding: 4px 6px;
+          border-radius: 14px;
+          font-family: 'open_sans_regular';
+          margin-left: 20px;
+        }
+        .prime-btn {
+          float: right;
+          font-family: 'open_sans_regular';
+          margin-right: 13px;
+          font-size: 11px;
+          background: $secondary-btn;
+          padding: 5px;
+          border-radius: 3px;
+          color: $white;
+          i {
+            display: none;
+          }
+          @media(max-width: 500px){
+            span {
+              display: none;
+            }
+            background: transparent;
+            margin-right: 5px;
+            color: #039be5;
+            font-size: 14px;
+            border-radius: 0px;
+            i {
+              display: block;
+            }
+          }
+        }
+      }
+    }
+  }
+  .selectField {
+    width: 100%;
+    margin-top: 10px !important;
+    &:first-child{
+      div {
+        &:before {
+          border-bottom-color: $gray !important;
+        }
+      }
+    }
+  }
+  .cvc-field {
+    width: 100%;
+    &:first-child{
+      div {
+        margin-top: 10px;
+        &:before {
+          border-bottom-color: $gray !important;
+        }
+      }
+    }
+  }
+  .lg-primary {
+    &:focus{
+      background: $secondary-btn !important;
+    }
+  }
+}

@@ -1,0 +1,435 @@
+.my-trips {
+  margin-top: 85px;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 20px;
+  .container {
+    width: 100% !important;
+  }
+  .trips-container{
+    @media(max-width: 500px) {
+      display: inherit !important;
+      flex-wrap: inherit !important;
+      margin-left: 0px !important;
+      margin-top: 0px !important;
+      margin-right: 0px !important;
+    }
+    .trip-box {
+      min-width: 250px;
+      display: flex;
+      @media(max-width: 500px) {
+        flex: inherit !important;
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+        flex-basis: inherit !important;
+        max-width: inherit !important;
+      }
+
+      .col {
+        padding: 0 5px;
+      }
+      .flex-field {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        &.web {
+          padding: 0px 5px 5px 0px;
+          @media(max-width: 500px) {
+            display: none;
+          }
+
+          .reviews-rating {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            .rating-count {
+              font-size: 13px;
+              color: #73879C;
+              margin-left: 3px;
+            }
+          }
+        }
+        &.mob {
+          @media(min-width: 501px) {
+            display: none;
+          }
+          .dropdown-btn {
+            float: right;
+            margin-right: -10px;
+            button {
+              @media(max-width: 375px){
+                padding: 6px;
+              }
+            }
+          }
+          .card-header {
+            min-height: 30px;
+            background: $theme-blue;
+            display: grid;
+            .trip-name {
+              align-self: center;
+              justify-content: center;
+              padding-right: 10px;
+              padding-left: 170px;
+              color: $white;
+              font-size: 14px;
+              font-family: 'open_sans_regular';
+              text-align: right;
+              @media(max-width: 365px){
+                padding-left: 150px;
+                font-size: 12px;
+              }
+            }
+          }
+          .avatar-container {
+            align-items: flex-start;
+            position: relative;
+            border: 5px solid $white;
+            background: $theme-blue;
+            display: inline-block;
+            cursor: pointer;
+            min-width: 130px;
+            height: 130px;
+            overflow: hidden;
+            margin-top: -20px;
+
+            @media(max-width: 365px){
+              min-width: 110px;
+              height: 110px;
+            }
+            .user-img {
+              height: 130px;
+              width: 100%;
+              border-radius: 2px;
+              -webkit-transition: all .2s ease-in-out;
+              transition: all .2s ease-in-out;
+              display: inline-block;
+              object-fit: cover;
+              @media(max-width: 365px){
+                height: 100px;
+              }
+            }
+          }
+          .driver-name {
+            text-align: center;
+            font-size: 11px;
+            color: #4a4a4a;
+            padding: 0 10px;
+          }
+          .event {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: $heading-text;
+            font-family: 'open_sans_regular';
+            margin-right: 55px;
+            white-space: nowrap;
+            overflow: hidden;
+            display: block;
+            text-overflow: ellipsis;
+          }
+          .seatLeft {
+            font-size: 12px;
+            color: $gray-darker;
+            font-family: 'open_sans_light';
+            display: block;
+            margin-top: 10px;
+            .seats {
+              color: $primary;
+              font-family: 'open_sans_regular';
+            }
+          }
+          .reviews-rating {
+            display: flex;
+            align-items: center;
+
+            .rating-count {
+              font-size: 12px;
+              color: #73879C;
+              margin-left: 3px;
+            }
+          }
+          .item-label {
+            font-family: 'open_sans_light';
+            font-size: 11px;
+            color: $gray-darker;
+            @media(max-width: 395px){
+              text-overflow: ellipsis;
+              overflow: hidden;
+              white-space: nowrap;
+              font-size: 11px;
+            }
+          }
+          .item-value {
+            font-family: 'open_sans_regular';
+            font-size: 10px;
+            color: $primary;
+            @media(max-width: 365px){
+              font-size: 9px;
+            }
+          }
+          .bottom-section {
+            border-top: 1px solid $gray-light;
+            clear: both;
+            position: relative;
+            margin-top: 5px; 
+
+            .sep-section {
+              position: relative;
+              text-align: center;
+              .address {
+                font-size: 11px;
+                margin-right: 10px;
+                margin-left: 10px;
+                color: $gray-darker;
+                font-family: 'open_sans_light';
+                text-align: center;
+                @media(max-width: 365px){
+                  font-size: 12px;
+                }
+              }
+              .separator-icon {
+                position: absolute;
+                right: -15px;
+                top: 0px;
+                font-size: 20px;
+                color: $gray;
+              }
+              .time-text {
+                font-size: 12px;
+                color: $gray-darker;
+                font-family: 'open_sans_light';
+                text-align: center;
+                @media(max-width: 365px){
+                  font-size: 10px;
+                }
+              }
+            }
+          }
+        }
+        .content-flex {
+          flex: 1 0 auto;
+          cursor: pointer;
+        }
+        .bottom-section {
+          border-top: 1px solid $gray-light;
+          padding: 5px 0;
+          clear: both;
+        }
+        .main {
+          width: 100%;
+          .left-box {
+            width: 37%;
+            float: left;
+          }
+          .right-box {
+            width: 63%;
+            float: right;
+            padding-left: 15px;
+          }
+        }
+      }
+      .label-status {
+        margin-top: 10px;
+        @media screen and (min-width: 500px) and (max-width: 570px) {
+          display: block;
+        }
+        .label {
+          margin-top: 10px;
+          border-radius: 10px;
+          padding: .2em .6em .3em;
+          font-size: 10px;
+          font-family: 'open_sans_light';
+          color: $white;
+          @media(max-width: 365px){
+            font-size: 8px;
+          }
+          &.active-label {
+            background: $success;
+          }
+          &.exp-label {
+            background: $danger;
+          }
+          &.cancel-label {
+            background: $yellow-shade;
+          }
+        }
+      }
+      .drive-label-box {
+        margin-top: 10px;
+        margin-left: 5px;
+        .drive-box-text {
+          margin-top: 10px;
+          border-radius: 10px;
+          padding: .2em .6em .3em;
+          font-size: 10px;
+          font-family: 'open_sans_light';
+          text-transform: capitalize;
+          @media(max-width: 365px){
+            font-size: 8px;
+          }
+        }
+      }
+      .label {
+        color: $content-text;
+        @media(max-width: 500px) {
+          font-size: 14px;
+        }
+      }
+      .mob-trip-specs {
+        margin: 5px -5px 0;
+      }
+      .user-img-container {
+        width: 100%;
+        height: 200px;
+        max-height: 200px;
+        margin: 0 auto;
+        overflow: hidden;
+        background-color: #eee;
+        display: flex;
+        cursor: pointer;
+        .user-img {
+          width: 100%;
+          height: auto;
+          display: inline-block;
+          vertical-align: middle;
+          -webkit-transition: all .2s ease-in-out;
+          transition: all .2s ease-in-out;
+          height: 200px;
+          object-fit: cover;
+        }
+      }
+      .travel-date {
+        color: $content-text;
+      }
+      .user-val {
+        font-size: 14px;
+        color: $primary;
+        font-family: 'open_sans_regular';
+        font-weight: 600;
+        @media(max-width: 400px) {
+          font-size: 12px;
+        }
+      }
+      .right-box {
+        .right {
+          .dropdown {
+            &:focus {
+              background: transparent !important;
+            }
+          }
+        }
+      }
+      .heading {
+        font-size: 24px;
+        font-family: 'open_sans_regular';
+        color: $primary;
+        margin-top: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 300px;
+        display: inline-block;
+        @media(max-width: 500px) {
+          font-size: 20px;
+        }
+        @media(max-width: 400px) {
+          font-size: 16px;
+        }
+      }
+      .fa-circle {
+        font-size: 5px;
+        position: relative;
+        top: -2px;
+        margin-left: 5px;
+        margin-right: 5px;
+      }
+      .avb-seat {
+        margin-top: 15px;
+        .seat-left {
+          margin-top: 10px;
+          border-radius: 2px;
+          padding: 5px;
+          font-size: 14px;
+          color: $white;
+          background: #3977e3;
+        }
+      }
+      .sep-section {
+        position: relative;
+        text-align: center;
+        .detailsHeading {
+          font-family: 'open_sans_regular';
+          font-weight: bold;
+          color: $content-text;
+          @media(max-width: 400px) {
+            font-size: 12px;
+          }
+        }
+        .separator-icon {
+          position: absolute;
+          right: -10px;
+          top: 0px;
+          font-size: 36px;
+          color: $gray;
+          @media(max-width: 1000px){
+            font-size: 24px;
+            right: -15px;
+          }
+        }
+        .car-img {
+          width: 44px;
+          position: absolute;
+          right: -20px;
+          top: 0px;
+          @media(max-width: 1000px){
+            display: none;
+          }
+        }
+        .location {
+          font-family: 'open_sans_regular';
+          font-weight: 600;
+          color: $primary;
+          @media(max-width: 400px) {
+            font-size: 12px;
+          }
+        }
+        .icon {
+          color: $heading-text;
+        }
+      }
+      .top-section {
+        margin-top: 10px;
+        :first-child.row {
+          margin-bottom: 0px !important;
+        }
+        .item-value {
+          font-size: 17px;
+          font-weight: 600;
+          color: $primary;
+          @media(max-width: 500px) {
+            font-size: 16px;
+            font-weight: 200;
+          }
+          @media(max-width: 400px) {
+            font-size: 12px;
+          }
+        }
+        .item-label {
+          font-size: 14px;
+          font-family: 'open_sans_light';
+          color: $content-text;
+          @media(max-width: 500px) {
+            font-size: 10px;
+          }
+        }
+      }
+    }
+  }
+  @include trip-columns(470px,  15px, true, 4);
+  .loading {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+  }
+}

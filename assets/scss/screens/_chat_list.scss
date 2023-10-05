@@ -1,0 +1,181 @@
+.chatList-page {
+  margin-top: 64px;
+  .row.mb0 {
+    margin-bottom: 0px !important;
+  }
+  @media(max-width: 600px) {
+    margin-top: 56px;
+  }
+  .chat-list-sm {
+    background: $secondary-btn;
+    padding: 10px 10px 6px;
+    color: $white;
+    border-bottom: 1px solid $white;
+    font-size: 20px;
+    margin-bottom: 0px !important;
+    display: none;
+    @media(max-width: 991px){
+      display:block;
+    }
+    .user-name {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      span {
+        line-height: 2;
+        font-family: 'open_sans_light';
+      }
+    }
+  }
+  .user-list {
+    padding: 0px;
+    height: calc(100vh - 64px);
+    border-right: 1px solid #ccc;
+    @media(max-width: 991px) {
+      height: calc(100vh - 113px);
+    }
+    .new-user {
+      display: flex;
+      justify-content: center;
+      height: calc(100vh - 113px);
+      align-items: center;
+      overflow-y: auto;
+      .chat-icon {
+        margin: 0 auto;
+      }
+      .dashboard-btn {
+        margin-top: 25px;
+        margin-bottom: 20px;
+        font-weight: 100;
+        font-size: 14px;
+        letter-spacing: 1.4px;
+        background: $secondary-btn;
+        color: $white;
+        @media(max-width: 600px) {
+          margin-top: 45px;
+        }
+      }
+    }
+    .user-chat-list {
+      background-color: #fafafa;
+      font-weight: 300;
+      height: 100%;
+      overflow-y: auto;
+      outline: none;
+      .friend-list {
+        list-style: none;
+        margin-top: 1px;
+        padding: 0px;
+        .user{
+          border-bottom: 1px solid rgba(238, 238, 238, 0.41);
+          cursor: pointer;
+          .user-link {
+            position: relative;
+            display: block;
+            padding: 0px 10px 0px 0px;
+            text-decoration: none;
+            min-height: 70px;
+            .img-container{
+              position: absolute;
+              height: 70px;
+              width: 70px;
+              left: 0px;
+              background: $white;
+              text-align: center;
+              overflow: hidden;
+              cursor: pointer;
+              img {
+                display: inline-block;
+                vertical-align: middle;
+                -webkit-transition: all .2s ease-in-out;
+                transition: all .2s ease-in-out;
+                width: 70px;
+                min-height: 70px;
+                object-fit: cover;
+              }
+            }
+            .friend-name{
+              color: #666;
+              padding-top: 10px;
+              margin-left: 90px;
+              margin-right: 150px;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              strong{
+                font-weight: 300;
+                .online {
+                  opacity: 0;
+                }
+              }
+              @media(max-width: 440px) {
+                width: 32%;
+              }
+            }
+            .last-message {
+              margin-left: 90px;
+              margin-right: 20px;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              color: #6E6E6E;
+              font-size: 13px;
+              padding-top: 5px;
+            }
+            .time {
+              position: absolute;
+              top: 15px;
+              right: 8px;
+              color: $gray;
+              @media screen and (max-width: 1210px) and (min-width: 992px) {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+              }
+            }
+            .unread-color {
+              color: $secondary-btn;
+            }
+            .small {
+              font-size: 85%;
+            }
+            .unread-msg {
+              position: absolute;
+              right: 30px;
+              top: 40px;
+              font-size: 10px;
+              background: $secondary-btn;
+              border-radius: 16%;
+              color: $white;
+              padding: 3px 5px;
+            }
+            .chat-alert {
+              position: absolute;
+              right: 8px;
+              top: 40px;
+              font-size: 10px;
+              padding: 3px 5px;
+            }
+          }
+          &.active {
+            box-shadow: 0px 2px 4px rgba(92, 184, 92, 0.3);
+            .online {
+              color: $success;
+              margin-left: 3px;
+              font-size: 10px;
+              opacity: 1 !important;
+            }
+          }
+        }
+        .unread-msg-block {
+          background: #ddecfe;
+        }
+      }
+    }
+  }
+  .loading {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+  }
+}

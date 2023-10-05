@@ -1,0 +1,107 @@
+.profile-page {
+  min-height: calc(100vh - 90px);
+  margin-top: 90px;
+  .user-img-container {
+    width: 250px;
+    height: auto;
+    max-height: 250px;
+    margin: 0 auto;
+    overflow: hidden;
+    .user-img {
+      width: 100%;
+      -webkit-transition: all .2s ease-in-out;
+      transition: all .2s ease-in-out;
+      max-height: 250px;
+      object-fit: cover;
+    }
+  }
+  .uploadImgLink {
+    font-family: 'open_sans_regular';
+    font-size: 14px;
+  }
+  .panel-box{
+    margin-top: 20px;
+     text-align: left;
+     margin-bottom: 30px;
+    .panel-header{
+      text-align: center;
+      border: 1px solid $gray-lighter;
+      font-size: 16px;
+      font-family: 'Century Gothic', 'Circular', 'opensans_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      border-bottom: none;
+      padding: 15px;
+      margin: 0px;
+      background: $gray-lightest;
+    }
+    .panel-item{
+      border: 1px solid $gray-lighter;
+      border-bottom: none;
+      padding: 8px 10px;
+      &:last-child{
+        border-bottom: 1px solid $gray-lighter;
+      }
+      .fa{
+        float: right;
+      }
+      .success{
+        color: $success;
+      }
+      .danger{
+        color: $danger;
+      }
+    }
+  }
+  .my-tablist {
+    overflow: hidden;
+    .rwt__tabs[data-rwt-vertical="true"] {
+      display: flex;
+    }
+    .rwt__tablist:not([aria-orientation="vertical"]) {
+    	border-bottom: 1px solid #ddd;
+    }
+    .rwt__tablist[aria-orientation="vertical"] {
+      display: flex;
+    	flex-direction: column;
+    	flex-shrink: 0;
+    	flex-grow: 0;
+    	border-right: 1px solid #ddd;
+    	margin-right: 1rem;
+    }
+    .rwt__tab {
+    	background: transparent;
+      color: $gray;
+    	border: 0;
+    	font-family: inherit;
+    	font-size: inherit;
+    	padding: 10px 15px;
+      transition: background 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .rwt__tab[aria-selected="false"]:hover,
+    .rwt__tab:focus {
+      outline: 0;
+      background-color: $gray-lightest;
+    	background-color: rgba(0,0,0,0.05);
+      cursor: pointer;
+    }
+
+    .rwt__tab[aria-selected="true"] {
+    	position: relative;
+      background-color: rgba(0,0,0,0.05);
+      color: $primary;
+    }
+
+    .rwt__tab[aria-selected="true"]:after {
+    	content: '';
+    	position: absolute;
+    }
+
+    .rwt__tablist:not([aria-orientation="vertical"]) .rwt__tab[aria-selected="true"]:after {
+      bottom: -1px;
+    	left: 0;
+    	width: 100%;
+    	border-bottom: 3px solid $yellow-shade;
+    }
+
+  }
+}

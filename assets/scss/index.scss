@@ -1,0 +1,10 @@
+@import 'colors.scss';
+@import "utilities.scss";
+@import "global.scss";
+@import 'mixin.scss';
+@import 'fonts.scss';
+@import 'materialize_overrides.scss';
+@import 'confirm_alert.scss';
+
+@import './components/index.scss';
+@import './screens/index.scss';

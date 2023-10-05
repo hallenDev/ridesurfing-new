@@ -1,0 +1,98 @@
+.profile-main-section {
+  .user-info {
+    .details {
+      font-size: 14px;
+      font-family: 'open_sans_regular';
+      margin: 0px 0px 10px;
+    }
+    .table-user-information {
+      tr:first-child {
+        td{
+          border: none !important;
+          background: 'red';
+        }
+      }
+      .info-label {
+        font-size: 14px;
+        font-family: 'open_sans_regular';
+      }
+      .info-val {
+        font-size: 14px;
+        text-align: right;
+        font-weight: 600;
+        color: $primary;
+      }
+    }
+    .user-preferences{
+      .preference-icon-wrapper{
+        display: inline-block;
+        position: relative;
+        width: 45px;
+        margin: 0 5px;
+        .preference-icon {
+          max-width: 100%;
+          max-height: 100%;
+          border: 1px solid $gray-lighter;
+          border-radius: 50%;
+        }
+        .fa {
+          position: absolute;
+          z-index: 1;
+          right: 3px;
+          bottom: 3px;
+          width: 16px;
+          height: 16px;
+          line-height: 16px;
+          text-align: center;
+          top: auto;
+          color: $white;
+          border-radius: 50%;
+          font-size: 8px;
+        }
+        .success {
+          background: $success;
+        }
+        .danger {
+          background: $danger;
+        }
+      }
+    }
+    .rating-block{
+      padding-left: 90px;
+      position: relative;
+      min-height: 75px;
+      .user-img{
+        position: absolute;
+        left: 2px;
+        transition: all .2s ease-in-out;
+        width: 75px;
+        height: 75px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .name{
+        font-size: 16px;
+        color: $secondary;
+      }
+      .rating-content {
+        margin-top: 0px;
+      }
+      .stars{
+        margin-bottom: 10px;
+      }
+    }
+    .testimonial-carousel {
+      height: auto !important;
+      margin-bottom: 20px;
+      .slider-control-bottomcenter {
+        bottom: -15px !important;
+      }
+      .slider-control-centerleft{
+        display: none;
+      }
+      .slider-control-centerright {
+        display: none;
+      }
+    }
+  }
+}
