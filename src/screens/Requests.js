@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { Tabs, Tab, TabPanel, TabList } from 'react-web-tabs'
 import { Link } from 'react-router-dom'
 import Menu from '@material-ui/core/Menu'
@@ -21,128 +21,148 @@ import { getTripRequestErrors } from '../reducers/TripRequestReducer'
 
 import missingImg from '../images/missing.png'
 
-class Requests extends Component {
+const Requests = (props) => {
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      anchorEl: null,
-      sentAnchorEl: null,
-      receivedDialogState: false,
-      sentDialogState: false,
-      currentUserId: props.currentUserId || {},
-      tripErrors: {},
-      dataLoaded: false
-    }
+  const initial_state = {
+    anchorEl: null,
+    sentAnchorEl: null,
+    receivedDialogState: false,
+    sentDialogState: false,
+    currentUserId: props.currentUserId || {},
+    tripErrors: {},
+    dataLoaded: false
   }
+  
+  const [state, setState] = useState(initial_state);
 
-  componentDidMount () {
-    const { getTripRequestsRequest, getReceivedTripRequestsRequest } = this.props.actions
-    getReceivedTripRequestsRequest()
-    getTripRequestsRequest()
-  }
+  // to-do
+  // componentDidMount () {
+  //   const { getTripRequestsRequest, getReceivedTripRequestsRequest } = this.props.actions
+  //   getReceivedTripRequestsRequest()
+  //   getTripRequestsRequest()
+  // }
 
-  componentWillMount () {
-    if (!localStorage.accessToken) {
-      localStorage.setItem('prevUrl', `/requests`)
-      return window.location.href = `/login`
-    }
-  }
+  // to-do
+  // componentWillMount () {
+  //   if (!localStorage.accessToken) {
+  //     localStorage.setItem('prevUrl', `/requests`)
+  //     return window.location.href = `/login`
+  //   }
+  // }
 
-  UNSAFE_componentWillReceiveProps (nextProps) {
-    if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-      this.setState({ dataLoaded: nextProps.dataLoaded })
-    }
-  }
+  // to-do
+  // UNSAFE_componentWillReceiveProps (nextProps) {
+  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
+  //     this.setState({ dataLoaded: nextProps.dataLoaded })
+  //   }
+  // }
 
-  handleClick = (index, itemType, event) => {
+  const handleClick = (index, itemType, event) => {
     if (itemType === 'received') {
-      this.setState({ [`anchorEl${index}`]: event.currentTarget })
+      setState({ 
+        ...state, 
+        [`anchorEl${index}`]: event.currentTarget 
+      })
     } else {
-      this.setState({ [`sentAnchorEl${index}`]: event.currentTarget })
+      setState({ 
+        ...state, 
+        [`sentAnchorEl${index}`]: event.currentTarget 
+      })
     }
   }
 
-  handleClose = (index, itemType) => {
+  const handleClose = (index, itemType) => {
     if (itemType === 'received') {
-      this.setState({ [`anchorEl${index}`]: null })
+      setState({ 
+        ...state, 
+        [`anchorEl${index}`]: null 
+      })
     } else {
-      this.setState({ [`sentAnchorEl${index}`]: null })
+      setState({ 
+        ...state, 
+        [`sentAnchorEl${index}`]: null 
+      })
     }
   }
 
-  handleDialogOpen = (index, dialogType) => {
-    this.setState({ [`${dialogType}DialogState${index}`]: true, [`anchorEl${index}`]: null, [`sentAnchorEl${index}`]: null })
+  const handleDialogOpen = (index, dialogType) => {
+    setState({ 
+      ...state, 
+      [`${dialogType}DialogState${index}`]: true, [`anchorEl${index}`]: null, [`sentAnchorEl${index}`]: null 
+    })
   }
 
-  handleDialogClose = (index, dialogType) => {
-    this.setState({ [`${dialogType}DialogState${index}`]: false })
+  const handleDialogClose = (index, dialogType) => {
+    setState({ 
+      ...state, 
+      [`${dialogType}DialogState${index}`]: false 
+    })
   }
 
-  errorMessageFor = (fieldName) => {
-    const { tripErrors } = this.props
+  const errorMessageFor = (fieldName) => {
+    const { tripErrors } = props
     if (tripErrors && tripErrors[fieldName])
       return tripErrors[fieldName]
   }
 
-  handleMenuClick (url) {
-    const { history } = this.props
+  const handleMenuClick = (url) => {
+    const { history } = props
     history.push(url)
   }
 
-  sendAcceptTripRequest (tripRequestId) {
-    const { acceptTripRequestRequest } = this.props.actions
+  const sendAcceptTripRequest = (tripRequestId) => {
+    const { acceptTripRequestRequest } = props.actions
     acceptTripRequestRequest(tripRequestId)
   }
 
-  sendIgnoreTripRequest (tripRequestId) {
-    const { ignoreTripRequestRequest } = this.props.actions
+  const sendIgnoreTripRequest = (tripRequestId) => {
+    const { ignoreTripRequestRequest } = props.actions
     ignoreTripRequestRequest(tripRequestId)
   }
 
-  sendCancelTripRequest (tripRequestId) {
-    const { cancelTripRequestRequest } = this.props.actions
+  const sendCancelTripRequest = (tripRequestId) => {
+    const { cancelTripRequestRequest } = props.actions
     cancelTripRequestRequest(tripRequestId)
   }
 
-  getImage (passenger) {
+  const getImage = (passenger) => {
     return passenger.attributes.display_image ? passenger.attributes.display_image : missingImg
   }
 
-  goToProfile (user) {
+  const goToProfile = (user) => {
     return `/profile/${user.attributes.slug || user.id}`
   }
 
-  renderDriver (trip) {
+  const renderDriver = (trip) => {
     const { profile } = trip.relationships
     const { user } = profile
 
     return <div className="rider-list">
-      <Link to={this.goToProfile(user)}>
+      <Link to={goToProfile(user)}>
         <div className="rider-img-container">
-          <img className="responsive-img circle user-img" src={this.getImage(user)} alt="" />
+          <img className="responsive-img circle user-img" src={getImage(user)} alt="" />
         </div>
         <div className="user-name">
-          <Link to={this.goToProfile(user)}>{user.attributes.name}</Link>
+          <Link to={goToProfile(user)}>{user.attributes.name}</Link>
         </div>
         <div className="user-type">Driver</div>
       </Link>
     </div>
   }
 
-  renderRiders (trip) {
+  const renderRiders = (trip) => {
     const { trip_requests } = trip.relationships
 
     return _.map(trip_requests, (trip_request, index) => {
       if (trip_request.status === "Accepted") {
         const { passenger } = trip_request
         return <div className="rider-list" key={`tr_${index}`}>
-          <Link to={this.goToProfile(passenger)}>
+          <Link to={goToProfile(passenger)}>
             <div className="rider-img-container">
-              <img className="responsive-img circle user-img" src={this.getImage(passenger)} alt="" />
+              <img className="responsive-img circle user-img" src={getImage(passenger)} alt="" />
             </div>
             <div className="user-name">
-              <Link to={this.goToProfile(passenger)}>{passenger.attributes.name}</Link>
+              <Link to={goToProfile(passenger)}>{passenger.attributes.name}</Link>
             </div>
             <div className="user-type">Passenger</div>
           </Link>
@@ -151,7 +171,7 @@ class Requests extends Component {
     })
   }
 
-  renderStatus (trip) {
+  const renderStatus = (trip) => {
     if (!trip.attributes.is_cancelled && !!trip.attributes.is_expired) {
       return "Expired"
     } else {
@@ -165,7 +185,7 @@ class Requests extends Component {
     }
   }
 
-  renderStyle (trip) {
+  const renderStyle = (trip) => {
     if (!trip.attributes.is_cancelled && !!trip.attributes.is_expired) {
       return 'exp-label'
     } else {
@@ -179,8 +199,8 @@ class Requests extends Component {
     }
   }
 
-  renderReceivedRequests () {
-    const { receivedTripRequests } = this.props
+  const renderReceivedRequests = () => {
+    const { receivedTripRequests } = props
     const reqList = _.filter(receivedTripRequests, (req) => {
       const { trip } = req.relationships
       return !trip.attributes.is_expired
@@ -188,8 +208,8 @@ class Requests extends Component {
 
     if (reqList.length > 0) {
       return _.map(reqList, (tripRequest, index) => {
-        const anchorEl = this.state[`anchorEl${index}`]
-        const receivedDialogState = this.state[`receivedDialogState${index}`]
+        const anchorEl = state[`anchorEl${index}`]
+        const receivedDialogState = state[`receivedDialogState${index}`]
         const { trip, passenger } = tripRequest.relationships
 
         if (!trip.attributes.is_expired && !trip.attributes.is_cancelled) {
@@ -199,8 +219,8 @@ class Requests extends Component {
                 <div className="main">
                   <div className="left-box pl0">
                     <div className="user-img-container">
-                      <Link to={this.goToProfile(passenger)}>
-                        <img className="responsive-img user-img" src={this.getImage(passenger)} alt="" />
+                      <Link to={goToProfile(passenger)}>
+                        <img className="responsive-img user-img" src={getImage(passenger)} alt="" />
                       </Link>
                     </div>
                   </div>
@@ -209,7 +229,7 @@ class Requests extends Component {
                       <IconButton
                         aria-owns={anchorEl ? `simple-menu${index}` : undefined}
                         aria-haspopup="true"
-                        onClick={(event) => this.handleClick(index, 'received', event)}
+                        onClick={(event) => handleClick(index, 'received', event)}
                         className="dropdown"
                       >
                         <MoreVertIcon />
@@ -218,7 +238,7 @@ class Requests extends Component {
                         id={`simple-menu${index}`}
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}
-                        onClose={() => this.handleClose(index, 'received')}
+                        onClose={() => handleClose(index, 'received')}
                         PaperProps={{
                           style: {
                             transform: 'translateX(-10%)',
@@ -233,17 +253,17 @@ class Requests extends Component {
                         }}
                         className="trip-dropdown"
                       >
-                        <MenuItem onClick={() => this.handleDialogOpen(index, 'received')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
+                        <MenuItem onClick={() => handleDialogOpen(index, 'received')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
                       </Menu>
                     </div>
                     <p className="heading"><Link to={`/ride/${trip.attributes.slug || trip.id}`}>{trip.attributes.name}</Link></p>
-                    {!!this.errorMessageFor('trip') && <span className='error'>{this.errorMessageFor('trip')}<br/></span>}
+                    {!!errorMessageFor('trip') && <span className='error'>{errorMessageFor('trip')}<br/></span>}
                     <span className="label">
                       <span className="label">event: </span>
                       <span className="user-val">{trip.attributes.event_name}</span> &nbsp;
                     </span><br/>
                     <span className="label-status">
-                      <span className={`label ${this.renderStyle(trip)}`}> {this.renderStatus(trip)}</span>
+                      <span className={`label ${renderStyle(trip)}`}> {renderStatus(trip)}</span>
                     </span>
                     <span className="drive-label-box">
                       <span className="drive-box-text" style={{color: (trip.attributes.drive_type === 'commute' ? '#004085' : '#856404'), background: (trip.attributes.drive_type === 'commute' ? '#cce5ff' : '#fff3cd')}}>
@@ -303,13 +323,13 @@ class Requests extends Component {
                 </div>
                 <div className="row bottom-section">
                   <div className="col s6 l6 accept-block">
-                    <div className='center' onClick={() => this.sendAcceptTripRequest(tripRequest.id)}>
+                    <div className='center' onClick={() => sendAcceptTripRequest(tripRequest.id)}>
                       <Icon className="menu-icon">check</Icon>
                       <span className='request-actions'>Accept Request</span>
                     </div>
                   </div>
                   <div className="col s6 l6 ignore-block">
-                    <div className='center' onClick={() => this.sendIgnoreTripRequest(tripRequest.id)}>
+                    <div className='center' onClick={() => sendIgnoreTripRequest(tripRequest.id)}>
                       <Icon className="menu-icon">close</Icon>
                       <span className='request-actions'>Ignore Request</span>
                     </div>
@@ -318,20 +338,20 @@ class Requests extends Component {
               </div>
               <Dialog
                 open={receivedDialogState || false}
-                onClose={() => this.handleDialogClose(index, 'received')}
+                onClose={() => handleDialogClose(index, 'received')}
                 className="dialog-box"
                 fullWidth={true}
               >
                 <div className="dialog-heading">
                   <Icon
                     className="close-icon right"
-                    onClick={() => this.handleDialogClose(index, 'received')}
+                    onClick={() => handleDialogClose(index, 'received')}
                   >close</Icon>
                   <h3>Riders list</h3>
                 </div>
                 <div className="dialog-body">
-                  {this.renderDriver(trip)}
-                  {this.renderRiders(trip)}
+                  {renderDriver(trip)}
+                  {renderRiders(trip)}
                 </div>
               </Dialog>
             </div>
@@ -342,8 +362,8 @@ class Requests extends Component {
               <div className="row">
                 <div className="col s5">
                   <div className="avatar-container">
-                    <Link to={this.goToProfile(passenger)}>
-                      <img className="responsive-img user-img" src={this.getImage(passenger)} alt="" />
+                    <Link to={goToProfile(passenger)}>
+                      <img className="responsive-img user-img" src={getImage(passenger)} alt="" />
                     </Link>
                   </div>
                   <div className="requestor-name">
@@ -355,7 +375,7 @@ class Requests extends Component {
                     <IconButton
                       aria-owns={anchorEl ? `simple-menu${index}` : undefined}
                       aria-haspopup="true"
-                      onClick={(event) => this.handleClick(index, 'received', event)}
+                      onClick={(event) => handleClick(index, 'received', event)}
                       className="dropdown"
                     >
                       <MoreVertIcon />
@@ -364,7 +384,7 @@ class Requests extends Component {
                       id={`simple-menu${index}`}
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl)}
-                      onClose={() => this.handleClose(index, 'received')}
+                      onClose={() => handleClose(index, 'received')}
                       PaperProps={{
                         style: {
                           transform: 'translateX(-10%)',
@@ -379,14 +399,14 @@ class Requests extends Component {
                       }}
                       className="trip-dropdown"
                     >
-                      <MenuItem onClick={() => this.handleDialogOpen(index, 'received')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
-                      <MenuItem onClick={() => this.sendAcceptTripRequest (tripRequest.id)}><Icon className="menu-icon">edit</Icon> Accept</MenuItem>
-                      <MenuItem onClick={() => this.sendIgnoreTripRequest (tripRequest.id)}><Icon className="menu-icon">delete</Icon> Ignore</MenuItem>
+                      <MenuItem onClick={() => handleDialogOpen(index, 'received')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
+                      <MenuItem onClick={() => sendAcceptTripRequest (tripRequest.id)}><Icon className="menu-icon">edit</Icon> Accept</MenuItem>
+                      <MenuItem onClick={() => sendIgnoreTripRequest (tripRequest.id)}><Icon className="menu-icon">delete</Icon> Ignore</MenuItem>
                     </Menu>
                   </div>
                   <div className="event">{trip.attributes.event_name}</div>
                   <span className="label-status">
-                    <span className={`label ${this.renderStyle(trip)}`}> {this.renderStatus(trip)}</span>
+                    <span className={`label ${renderStyle(trip)}`}> {renderStatus(trip)}</span>
                   </span>
                   <span className="drive-label-box">
                     <span className="drive-box-text" style={{color: (trip.attributes.drive_type === 'commute' ? '#004085' : '#856404'), background: (trip.attributes.drive_type === 'commute' ? '#cce5ff' : '#fff3cd')}}>
@@ -447,13 +467,13 @@ class Requests extends Component {
               <div className="bottom-section">
                 <div className="row">
                   <div className="col s6 l6 accept-block">
-                    <div className='center' onClick={() => this.sendAcceptTripRequest(tripRequest.id)}>
+                    <div className='center' onClick={() => sendAcceptTripRequest(tripRequest.id)}>
                       <Icon className="menu-icon">check</Icon>
                       <span className='request-actions'>Accept Request</span>
                     </div>
                   </div>
                   <div className="col s6 l6 ignore-block">
-                    <div className='center' onClick={() => this.sendIgnoreTripRequest(tripRequest.id)}>
+                    <div className='center' onClick={() => sendIgnoreTripRequest(tripRequest.id)}>
                       <Icon className="menu-icon">close</Icon>
                       <span className='request-actions'>Ignore Request</span>
                     </div>
@@ -462,20 +482,20 @@ class Requests extends Component {
               </div>
               <Dialog
                 open={receivedDialogState || false}
-                onClose={() => this.handleDialogClose(index, 'received')}
+                onClose={() => handleDialogClose(index, 'received')}
                 className="dialog-box"
                 fullWidth={true}
               >
                 <div className="dialog-heading">
                   <Icon
                     className="close-icon right"
-                    onClick={() => this.handleDialogClose(index, 'received')}
+                    onClick={() => handleDialogClose(index, 'received')}
                   >close</Icon>
                   <h3>Riders list</h3>
                 </div>
                 <div className="dialog-body">
-                  {this.renderDriver(trip)}
-                  {this.renderRiders(trip)}
+                  {renderDriver(trip)}
+                  {renderRiders(trip)}
                 </div>
               </Dialog>
             </div>
@@ -487,8 +507,8 @@ class Requests extends Component {
     }
   }
 
-  renderSentRequests () {
-    const { sentTripRequests } = this.props
+  const renderSentRequests = () => {
+    const { sentTripRequests } = props
     const reqList = _.filter(sentTripRequests, (req) => {
       const { trip } = req.relationships
       return !trip.attributes.is_expired
@@ -496,8 +516,8 @@ class Requests extends Component {
 
     if (reqList.length > 0) {
       return _.map(reqList, (tripRequest, index) => {
-        const anchorEl = this.state[`sentAnchorEl${index}`]
-        const sentDialogState = this.state[`sentDialogState${index}`]
+        const anchorEl = state[`sentAnchorEl${index}`]
+        const sentDialogState = state[`sentDialogState${index}`]
         const { trip } = tripRequest.relationships
         const { profile } = trip.relationships
         const { user } = profile
@@ -509,8 +529,8 @@ class Requests extends Component {
                 <div className="main">
                   <div className="left-box pl0">
                     <div className="user-img-container">
-                      <Link to={this.goToProfile(user)}>
-                        <img className="responsive-img user-img" src={this.getImage(user)} alt="" />
+                      <Link to={goToProfile(user)}>
+                        <img className="responsive-img user-img" src={getImage(user)} alt="" />
                       </Link>
                     </div>
                   </div>
@@ -519,7 +539,7 @@ class Requests extends Component {
                       <IconButton
                         aria-owns={anchorEl ? `sent-menu${index}` : undefined}
                         aria-haspopup="true"
-                        onClick={(event) => this.handleClick(index, 'sent', event)}
+                        onClick={(event) => handleClick(index, 'sent', event)}
                         className="dropdown"
                       >
                         <MoreVertIcon />
@@ -528,7 +548,7 @@ class Requests extends Component {
                         id={`sent-menu${index}`}
                         anchorEl={anchorEl}
                         open={Boolean(anchorEl)}
-                        onClose={() => this.handleClose(index, 'sent')}
+                        onClose={() => handleClose(index, 'sent')}
                         PaperProps={{
                           style: {
                             transform: 'translateX(-10%)',
@@ -539,7 +559,7 @@ class Requests extends Component {
                         MenuListProps={{ style: { padding: 0 } }}
                         className="trip-dropdown"
                       >
-                        <MenuItem onClick={() => this.handleDialogOpen(index, 'sent')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
+                        <MenuItem onClick={() => handleDialogOpen(index, 'sent')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
                       </Menu>
                     </div>
                     <p className="heading"><Link to={`/ride/${trip.attributes.slug || trip.id}`}>{trip.attributes.name}</Link></p>
@@ -548,7 +568,7 @@ class Requests extends Component {
                       <span className="user-val">{trip.attributes.event_name}</span> &nbsp;
                     </span><br/>
                     <span className="label-status">
-                      <span className={`label ${this.renderStyle(trip)}`}> {this.renderStatus(trip)}</span>
+                      <span className={`label ${renderStyle(trip)}`}> {renderStatus(trip)}</span>
                     </span>
                     <span className="drive-label-box">
                       <span className="drive-box-text" style={{color: (trip.attributes.drive_type === 'commute' ? '#004085' : '#856404'), background: (trip.attributes.drive_type === 'commute' ? '#cce5ff' : '#fff3cd')}}>
@@ -606,7 +626,7 @@ class Requests extends Component {
                   </div>
                 </div>
                 <div className="row bottom-section">
-                  <div className='center ignore-block' onClick={() => this.sendCancelTripRequest(tripRequest.id)}>
+                  <div className='center ignore-block' onClick={() => sendCancelTripRequest(tripRequest.id)}>
                     <Icon className="menu-icon">delete</Icon>
                     <span className='request-actions'>Cancel Request</span>
                   </div>
@@ -614,27 +634,27 @@ class Requests extends Component {
               </div>
               <Dialog
                 open={sentDialogState || false}
-                onClose={() => this.handleDialogClose(index, 'sent')}
+                onClose={() => handleDialogClose(index, 'sent')}
                 className="dialog-box"
                 fullWidth={true}
               >
                 <div className="dialog-heading">
                   <Icon
                     className="close-icon right"
-                    onClick={() => this.handleDialogClose(index, 'sent')}
+                    onClick={() => handleDialogClose(index, 'sent')}
                   >close</Icon>
                   <h3>Riders list</h3>
                 </div>
                 <div className="dialog-body">
-                  {this.renderDriver(trip)}
-                  {this.renderRiders(trip)}
+                  {renderDriver(trip)}
+                  {renderRiders(trip)}
                 </div>
               </Dialog>
             </div>
             <div className="flex-field mob">
               <div className="card-header">
                 <div className="trip-name">
-                  <Link to={this.goToProfile(user)}>
+                  <Link to={goToProfile(user)}>
                     {trip.attributes.name}
                   </Link>
                 </div>
@@ -642,8 +662,8 @@ class Requests extends Component {
               <div className="row">
                 <div className="col s5">
                   <div className="avatar-container">
-                    <Link to={this.goToProfile(user)}>
-                      <img className="responsive-img user-img" src={this.getImage(user)} alt="" />
+                    <Link to={goToProfile(user)}>
+                      <img className="responsive-img user-img" src={getImage(user)} alt="" />
                     </Link>
                   </div>
                   <div className="driver-name">
@@ -655,7 +675,7 @@ class Requests extends Component {
                     <IconButton
                       aria-owns={anchorEl ? `sent-menu${index}` : undefined}
                       aria-haspopup="true"
-                      onClick={(event) => this.handleClick(index, 'sent', event)}
+                      onClick={(event) => handleClick(index, 'sent', event)}
                       className="dropdown"
                     >
                       <MoreVertIcon />
@@ -664,7 +684,7 @@ class Requests extends Component {
                       id={`sent-menu${index}`}
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl)}
-                      onClose={() => this.handleClose(index, 'sent')}
+                      onClose={() => handleClose(index, 'sent')}
                       PaperProps={{
                         style: {
                           transform: 'translateX(-10%)',
@@ -675,12 +695,12 @@ class Requests extends Component {
                       MenuListProps={{ style: { padding: 0 } }}
                       className="trip-dropdown"
                     >
-                      <MenuItem onClick={() => this.handleDialogOpen(index, 'sent')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
+                      <MenuItem onClick={() => handleDialogOpen(index, 'sent')}><Icon className="menu-icon">list</Icon> View Riders</MenuItem>
                     </Menu>
                   </div>
                   <div className="event">{trip.attributes.event_name}</div>
                   <span className="label-status">
-                    <span className={`label ${this.renderStyle(trip)}`}> {this.renderStatus(trip)}</span>
+                    <span className={`label ${renderStyle(trip)}`}> {renderStatus(trip)}</span>
                   </span>
                   <span className="drive-label-box">
                     <span className="drive-box-text" style={{color: (trip.attributes.drive_type === 'commute' ? '#004085' : '#856404'), background: (trip.attributes.drive_type === 'commute' ? '#cce5ff' : '#fff3cd')}}>
@@ -739,7 +759,7 @@ class Requests extends Component {
               </div>
               <div className="bottom-section">
                 <div className="row">
-                  <div className='center ignore-block' onClick={() => this.sendCancelTripRequest(tripRequest.id)}>
+                  <div className='center ignore-block' onClick={() => sendCancelTripRequest(tripRequest.id)}>
                     <Icon className="menu-icon">delete</Icon>
                     <span className='request-actions'>Cancel</span>
                   </div>
@@ -747,20 +767,20 @@ class Requests extends Component {
               </div>
               <Dialog
                 open={sentDialogState || false}
-                onClose={() => this.handleDialogClose(index, 'sent')}
+                onClose={() => handleDialogClose(index, 'sent')}
                 className="dialog-box"
                 fullWidth={true}
               >
                 <div className="dialog-heading">
                   <Icon
                     className="close-icon right"
-                    onClick={() => this.handleDialogClose(index, 'sent')}
+                    onClick={() => handleDialogClose(index, 'sent')}
                   >close</Icon>
                   <h3>Riders list</h3>
                 </div>
                 <div className="dialog-body">
-                  {this.renderDriver(trip)}
-                  {this.renderRiders(trip)}
+                  {renderDriver(trip)}
+                  {renderRiders(trip)}
                 </div>
               </Dialog>
             </div>
@@ -772,38 +792,36 @@ class Requests extends Component {
     }
   }
 
-  render () {
-    const { dataLoaded } = this.state
+  const { dataLoaded } = state
 
-    return <div className="my-requests">
-      <div className="container">
-        <div className="my-tablist">
-          <Tabs defaultTab="one">
-            <TabList>
-              <Tab tabFor="one">Received Requests</Tab>
-              <Tab tabFor="two">Sent Requests</Tab>
-            </TabList>
-            <TabPanel tabId="one">
-              <div className="mt20 ml5 mr5">
-                <div className="trips-container">
-                  {!!dataLoaded && this.renderReceivedRequests()}
-                  {!dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
-                </div>
+  return <div className="my-requests">
+    <div className="container">
+      <div className="my-tablist">
+        <Tabs defaultTab="one">
+          <TabList>
+            <Tab tabFor="one">Received Requests</Tab>
+            <Tab tabFor="two">Sent Requests</Tab>
+          </TabList>
+          <TabPanel tabId="one">
+            <div className="mt20 ml5 mr5">
+              <div className="trips-container">
+                {!!dataLoaded && renderReceivedRequests()}
+                {!dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
               </div>
-            </TabPanel>
-            <TabPanel tabId="two">
-              <div className="mt20 ml5 mr5">
-                <div className="trips-container">
-                  {!!dataLoaded && this.renderSentRequests()}
-                  {!dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
-                </div>
+            </div>
+          </TabPanel>
+          <TabPanel tabId="two">
+            <div className="mt20 ml5 mr5">
+              <div className="trips-container">
+                {!!dataLoaded && renderSentRequests()}
+                {!dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
               </div>
-            </TabPanel>
-          </Tabs>
-        </div>
+            </div>
+          </TabPanel>
+        </Tabs>
       </div>
     </div>
-  }
+  </div>
 }
 
 function mapStateToProps (state) {

@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -26,111 +26,129 @@ import Gmap from '../components/Gmap'
 const eventName = [ 'No Event', 'Concerts', 'Music Festivals', 'Entertainment show', 'Museum', 'Cultural Event']
 const MenuProps = { PaperProps: { style: { maxHeight: 300 } } }
 
-class NewRide extends Component {
+const NewRide = (props) => {
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      latitude: 34.0489,
-      longitude: -111.0937,
-      selectedDate: '',
-      value: 'commute',
-      trip: {
-        seats: 1,
-        price: '0',
-        drive_type: 'commute',
-        event_name: 'No Event'
-      },
-      dates: null,
-      priceTip: 0,
-      miles: '',
-      tripErrors: {},
-      isProcessing: false
-    }
-  }
+  const initial_state = {
+    latitude: 34.0489,
+    longitude: -111.0937,
+    selectedDate: '',
+    value: 'commute',
+    trip: {
+      seats: 1,
+      price: '0',
+      drive_type: 'commute',
+      event_name: 'No Event'
+    },
+    dates: null,
+    priceTip: 0,
+    miles: '',
+    tripErrors: {},
+    isProcessing: false
+  };
 
-  componentWillMount () {
-    if (!localStorage.accessToken) {
-      localStorage.setItem('prevUrl', `/new_ride`)
-      return window.location.href = `/login`
-    }
-  }
+  const [state, setState] = useState(initial_state);
+  const [node, setNode] = useState(null);
+  
+  // to-do
+  // componentWillMount () {
+  //   if (!localStorage.accessToken) {
+  //     localStorage.setItem('prevUrl', `/new_ride`)
+  //     return window.location.href = `/login`
+  //   }
+  // }
 
-  componentDidMount () {
-    this.setCurrentPosition()
-  }
+  // to-do
+  // componentDidMount () {
+  //   this.setCurrentPosition()
+  // }
 
-  UNSAFE_componentWillReceiveProps (nextProps) {
-    const { resetTripFlagRequest } = this.props.actions
-    const { history } = this.props
+  // to-do
+  // UNSAFE_componentWillReceiveProps (nextProps) {
+  //   const { resetTripFlagRequest } = this.props.actions
+  //   const { history } = this.props
 
-    if (nextProps.tripSaved) {
-      resetTripFlagRequest()
-      history.push({ pathname: this.navigationUrl(nextProps.trip), state: { drive_created: true, price: nextProps.trip.attributes.price } })
-    }
+  //   if (nextProps.tripSaved) {
+  //     resetTripFlagRequest()
+  //     history.push({ pathname: this.navigationUrl(nextProps.trip), state: { drive_created: true, price: nextProps.trip.attributes.price } })
+  //   }
 
-    if (nextProps.isProcessing || nextProps.isProcessing === false) {
-      this.setState({ isProcessing: nextProps.isProcessing })
-    }
-  }
+  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
+  //     this.setState({ isProcessing: nextProps.isProcessing })
+  //   }
+  // }
 
-  navigationUrl (trip) {
-    const { currentUser } = this.props
+  const navigationUrl = (trip) => {
+    const { currentUser } = props
     const { has_payout_details, has_completed_profile, has_car_image } = currentUser.attributes
 
     return ((parseFloat(trip.attributes.price) === 0 || (parseFloat(trip.attributes.price) > 0 && !!has_payout_details)) && !!has_completed_profile && !!has_car_image) ? `/ride/${trip.attributes.slug || trip.id}` : '/complete_profile'
   }
 
-  setCurrentPosition () {
-    const { latitude, longitude } = this.state
-    const comp = this
+  const setCurrentPosition = () => {
+    const { latitude, longitude } = state
 
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
       .done(function(location) {
-        comp.setState({ latitude: location.latitude, longitude: location.longitude })
+        setState({ 
+          ...state, 
+          latitude: location.latitude, longitude: location.longitude 
+        })
       })
       .fail(function(error) {
-        comp.setState({ latitude, longitude })
+        setState({ ...state, 
+          latitude, longitude 
+        })
       });
   }
 
-  onFieldChange = (fieldName, event) => {
-    const { trip } = this.state
+  const onFieldChange = (fieldName, event) => {
+    const { trip } = state
     trip[fieldName] = event.target.value
-    this.setState({ trip })
+    setState({ ...state, 
+      trip 
+    })
   }
 
-  updateDateFilters = (fieldName, date) => {
-    const { trip } = this.state
+  const updateDateFilters = (fieldName, date) => {
+    const { trip } = state
 
     trip[fieldName] = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear()
-    this.setState({ trip })
+    setState({ 
+      ...state, 
+      trip 
+    })
     if (fieldName === 'start_date') {
       $('#finish_date').focus()
     }
   }
 
-  onTimeChange = (fieldName, time) => {
-    const { trip } = this.state
+  const onTimeChange = (fieldName, time) => {
+    const { trip } = state
     trip[fieldName] = time
-    this.setState({ trip })
+    setState({ 
+      ...state, 
+      trip 
+    })
   }
 
-  errorMessageFor = (fieldName) => {
-    const { tripErrors } = this.props
+  const errorMessageFor = (fieldName) => {
+    const { tripErrors } = props
     if (tripErrors && tripErrors[fieldName])
       return tripErrors[fieldName]
   }
 
-  handleSaveTrip () {
-    const { trip } = this.state
-    const { createTripRequest, updateTripRequest } = this.props.actions
+  const handleSaveTrip = () => {
+    const { trip } = state
+    const { createTripRequest, updateTripRequest } = props.actions
     trip.id ? updateTripRequest(trip.id, trip) : createTripRequest(trip)
-    this.setState({ isProcessing: true })
+    setState({ 
+      ...state, 
+      isProcessing: true 
+    })
   }
 
-  setAddress (address, geometry, fieldName) {
-    const { trip } = this.state
+  const setAddress = (address, geometry, fieldName) => {
+    const { trip } = state
     if (geometry) {
       const { lat, lng } = geometry.location
 
@@ -139,23 +157,26 @@ class NewRide extends Component {
       trip[`${fieldName}_longitude`] = lng()
 
       if (fieldName === 'destination') {
-        const total_distance = this.getDistance(trip.start_location_latitude, trip.start_location_longitude, lat(), lng())
-        this.setPriceEstimate(trip, total_distance)
+        const total_distance = getDistance(trip.start_location_latitude, trip.start_location_longitude, lat(), lng())
+        setPriceEstimate(trip, total_distance)
         $('#start_date').focus()
       } else {
         if (trip.destination) {
-          const total_distance = this.getDistance(lat(), lng(), trip.destination_latitude, trip.destination_longitude)
-          this.setPriceEstimate(trip, total_distance)
+          const total_distance = getDistance(lat(), lng(), trip.destination_latitude, trip.destination_longitude)
+          setPriceEstimate(trip, total_distance)
         }
         $('#destination').focus()
       }
     } else {
       trip[fieldName] = address
     }
-    this.setState( { trip })
+    setState({ 
+      ...state, 
+      trip 
+    })
   }
 
-  getDistance (slat, slng, dlat, dlng) {
+  const getDistance = (slat, slng, dlat, dlng) => {
     if (slat && slng && dlat && dlng) {
       const distance = geolib.getDistance(
         { latitude: slat, longitude: slng },
@@ -165,18 +186,21 @@ class NewRide extends Component {
     }
   }
 
-  setPriceEstimate(trip, total_distance) {
+  const setPriceEstimate = (trip, total_distance) => {
     var price = 0
     price = Math.ceil((-0.00002177 * total_distance * total_distance) + (0.13 * total_distance) + 6.19)
 
     if (!isNaN(price) && price >= 0) {
       trip.total_distance = total_distance
-      this.setState({ priceTip: price.toString(), miles: `(${total_distance} miles)`, trip })
+      setState({ 
+        ...state, 
+        priceTip: price.toString(), miles: `(${total_distance} miles)`, trip 
+      })
       return true
     }
   }
 
-  exactTime(trip, total_distance) {
+  const exactTime = (trip, total_distance) => {
     var num = total_distance * 1.6
     var hours = (num / 60)
     var rhours = Math.floor(hours)
@@ -185,11 +209,11 @@ class NewRide extends Component {
     return rhours + `${rhours > 1 ? ' hrs ' : ' hr '}` + rminutes + " mins"
   }
 
-  estimatedDuration () {
-    const { trip } = this.state
+  const estimatedDuration = () => {
+    const { trip } = state
     if (trip.total_distance) {
       if (!!trip.start_date && trip.start_date === trip.finish_date) {
-        return this.exactTime(trip, trip.total_distance)
+        return exactTime(trip, trip.total_distance)
       } else {
         if (!!trip.start_date && !!trip.finish_date) {
           const start = new Date(trip.start_date)
@@ -207,232 +231,230 @@ class NewRide extends Component {
     }
   }
 
-  render () {
-    const { trip, priceTip, miles, isProcessing } = this.state
-    return (
-      <div className="new-ride-container">
-        <div className="formSection">
-          <div className="container">
-            <div className="row">
-              <div className="col l12 m12 s12">
-                <div className="headingContainer">
-                  <h5 className="mb5">
-                    Describe your ride
-                  </h5>
-                  <span className="mt10 label-heading small">Fields marked with * are mandatory</span>
-                </div>
-                <hr className="hr-line mb20" />
-                <FormControl component="fieldset">
-                  <div className="label">Ride Type*</div>
-                  <RadioGroup
-                    aria-label="Gender"
-                    name="gender1"
-                    className="formContainer"
-                    value={trip.drive_type || ''}
-                    onChange={(event) => this.onFieldChange('drive_type', event)}
-                  >
-                    <FormControlLabel
-                      className="formControl"
-                      value="commute"
-                      control={<Radio color="primary"/>}
-                      label={<div className="label-text">Commute: Time punctual travel</div>}
-                    />
-                    <FormControlLabel
-                      className="formControl"
-                      value="adventure"
-                      control={<Radio color="primary"/>}
-                      label={<div className="label-text">Adventure: Time leisure travel</div>}
-                    />
-                  </RadioGroup>
-                  <span className='error'>{this.errorMessageFor('drive_type')}</span>
-                </FormControl>
+  const { trip, priceTip, miles, isProcessing } = state
+  return (
+    <div className="new-ride-container">
+      <div className="formSection">
+        <div className="container">
+          <div className="row">
+            <div className="col l12 m12 s12">
+              <div className="headingContainer">
+                <h5 className="mb5">
+                  Describe your ride
+                </h5>
+                <span className="mt10 label-heading small">Fields marked with * are mandatory</span>
               </div>
-            </div>
-            <div className="row">
-              <div className="col l6 m6 s12">
-                <div className="label">Origin*</div>
-                <SearchField
-                  placeholder='What city are you in?'
-                  value={trip.start_location || ''}
-                  setAddress={(address, geometry) => this.setAddress(address, geometry, 'start_location')}
-                  inputId='start_location'
-                />
-                <span className='error'>{this.errorMessageFor('start_location')}</span>
-              </div>
-              <div className="col l6 m6 s12">
-                <div className="label">Destination*</div>
-                <SearchField
-                  placeholder='What city are you going to?'
-                  value={trip.destination || ''}
-                  setAddress={(address, geometry) => this.setAddress(address, geometry, 'destination')}
-                  inputId='destination'
-                />
-                <span className='error'>{this.errorMessageFor('start_location')}</span>
-              </div>
-            </div>
-            <div style={{position: 'relative'}} ref={node => { this.node = node; }}>
-              <div className="row">
-                <div className="col l6 m6 s12">
-                  <div className="label">Leaving{trip.drive_type === 'commute' ? '*' : ''}</div>
-                  <DatePicker
-                    selected={trip.start_date ? new Date(trip.start_date) : ''}
-                    onChange={(date) => this.updateDateFilters('start_date', date)}
-                    minDate={new Date()}
-                    maxDate={trip.finish_date ? new Date(trip.finish_date) : ''}
-                    placeholderText="MM/DD/YYYY"
-                    className='text-field'
-                    id='start_date'
+              <hr className="hr-line mb20" />
+              <FormControl component="fieldset">
+                <div className="label">Ride Type*</div>
+                <RadioGroup
+                  aria-label="Gender"
+                  name="gender1"
+                  className="formContainer"
+                  value={trip.drive_type || ''}
+                  onChange={(event) => onFieldChange('drive_type', event)}
+                >
+                  <FormControlLabel
+                    className="formControl"
+                    value="commute"
+                    control={<Radio color="primary"/>}
+                    label={<div className="label-text">Commute: Time punctual travel</div>}
                   />
-                  <span className='error'>{this.errorMessageFor('start_date')}</span>
-                </div>
-                <div className="col l6 m6 s12">
-                  <div className="label">Arrival*</div>
-                  <DatePicker
-                    selected={trip.finish_date ? new Date(trip.finish_date) : ''}
-                    onChange={(date) => this.updateDateFilters('finish_date', date)}
-                    minDate={trip.start_date ? new Date(trip.start_date) : new Date()}
-                    placeholderText="MM/DD/YYYY"
-                    className='text-field'
-                    id='finish_date'
+                  <FormControlLabel
+                    className="formControl"
+                    value="adventure"
+                    control={<Radio color="primary"/>}
+                    label={<div className="label-text">Adventure: Time leisure travel</div>}
                   />
-                  <span className='error'>{this.errorMessageFor('finish_date')}</span>
-                </div>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col l6 m6 s12">
-                <div className="label">Estimated Duration {miles}</div>
-                <TextField
-                  disabled
-                  value={this.estimatedDuration()}
-                  id="standard-disabled"
-                  className="text-field"
-                  margin="normal"
-                />
-              </div>
-              <div className="col l6 m6 s12">
-                <div className="label">Event Name</div>
-                <FormControl className="selectField">
-                  <InputLabel htmlFor="select-multiple"></InputLabel>
-                  <Select
-                    value={trip.event_name || ''}
-                    onChange={(event) => this.onFieldChange('event_name', event)}
-                    input={<Input id="select-multiple" />}
-                    MenuProps={MenuProps}
-                    displayEmpty
-                    className="selected-menu-field"
-                  >
-                    {eventName.map(name => (
-                      <MenuItem
-                        key={name}
-                        value={name}
-                      >
-                        {name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <span className='error'>{this.errorMessageFor('event_name')}</span>
-                </FormControl>
-              </div>
-
-            </div>
-            <div className="row">
-              <div className="col l6 m6 s12">
-                <div className="label">Available Seats*</div>
-                <FormControl className="selectField">
-                  <InputLabel htmlFor="select-multiple"></InputLabel>
-                  <Select
-                    value={trip.seats || ''}
-                    onChange={(event) => this.onFieldChange('seats', event)}
-                    input={<Input id="select-multiple" />}
-                    MenuProps={MenuProps}
-                    displayEmpty
-                    className="selected-menu-field"
-                  >
-                    <MenuItem value="" disabled>
-                      Select
-                    </MenuItem>
-                    {[1,2,3,4,5,6,7,8,9,10].map(val => (
-                      <MenuItem
-                        key={val}
-                        value={val}
-                      >
-                        {val}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <span className='error'>{this.errorMessageFor('seats')}</span>
-                </FormControl>
-              </div>
-              <div className="col l6 m6 s12">
-                <div className="label">Price*</div>
-                <FormControl className="selectField">
-                  <InputLabel htmlFor="select-multiple"></InputLabel>
-                  <Select
-                    value={trip.price || ''}
-                    onChange={(event) => this.onFieldChange('price', event)}
-                    input={<Input id="select-multiple" />}
-                    MenuProps={MenuProps}
-                    displayEmpty
-                    className="selected-menu-field"
-                  >
-                    {Array.from(Array(priceTip*2+1).keys()).map(val => (
-                      <MenuItem
-                        key={val}
-                        value={val.toString()}
-                      >
-                        ${val}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <span className='error'>{this.errorMessageFor('price')}</span>
-                </FormControl>
-                <span className="right recommended-label">Fair Price: $<span className="recommended-price">{priceTip}</span></span>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col l12 m12 s12">
-                <div className="label">Headline*</div>
-                <TextField
-                  placeholder="Ex: 'My weekend trip to Phoenix'"
-                  className="text-field"
-                  margin="normal"
-                  value={trip.name || ''}
-                  onChange={(event) => this.onFieldChange('name', event)}
-                  onKeyPress={event => {
-                    if (event.key === 'Enter' || event.keyCode === 13) {
-                      this.handleSaveTrip()
-                    }
-                  }}
-                />
-                <span className='error'>{this.errorMessageFor('name')}</span>
-              </div>
-            </div>
-            <div className="center-align mt20">
-              <PrimaryButton
-                color='primary'
-                buttonName={isProcessing ? "Please Wait..." : "Create Ride"}
-                className="lg-primary"
-                disabled={!!isProcessing}
-                handleButtonClick={() => this.handleSaveTrip()}
-              />
+                </RadioGroup>
+                <span className='error'>{errorMessageFor('drive_type')}</span>
+              </FormControl>
             </div>
           </div>
-        </div>
-        <div className="mapSection">
-          <Gmap
-            start_location={trip.start_location}
-            start_location_latitude={trip.start_location_latitude}
-            start_location_longitude={trip.start_location_longitude}
-            destination={trip.destination}
-            destination_latitude={trip.destination_latitude}
-            destination_longitude={trip.destination_longitude}
-            showTrip={true}
-          />
+          <div className="row">
+            <div className="col l6 m6 s12">
+              <div className="label">Origin*</div>
+              <SearchField
+                placeholder='What city are you in?'
+                value={trip.start_location || ''}
+                setAddress={(address, geometry) => setAddress(address, geometry, 'start_location')}
+                inputId='start_location'
+              />
+              <span className='error'>{errorMessageFor('start_location')}</span>
+            </div>
+            <div className="col l6 m6 s12">
+              <div className="label">Destination*</div>
+              <SearchField
+                placeholder='What city are you going to?'
+                value={trip.destination || ''}
+                setAddress={(address, geometry) => setAddress(address, geometry, 'destination')}
+                inputId='destination'
+              />
+              <span className='error'>{errorMessageFor('start_location')}</span>
+            </div>
+          </div>
+          <div style={{position: 'relative'}} ref={node => { setNode(node) }}>
+            <div className="row">
+              <div className="col l6 m6 s12">
+                <div className="label">Leaving{trip.drive_type === 'commute' ? '*' : ''}</div>
+                <DatePicker
+                  selected={trip.start_date ? new Date(trip.start_date) : ''}
+                  onChange={(date) => updateDateFilters('start_date', date)}
+                  minDate={new Date()}
+                  maxDate={trip.finish_date ? new Date(trip.finish_date) : ''}
+                  placeholderText="MM/DD/YYYY"
+                  className='text-field'
+                  id='start_date'
+                />
+                <span className='error'>{errorMessageFor('start_date')}</span>
+              </div>
+              <div className="col l6 m6 s12">
+                <div className="label">Arrival*</div>
+                <DatePicker
+                  selected={trip.finish_date ? new Date(trip.finish_date) : ''}
+                  onChange={(date) => updateDateFilters('finish_date', date)}
+                  minDate={trip.start_date ? new Date(trip.start_date) : new Date()}
+                  placeholderText="MM/DD/YYYY"
+                  className='text-field'
+                  id='finish_date'
+                />
+                <span className='error'>{errorMessageFor('finish_date')}</span>
+              </div>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col l6 m6 s12">
+              <div className="label">Estimated Duration {miles}</div>
+              <TextField
+                disabled
+                value={estimatedDuration()}
+                id="standard-disabled"
+                className="text-field"
+                margin="normal"
+              />
+            </div>
+            <div className="col l6 m6 s12">
+              <div className="label">Event Name</div>
+              <FormControl className="selectField">
+                <InputLabel htmlFor="select-multiple"></InputLabel>
+                <Select
+                  value={trip.event_name || ''}
+                  onChange={(event) => onFieldChange('event_name', event)}
+                  input={<Input id="select-multiple" />}
+                  MenuProps={MenuProps}
+                  displayEmpty
+                  className="selected-menu-field"
+                >
+                  {eventName.map(name => (
+                    <MenuItem
+                      key={name}
+                      value={name}
+                    >
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <span className='error'>{errorMessageFor('event_name')}</span>
+              </FormControl>
+            </div>
+
+          </div>
+          <div className="row">
+            <div className="col l6 m6 s12">
+              <div className="label">Available Seats*</div>
+              <FormControl className="selectField">
+                <InputLabel htmlFor="select-multiple"></InputLabel>
+                <Select
+                  value={trip.seats || ''}
+                  onChange={(event) => onFieldChange('seats', event)}
+                  input={<Input id="select-multiple" />}
+                  MenuProps={MenuProps}
+                  displayEmpty
+                  className="selected-menu-field"
+                >
+                  <MenuItem value="" disabled>
+                    Select
+                  </MenuItem>
+                  {[1,2,3,4,5,6,7,8,9,10].map(val => (
+                    <MenuItem
+                      key={val}
+                      value={val}
+                    >
+                      {val}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <span className='error'>{errorMessageFor('seats')}</span>
+              </FormControl>
+            </div>
+            <div className="col l6 m6 s12">
+              <div className="label">Price*</div>
+              <FormControl className="selectField">
+                <InputLabel htmlFor="select-multiple"></InputLabel>
+                <Select
+                  value={trip.price || ''}
+                  onChange={(event) => onFieldChange('price', event)}
+                  input={<Input id="select-multiple" />}
+                  MenuProps={MenuProps}
+                  displayEmpty
+                  className="selected-menu-field"
+                >
+                  {Array.from(Array(priceTip*2+1).keys()).map(val => (
+                    <MenuItem
+                      key={val}
+                      value={val.toString()}
+                    >
+                      ${val}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <span className='error'>{errorMessageFor('price')}</span>
+              </FormControl>
+              <span className="right recommended-label">Fair Price: $<span className="recommended-price">{priceTip}</span></span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col l12 m12 s12">
+              <div className="label">Headline*</div>
+              <TextField
+                placeholder="Ex: 'My weekend trip to Phoenix'"
+                className="text-field"
+                margin="normal"
+                value={trip.name || ''}
+                onChange={(event) => onFieldChange('name', event)}
+                onKeyPress={event => {
+                  if (event.key === 'Enter' || event.keyCode === 13) {
+                    handleSaveTrip()
+                  }
+                }}
+              />
+              <span className='error'>{errorMessageFor('name')}</span>
+            </div>
+          </div>
+          <div className="center-align mt20">
+            <PrimaryButton
+              color='primary'
+              buttonName={isProcessing ? "Please Wait..." : "Create Ride"}
+              className="lg-primary"
+              disabled={!!isProcessing}
+              handleButtonClick={() => handleSaveTrip()}
+            />
+          </div>
         </div>
       </div>
-    )
-  }
+      <div className="mapSection">
+        <Gmap
+          start_location={trip.start_location}
+          start_location_latitude={trip.start_location_latitude}
+          start_location_longitude={trip.start_location_longitude}
+          destination={trip.destination}
+          destination_latitude={trip.destination_latitude}
+          destination_longitude={trip.destination_longitude}
+          showTrip={true}
+        />
+      </div>
+    </div>
+  )
 }
 
 function mapStateToProps (state) {

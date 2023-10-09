@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import TextField from "@material-ui/core/TextField";
 import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -43,84 +43,82 @@ const MAX_DATE = moment()
   .subtract(18, "years")
   .toDate();
 
-class Signup extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      user: {
-        first_name: "",
-        last_name: "",
-        email: "",
-        birthday: "",
-        password: "",
-        gender: "",
-      },
-      userErrors: {},
-      fbProcessing: false,
-      googleProcessing: false,
-      signupProcessing: false,
-      modalOpen: false,
-      googleUser: {},
-    };
+const Signup = (props) => {
+  
+  const initial_state = {
+    user: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      birthday: "",
+      password: "",
+      gender: "",
+    },
+    userErrors: {},
+    fbProcessing: false,
+    googleProcessing: false,
+    signupProcessing: false,
+    modalOpen: false,
+    googleUser: {},
+  };
+  const [state, setState] = useState(initial_state);
+  const [nodes, setNodes] = useState({});
 
-    this.nodes = {};
-  }
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const {
+  //     createUserRequest,
+  //     getCurrentUserRequest,
+  //     resetCurrentUserFlagsRequest,
+  //   } = this.props.actions;
+  //   const { history } = this.props;
+  //   const { loggedIn } = nextProps;
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const {
-      createUserRequest,
-      getCurrentUserRequest,
-      resetCurrentUserFlagsRequest,
-    } = this.props.actions;
-    const { history } = this.props;
-    const { loggedIn } = nextProps;
+  //   // if (nextProps.socialLoginError) {
+  //   //   resetCurrentUserFlagsRequest();
+  //   //   const user = this.setSocialLoginProfile();
 
-    // if (nextProps.socialLoginError) {
-    //   resetCurrentUserFlagsRequest();
-    //   const user = this.setSocialLoginProfile();
+  //   //   this.setState({
+  //   //     isProcessing: false,
+  //   //     googleProcessing: false,
+  //   //     fbProcessing: false,
+  //   //   });
+  //   //   createUserRequest(user);
+  //   // }
 
-    //   this.setState({
-    //     isProcessing: false,
-    //     googleProcessing: false,
-    //     fbProcessing: false,
-    //   });
-    //   createUserRequest(user);
-    // }
+  //   // if (nextProps.isUserSaved) {
+  //   //   localStorage.removeItem("socialLoginProfile");
+  //   //   localStorage.removeItem("socialLoginProvider");
 
-    // if (nextProps.isUserSaved) {
-    //   localStorage.removeItem("socialLoginProfile");
-    //   localStorage.removeItem("socialLoginProvider");
+  //   //   resetCurrentUserFlagsRequest();
+  //   //   getCurrentUserRequest();
 
-    //   resetCurrentUserFlagsRequest();
-    //   getCurrentUserRequest();
+  //   //   this.setState({
+  //   //     isProcessing: false,
+  //   //     googleProcessing: false,
+  //   //     fbProcessing: false,
+  //   //   });
+  //   //   history.push(localStorage.accessToken ? "search" : "verify_email");
+  //   // }
 
-    //   this.setState({
-    //     isProcessing: false,
-    //     googleProcessing: false,
-    //     fbProcessing: false,
-    //   });
-    //   history.push(localStorage.accessToken ? "search" : "verify_email");
-    // }
+  //   // if (nextProps.userErrors)
+  //   //   this.setState({ userErrors: nextProps.userErrors });
 
-    // if (nextProps.userErrors)
-    //   this.setState({ userErrors: nextProps.userErrors });
+  //   // if (loggedIn) {
+  //   //   const prevUrl = localStorage.prevUrl;
+  //   //   localStorage.removeItem("prevUrl");
 
-    // if (loggedIn) {
-    //   const prevUrl = localStorage.prevUrl;
-    //   localStorage.removeItem("prevUrl");
+  //   //   getCurrentUserRequest();
+  //   //   this.setState({ googleProcessing: false, fbProcessing: false });
 
-    //   getCurrentUserRequest();
-    //   this.setState({ googleProcessing: false, fbProcessing: false });
+  //   //   return (window.location.href = prevUrl || `/search`);
+  //   // }
 
-    //   return (window.location.href = prevUrl || `/search`);
-    // }
+  //   // if (nextProps.isProcessing || nextProps.isProcessing === false) {
+  //   //   this.setState({ signupProcessing: nextProps.isProcessing });
+  //   // }
+  // }
 
-    // if (nextProps.isProcessing || nextProps.isProcessing === false) {
-    //   this.setState({ signupProcessing: nextProps.isProcessing });
-    // }
-  }
-
-  composeUserFromGoogleProfile = (provider, profile) => {
+  const composeUserFromGoogleProfile = (provider, profile) => {
     const user = {
       first_name: profile.firstName,
       last_name: profile.lastName,
@@ -135,8 +133,8 @@ class Signup extends Component {
     return user;
   };
 
-  setSocialLoginProfile() {
-    const { user } = this.state;
+  const setSocialLoginProfile = () => {
+    const { user } = state;
     const socialLoginProvider = localStorage.getItem("socialLoginProvider");
 
     if (localStorage.socialLoginProfile) {
@@ -170,53 +168,63 @@ class Signup extends Component {
       user.token = socialLoginProfile.id;
       user.provider = socialLoginProvider;
 
-      this.setState({ user });
+      setState({ 
+        ...state, 
+        user 
+      });
     }
     return user;
   }
 
-  onFieldChange = (fieldName, event) => {
-    const { user } = this.state;
+  const onFieldChange = (fieldName, event) => {
+    const { user } = state;
     user[fieldName] = event.target.value;
-    this.setState({ user });
+    setState({ 
+      ...state, 
+      user 
+    });
   };
 
-  onKeyPressEnter = (event) => {
+  const onKeyPressEnter = (event) => {
     if (event.key === "Enter" || event.keyCode === 13) {
-      this.handleSignup();
+      handleSignup();
     }
   };
 
-  onDateChange = (fieldName, date) => {
-    const { user } = this.state;
+  const onDateChange = (fieldName, date) => {
+    const { user } = state;
     user[fieldName] =
       date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
-    this.setState({ user });
+    setState({ 
+      ...state,
+      user 
+    });
   };
 
-  errorMessageFor = (fieldName) => {
-    const { userErrors } = this.props;
+  const errorMessageFor = (fieldName) => {
+    const { userErrors } = props;
     if (userErrors && userErrors[fieldName]) {
       return userErrors[fieldName];
     }
   };
 
-  handleSocialLoginFailure = (err) => {
+  const handleSocialLoginFailure = (err) => {
     console.error(err);
     console.log(err.message);
 
-    this.setState({ rerender: true }, () => {
-      this.setState({ rerender: false });
-    });
+    // to-do
+    // this.setState({ rerender: true }, () => {
+    //   this.setState({ rerender: false });
+    // });
   };
 
-  handleFbSocialLogin = async (res) => {
+  const handleFbSocialLogin = async (res) => {
     console.log(res);
     if (res.error) {
-      this.handleSocialLoginFailure(res.error);
+      handleSocialLoginFailure(res.error);
     } else {
-      const { socialLoginRequest, createUserRequest } = this.props.actions;
-      const { history } = this.props;
+      const { socialLoginRequest, createUserRequest } = props.actions;
+      const { history } = props;
 
       const user = {
         first_name: res.first_name,
@@ -249,7 +257,8 @@ class Signup extends Component {
 
         console.log(createUserResult, "createUserResult");
 
-        this.setState({
+        setState({
+          ...state,
           fbProcessing: false,
         });
 
@@ -257,22 +266,27 @@ class Signup extends Component {
           history.push("search");
         }
       } else if (result.data) {
-        this.setState({
+        setState({
+          ...state,
           fbProcessing: false,
         });
 
         history.push("search");
       } else {
-        this.setState({
+        setState({
+          ...state,
           fbProcessing: false,
         });
       }
     }
   };
 
-  handleSocialLogin = async (user) => {
+  const handleSocialLogin = async (user) => {
     console.log(user);
-    this.setState({ googleProcessing: true });
+    setState({ 
+      ...state, 
+      googleProcessing: true 
+    });
 
     if (!user._profile.birthday || !user._profile.gender) {
       const peopleInfo = await getGooglePeople(
@@ -300,8 +314,8 @@ class Signup extends Component {
 
     const { _provider, _profile } = user;
 
-    const { socialLoginRequest, createUserRequest } = this.props.actions;
-    const { history } = this.props;
+    const { socialLoginRequest, createUserRequest } = props.actions;
+    const { history } = props;
 
     const result = await socialLoginRequest(
       _provider,
@@ -310,10 +324,11 @@ class Signup extends Component {
     );
 
     if (result.errors && result.errors === "Record not found") {
-      const user = this.composeUserFromGoogleProfile(_provider, _profile);
+      const user = composeUserFromGoogleProfile(_provider, _profile);
 
       if (!user.gender || !user.birthday) {
-        this.setState({
+        setState({
+          ...state,
           googleUser: user,
           modalOpen: true,
         });
@@ -323,7 +338,8 @@ class Signup extends Component {
 
       const createUserResult = await createUserRequest(user);
 
-      this.setState({
+      setState({
+        ...state,
         googleProcessing: false,
       });
 
@@ -335,14 +351,15 @@ class Signup extends Component {
     }
   };
 
-  continueGoogleSignup = async () => {
-    this.setState({
+  const continueGoogleSignup = async () => {
+    setState({
+      ...state,
       modalOpen: false,
     });
 
-    const { googleUser } = this.state;
-    const { createUserRequest } = this.props.actions;
-    const { history } = this.props;
+    const { googleUser } = state;
+    const { createUserRequest } = props.actions;
+    const { history } = props;
     const createUserResult = await createUserRequest(googleUser);
 
     if (!createUserResult.errors) {
@@ -350,256 +367,169 @@ class Signup extends Component {
     }
   };
 
-  handleSignup = async () => {
-    const { user } = this.state;
-    const { createUserRequest } = this.props.actions;
-    const { history } = this.props;
-    this.setState({ signupProcessing: true });
+  const handleSignup = async () => {
+    const { user } = state;
+    const { createUserRequest } = props.actions;
+    const { history } = props;
+    setState({ ...state, signupProcessing: true });
 
     const res = await createUserRequest(user);
 
-    this.setState({ signupProcessing: false });
+    setState({ ...state, signupProcessing: false });
 
     if (!res.errors) {
       history.push("verify_email");
     }
   };
 
-  handleFbReactLoading() {
-    this.setState({ fbProcessing: true });
+  const handleFbReactLoading = () => {
+    setState({ ...state, fbProcessing: true });
   }
 
-  handleGoogleReactLoading() {
-    this.setState({ googleProcessing: true });
+  const handleGoogleReactLoading = () => {
+    setState({ ...state, googleProcessing: true });
   }
 
-  handleModalClose = () => {
-    this.setState({
+  const handleModalClose = () => {
+    setState({
+      ...state, 
       googleProcessing: false,
       modalOpen: false,
     });
 
-    this.setState({ rerender: true }, () => {
-      this.setState({ rerender: false });
-    });
+    // to-do
+    // this.setState({ rerender: true }, () => {
+    //   this.setState({ rerender: false });
+    // });
   };
 
-  render() {
-    const {
-      user,
-      fbProcessing,
-      googleProcessing,
-      signupProcessing,
-      modalOpen,
-      googleUser,
-      rerender,
-    } = this.state;
+  const {
+    user,
+    fbProcessing,
+    googleProcessing,
+    signupProcessing,
+    modalOpen,
+    googleUser,
+    rerender,
+  } = state;
 
-    return (
-      <div className="login-container signup-container">
-        <div className="container">
-          <Card className="cardContainer">
-            <h3 className="center-align">Sign up</h3>
-            <div className="subHeading">
-              As a Ridesurfing member, I will support an accepting environment
-              that nurtures safety, trust, and friendship.
-            </div>
-            <div className="mb10">
-              <FacebookLogin
-                appId={facebookId}
-                fields="first_name,last_name,email,picture.width(500).height(500),gender,birthday"
-                scope="email,user_birthday,user_gender"
-                callback={this.handleFbSocialLogin}
-                textButton={
-                  fbProcessing ? "Please wait..." : "Sign in with Facebook"
+  return (
+    <div className="login-container signup-container">
+      <div className="container">
+        <Card className="cardContainer">
+          <h3 className="center-align">Sign up</h3>
+          <div className="subHeading">
+            As a Ridesurfing member, I will support an accepting environment
+            that nurtures safety, trust, and friendship.
+          </div>
+          <div className="mb10">
+            <FacebookLogin
+              appId={facebookId}
+              fields="first_name,last_name,email,picture.width(500).height(500),gender,birthday"
+              scope="email,user_birthday,user_gender"
+              callback={handleFbSocialLogin}
+              textButton={
+                fbProcessing ? "Please wait..." : "Sign in with Facebook"
+              }
+              cssClass="leftIcon-btn fb"
+              isMobile={true}
+              disableMobileRedirect={true}
+              icon={<i className="fa fa-facebook-square icon mr10" />}
+              onClick={() => handleFbReactLoading()}
+            />
+          </div>
+          <div className="mb30">
+            {!rerender ? (
+              <SocialButton
+                color="secondary"
+                provider="google"
+                appId={googleId}
+                onLoginSuccess={handleSocialLogin}
+                onLoginFailure={handleSocialLoginFailure}
+                buttonName={
+                  !!googleProcessing
+                    ? "Please wait..."
+                    : "Sign in with Google"
                 }
-                cssClass="leftIcon-btn fb"
-                isMobile={true}
-                disableMobileRedirect={true}
-                icon={<i className="fa fa-facebook-square icon mr10" />}
-                onClick={() => this.handleFbReactLoading()}
+                icon={<i className="fa fa-google icon mr10" />}
+                className="leftIcon-btn ggl"
+                scope="email profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.gender.read https://www.googleapis.com/auth/userinfo.profile"
               />
-            </div>
-            <div className="mb30">
-              {!rerender ? (
-                <SocialButton
-                  color="secondary"
-                  provider="google"
-                  appId={googleId}
-                  onLoginSuccess={this.handleSocialLogin}
-                  onLoginFailure={this.handleSocialLoginFailure}
-                  buttonName={
-                    !!googleProcessing
-                      ? "Please wait..."
-                      : "Sign in with Google"
-                  }
-                  icon={<i className="fa fa-google icon mr10" />}
-                  className="leftIcon-btn ggl"
-                  scope="email profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.gender.read https://www.googleapis.com/auth/userinfo.profile"
-                />
-              ) : null}
-            </div>
-            <div className="row">
-              <div className="col s12 m6">
-                <TextField
-                  fullWidth
-                  className="text-field"
-                  id="first_name"
-                  type="text"
-                  label="First Name"
-                  margin="normal"
-                  value={user.first_name || ""}
-                  onChange={(event) => this.onFieldChange("first_name", event)}
-                  onKeyPress={(event) => this.onKeyPressEnter(event)}
-                />
-                <span className="error">
-                  {this.errorMessageFor("first_name")}
-                </span>
-              </div>
-              <div className="col s12 m6">
-                <TextField
-                  fullWidth
-                  className="text-field"
-                  id="last_name"
-                  type="text"
-                  label="Last Name"
-                  margin="normal"
-                  value={user.last_name || ""}
-                  onChange={(event) => this.onFieldChange("last_name", event)}
-                  onKeyPress={(event) => this.onKeyPressEnter(event)}
-                />
-                <span className="error">
-                  {this.errorMessageFor("last_name")}
-                </span>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col s12 m12">
-                <TextField
-                  fullWidth
-                  className="text-field"
-                  id="email"
-                  type="text"
-                  label="Email"
-                  margin="normal"
-                  value={user.email || ""}
-                  onChange={(event) => this.onFieldChange("email", event)}
-                  onKeyPress={(event) => this.onKeyPressEnter(event)}
-                />
-                <span className="error">{this.errorMessageFor("email")}</span>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col s12 m12">
-                <TextField
-                  fullWidth
-                  className="text-field"
-                  id="password"
-                  type="password"
-                  label="Password"
-                  margin="normal"
-                  onChange={(event) => this.onFieldChange("password", event)}
-                  onKeyPress={(event) => this.onKeyPressEnter(event)}
-                />
-                <span className="error">
-                  {this.errorMessageFor("password")}
-                </span>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col s12 m6">
-                <div className="date-picker-field">
-                  <DatePicker
-                    selected={!!user.birthday ? new Date(user.birthday) : ""}
-                    onChange={(date) => this.onDateChange("birthday", date)}
-                    maxDate={MAX_DATE}
-                    showYearDropdown
-                    dropdownMode="select"
-                    placeholderText="MM/DD/YYYY"
-                    className="date-field text-field"
-                  />
-                </div>
-                <span className="error">
-                  {this.errorMessageFor("birthday")}
-                </span>
-              </div>
-              <div className="col s12 m6 mt5 mb10">
-                <FormControl className="selectField">
-                  <InputLabel className="selectLabel" htmlFor="select-multiple">
-                    Select Gender
-                  </InputLabel>
-                  <Select
-                    value={user.gender}
-                    onChange={(event) => this.onFieldChange("gender", event)}
-                    input={<Input id="select-multiple" />}
-                    MenuProps={MenuProps}
-                    className="selected-menu-field"
-                  >
-                    {gender.map((name) => (
-                      <MenuItem key={name} value={name} className="menu-field">
-                        {name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <span className="error">{this.errorMessageFor("gender")}</span>
-              </div>
-            </div>
-            <div className="mt40">
-              <PrimaryButton
-                color="primary"
-                buttonName={signupProcessing ? "Please Wait..." : "Signup"}
-                className="leftIcon-btn login-btn"
-                disabled={!!signupProcessing}
-                handleButtonClick={() => this.handleSignup()}
+            ) : null}
+          </div>
+          <div className="row">
+            <div className="col s12 m6">
+              <TextField
+                fullWidth
+                className="text-field"
+                id="first_name"
+                type="text"
+                label="First Name"
+                margin="normal"
+                value={user.first_name || ""}
+                onChange={(event) => onFieldChange("first_name", event)}
+                onKeyPress={(event) => onKeyPressEnter(event)}
               />
+              <span className="error">
+                {errorMessageFor("first_name")}
+              </span>
             </div>
-            <div className="signup-link">
-              <Link className="login-link" to="/login">
-                I already have an account
-              </Link>
+            <div className="col s12 m6">
+              <TextField
+                fullWidth
+                className="text-field"
+                id="last_name"
+                type="text"
+                label="Last Name"
+                margin="normal"
+                value={user.last_name || ""}
+                onChange={(event) => onFieldChange("last_name", event)}
+                onKeyPress={(event) => onKeyPressEnter(event)}
+              />
+              <span className="error">
+                {errorMessageFor("last_name")}
+              </span>
             </div>
-            <div className="terms-n-policy">
-              I agree to the{" "}
-              <Link className="underline" to="/terms">
-                terms of service{" "}
-              </Link>
-              and
-              <Link className="underline" to="/policies">
-                {" "}
-                privacy policy
-              </Link>
+          </div>
+          <div className="row">
+            <div className="col s12 m12">
+              <TextField
+                fullWidth
+                className="text-field"
+                id="email"
+                type="text"
+                label="Email"
+                margin="normal"
+                value={user.email || ""}
+                onChange={(event) => onFieldChange("email", event)}
+                onKeyPress={(event) => onKeyPressEnter(event)}
+              />
+              <span className="error">{errorMessageFor("email")}</span>
             </div>
-          </Card>
-        </div>
-
-        <Modal
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-          open={modalOpen}
-          onClose={this.handleModalClose}
-        >
-          <div style={style} className="profile-account-section">
-            <div style={modalTitle}>Please fill your birthday and gender.</div>
-            <div>
+          </div>
+          <div className="row">
+            <div className="col s12 m12">
+              <TextField
+                fullWidth
+                className="text-field"
+                id="password"
+                type="password"
+                label="Password"
+                margin="normal"
+                onChange={(event) => onFieldChange("password", event)}
+                onKeyPress={(event) => onKeyPressEnter(event)}
+              />
+              <span className="error">
+                {errorMessageFor("password")}
+              </span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col s12 m6">
               <div className="date-picker-field">
                 <DatePicker
-                  selected={
-                    !!googleUser.birthday ? new Date(googleUser.birthday) : ""
-                  }
-                  onChange={(date) => {
-                    const newGoogleUser = { ...googleUser };
-                    newGoogleUser.birthday =
-                      date.getMonth() +
-                      1 +
-                      "/" +
-                      date.getDate() +
-                      "/" +
-                      date.getFullYear();
-                    this.setState({
-                      googleUser: newGoogleUser,
-                    });
-                  }}
+                  selected={!!user.birthday ? new Date(user.birthday) : ""}
+                  onChange={(date) => onDateChange("birthday", date)}
                   maxDate={MAX_DATE}
                   showYearDropdown
                   dropdownMode="select"
@@ -607,21 +537,18 @@ class Signup extends Component {
                   className="date-field text-field"
                 />
               </div>
+              <span className="error">
+                {errorMessageFor("birthday")}
+              </span>
             </div>
-            <div>
+            <div className="col s12 m6 mt5 mb10">
               <FormControl className="selectField">
                 <InputLabel className="selectLabel" htmlFor="select-multiple">
                   Select Gender
                 </InputLabel>
                 <Select
-                  value={googleUser.gender}
-                  onChange={(event) => {
-                    const newGoogleUser = { ...googleUser };
-                    newGoogleUser.gender = event.target.value;
-                    this.setState({
-                      googleUser: newGoogleUser,
-                    });
-                  }}
+                  value={user.gender}
+                  onChange={(event) => onFieldChange("gender", event)}
                   input={<Input id="select-multiple" />}
                   MenuProps={MenuProps}
                   className="selected-menu-field"
@@ -633,40 +560,132 @@ class Signup extends Component {
                   ))}
                 </Select>
               </FormControl>
+              <span className="error">{errorMessageFor("gender")}</span>
             </div>
+          </div>
+          <div className="mt40">
+            <PrimaryButton
+              color="primary"
+              buttonName={signupProcessing ? "Please Wait..." : "Signup"}
+              className="leftIcon-btn login-btn"
+              disabled={!!signupProcessing}
+              handleButtonClick={() => handleSignup()}
+            />
+          </div>
+          <div className="signup-link">
+            <Link className="login-link" to="/login">
+              I already have an account
+            </Link>
+          </div>
+          <div className="terms-n-policy">
+            I agree to the{" "}
+            <Link className="underline" to="/terms">
+              terms of service{" "}
+            </Link>
+            and
+            <Link className="underline" to="/policies">
+              {" "}
+              privacy policy
+            </Link>
+          </div>
+        </Card>
+      </div>
 
-            <div style={modalActionWrap}>
-              <PrimaryButton
-                disabled={!googleUser.birthday || !googleUser.gender}
-                color="primary"
-                buttonName="Continue"
-                className="leftIcon-btn login-btn"
-                handleButtonClick={this.continueGoogleSignup}
-              />
-            </div>
-
-            {/* <div style={modalActionWrap1}>
-              <PrimaryButton
-                color="secondary"
-                buttonName="Close"
-                className="leftIcon-btn"
-                handleButtonClick={() => {
-                  this.handleSocialLoginFailure();
-                  this.handleModalClose();
-                  this.setState({
-                    googleUser: {},
-                    googleProcessing: false,
+      <Modal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={modalOpen}
+        onClose={handleModalClose}
+      >
+        <div style={style} className="profile-account-section">
+          <div style={modalTitle}>Please fill your birthday and gender.</div>
+          <div>
+            <div className="date-picker-field">
+              <DatePicker
+                selected={
+                  !!googleUser.birthday ? new Date(googleUser.birthday) : ""
+                }
+                onChange={(date) => {
+                  const newGoogleUser = { ...googleUser };
+                  newGoogleUser.birthday =
+                    date.getMonth() +
+                    1 +
+                    "/" +
+                    date.getDate() +
+                    "/" +
+                    date.getFullYear();
+                  setState({
+                    ...state,
+                    googleUser: newGoogleUser,
                   });
                 }}
-                // disabled={!!signupProcessing}
-                // handleButtonClick={() => this.handleSignup()}
+                maxDate={MAX_DATE}
+                showYearDropdown
+                dropdownMode="select"
+                placeholderText="MM/DD/YYYY"
+                className="date-field text-field"
               />
-            </div> */}
+            </div>
           </div>
-        </Modal>
-      </div>
-    );
-  }
+          <div>
+            <FormControl className="selectField">
+              <InputLabel className="selectLabel" htmlFor="select-multiple">
+                Select Gender
+              </InputLabel>
+              <Select
+                value={googleUser.gender}
+                onChange={(event) => {
+                  const newGoogleUser = { ...googleUser };
+                  newGoogleUser.gender = event.target.value;
+                  setState({
+                    ...state,
+                    googleUser: newGoogleUser,
+                  });
+                }}
+                input={<Input id="select-multiple" />}
+                MenuProps={MenuProps}
+                className="selected-menu-field"
+              >
+                {gender.map((name) => (
+                  <MenuItem key={name} value={name} className="menu-field">
+                    {name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+
+          <div style={modalActionWrap}>
+            <PrimaryButton
+              disabled={!googleUser.birthday || !googleUser.gender}
+              color="primary"
+              buttonName="Continue"
+              className="leftIcon-btn login-btn"
+              handleButtonClick={continueGoogleSignup}
+            />
+          </div>
+
+          {/* <div style={modalActionWrap1}>
+            <PrimaryButton
+              color="secondary"
+              buttonName="Close"
+              className="leftIcon-btn"
+              handleButtonClick={() => {
+                this.handleSocialLoginFailure();
+                this.handleModalClose();
+                this.setState({
+                  googleUser: {},
+                  googleProcessing: false,
+                });
+              }}
+              // disabled={!!signupProcessing}
+              // handleButtonClick={() => this.handleSignup()}
+            />
+          </div> */}
+        </div>
+      </Modal>
+    </div>
+  );
 }
 
 const style = {

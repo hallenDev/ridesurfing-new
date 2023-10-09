@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import FormControl from '@material-ui/core/FormControl'
 import MenuItem from '@material-ui/core/MenuItem'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -27,79 +27,82 @@ import missingImg from '../images/missing.png'
 const carColor = ['Black', 'Blue', 'Red', 'Yellow', 'White', 'Green', 'Brown', 'Gray', 'Gold', 'Other']
 const MenuProps = { PaperProps: { style: { maxHeight: 300 } } }
 
-class ProfileChecklist extends Component {
+const ProfileChecklist = (props) => {
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      submitAccountForm: false,
-      imageProcessing: false,
-      carImageProcessing: false,
-      profileProcessing: false,
-      drive_created: !!props.location.state && !!props.location.state.drive_created ? true : false,
-      price: !!props.location.state && props.location.state.price,
-      profileErrors: {},
-      profile: {
-        is_driver: true
-      }
+  
+  const initial_state = {
+    submitAccountForm: false,
+    imageProcessing: false,
+    carImageProcessing: false,
+    profileProcessing: false,
+    drive_created: !!props.location.state && !!props.location.state.drive_created ? true : false,
+    price: !!props.location.state && props.location.state.price,
+    profileErrors: {},
+    profile: {
+      is_driver: true
     }
   }
 
-  componentWillMount () {
-    if (!localStorage.accessToken) {
-      localStorage.setItem('prevUrl', `/complete_profile`)
-      return window.location.href = `/login`
-    }
-  }
+  const [state, setState] = useState(initial_state);
+  
+  // to-do
+  // componentWillMount () {
+  //   if (!localStorage.accessToken) {
+  //     localStorage.setItem('prevUrl', `/complete_profile`)
+  //     return window.location.href = `/login`
+  //   }
+  // }
 
-  componentDidMount() {
-    const {carMakeListRequest} = this.props.actions
-    carMakeListRequest()
-  }
+  // to-do
+  // componentDidMount() {
+  //   const {carMakeListRequest} = this.props.actions
+  //   carMakeListRequest()
+  // }
 
-  UNSAFE_componentWillReceiveProps (nextProps) {
-    const { history } = this.props
-    const { resetProfileFlagsRequest } = this.props.actions
+  // to-do
+  // UNSAFE_componentWillReceiveProps (nextProps) {
+  //   const { history } = this.props
+  //   const { resetProfileFlagsRequest } = this.props.actions
 
-    if (nextProps.currentUser && !nextProps.imageUploaded && !nextProps.accountUpdated) {
-      const profile = nextProps.currentUser.relationships.profile.attributes
-      profile['is_driver'] = true
-      this.setState({ profile })
-    }
+  //   if (nextProps.currentUser && !nextProps.imageUploaded && !nextProps.accountUpdated) {
+  //     const profile = nextProps.currentUser.relationships.profile.attributes
+  //     profile['is_driver'] = true
+  //     this.setState({ profile })
+  //   }
 
-    if (nextProps.profileSaved && Object.keys(nextProps.profileErrors).length === 0) {
-      resetProfileFlagsRequest()
-      this.setState({ submitAccountForm: false })
-    }
+  //   if (nextProps.profileSaved && Object.keys(nextProps.profileErrors).length === 0) {
+  //     resetProfileFlagsRequest()
+  //     this.setState({ submitAccountForm: false })
+  //   }
 
-    if (nextProps.isProcessing || nextProps.isProcessing === false) {
-      this.setState({
-        imageProcessing: nextProps.isProcessing,
-        carImageProcessing: nextProps.isCarImageProcessing,
-        payoutProcessing: nextProps.isPayoutProcessing,
-        profileProcessing: nextProps.isProcessing || nextProps.isCarImageProcessing || nextProps.isPayoutProcessing
-      })
-    }
+  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
+  //     this.setState({
+  //       imageProcessing: nextProps.isProcessing,
+  //       carImageProcessing: nextProps.isCarImageProcessing,
+  //       payoutProcessing: nextProps.isPayoutProcessing,
+  //       profileProcessing: nextProps.isProcessing || nextProps.isCarImageProcessing || nextProps.isPayoutProcessing
+  //     })
+  //   }
 
-    if (nextProps.profileErrors) {
-      this.setState({ profileErrors: nextProps.profileErrors, submitAccountForm: false })
-    }
+  //   if (nextProps.profileErrors) {
+  //     this.setState({ profileErrors: nextProps.profileErrors, submitAccountForm: false })
+  //   }
 
-    const { has_payout_details } = nextProps.currentUser ? nextProps.currentUser.attributes : this.props.currentUser.attributes
-    const { price } = this.state
+  //   const { has_payout_details } = nextProps.currentUser ? nextProps.currentUser.attributes : this.props.currentUser.attributes
+  //   const { price } = this.state
 
-    if (nextProps.imageUploaded) {
-      this.setState({ carImageProcessing: false })
-    }
+  //   if (nextProps.imageUploaded) {
+  //     this.setState({ carImageProcessing: false })
+  //   }
 
-    // eslint-disable-next-line
-    if (this.hasCarInfo() && this.hasDisplayImage() && (price == 0 || (!!has_payout_details && price > 0))) {
-      history.push('/my_rides')
-    }
-  }
+  //   // eslint-disable-next-line
+  //   if (this.hasCarInfo() && this.hasDisplayImage() && (price == 0 || (!!has_payout_details && price > 0))) {
+  //     history.push('/my_rides')
+  //   }
+  // }
 
-  displayImage (imageType) {
-    const { currentUser } = this.props
+  const displayImage = (imageType) => {
+    const { currentUser } = props
 
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
@@ -110,8 +113,8 @@ class ProfileChecklist extends Component {
     }
   }
 
-  hasCarImage () {
-    const { currentUser } = this.props
+  const hasCarImage = () => {
+    const { currentUser } = props
 
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
@@ -122,8 +125,8 @@ class ProfileChecklist extends Component {
     }
   }
 
-  hasDisplayImage () {
-    const { currentUser } = this.props
+  const hasDisplayImage = () => {
+    const { currentUser } = props
 
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
@@ -134,25 +137,28 @@ class ProfileChecklist extends Component {
     }
   }
 
-  handleChange = prop => event => {
-    this.setState({ [prop] : event.target.value, });
+  const handleChange = prop => event => {
+    setState({ 
+      ...state, 
+      [prop] : event.target.value, 
+    });
   }
 
-  onDrop (files) {
-    this.uploadImage(files, 'display')
+  const onDrop = (files) => {
+    uploadImage(files, 'display')
   }
 
-  onCancel() {}
+  const onCancel = () => {}
 
-  errorMessageFor = (fieldName) => {
-    const { profileErrors } = this.props
+  const errorMessageFor = (fieldName) => {
+    const { profileErrors } = props
     if (profileErrors && profileErrors[fieldName]) {
       return profileErrors[fieldName]
     }
   }
 
-  onFieldChange = (fieldName, event) => {
-    const { profile } = this.state
+  const onFieldChange = (fieldName, event) => {
+    const { profile } = state
     profile[fieldName] = event.target.value
 
     if (fieldName === 'car_make') {
@@ -160,19 +166,25 @@ class ProfileChecklist extends Component {
       profile['car_year'] = null
       profile['car_color'] = null
     }
-    this.setState({ profile })
+    setState({ 
+      ...state, 
+      profile 
+    })
   }
 
-  onToggleChange = (fieldName, checked) => {
-    const { profile } = this.state
+  const onToggleChange = (fieldName, checked) => {
+    const { profile } = state
     profile[fieldName] = checked
 
-    this.setState({ profile })
+    setState({ 
+      ...state, 
+      profile 
+    })
   }
 
-  carModelList () {
-    const { car_make } = this.state.profile
-    const { carMakeList } = this.props
+  const carModelList = () => {
+    const { car_make } = state.profile
+    const { carMakeList } = props
 
     if (car_make && carMakeList[car_make]) {
       const models = carMakeList[car_make].car_models
@@ -184,9 +196,9 @@ class ProfileChecklist extends Component {
     }
   }
 
-  carYearList () {
-    const { car_make, car_model } = this.state.profile
-    const { carMakeList } = this.props
+  const carYearList = () => {
+    const { car_make, car_model } = state.profile
+    const { carMakeList } = props
 
     if (car_make && carMakeList[car_make]) {
       const models = carMakeList[car_make].car_models
@@ -204,13 +216,19 @@ class ProfileChecklist extends Component {
     }
   }
 
-  uploadImage (files, imageType) {
-    const { setProcessingRequest, uploadProfileImageRequest } = this.props.actions
+  const uploadImage = (files, imageType) => {
+    const { setProcessingRequest, uploadProfileImageRequest } = props.actions
     if (imageType === 'car') {
-      this.setState({carImageProcessing: true})
+      setState({
+        ...state, 
+        carImageProcessing: true
+      })
     }
     if (imageType === 'display') {
-      this.setState({imageProcessing: true})
+      setState({
+        ...state, 
+        imageProcessing: true
+      })
     }
     setProcessingRequest(imageType)
     const fileObj = files[0]
@@ -228,16 +246,22 @@ class ProfileChecklist extends Component {
     }
   }
 
-  handleProfileSave () {
-    const { profile } = this.state
-    const { saveProfileRequest } = this.props.actions
-    this.setState({ profileProcessing: true })
+  const handleProfileSave = () => {
+    const { profile } = state
+    const { saveProfileRequest } = props.actions
+    setState({ 
+      ...state, 
+      profileProcessing: true 
+    })
     saveProfileRequest(profile.id, profile)
-    this.setState({ submitAccountForm: true })
+    setState({ 
+      ...state, 
+      submitAccountForm: true 
+    })
   }
 
-  deleteImage = (imageId) => {
-    const { deleteProfileImageRequest } = this.props.actions
+  const deleteImage = (imageId) => {
+    const { deleteProfileImageRequest } = props.actions
 
     confirmAlert({
       title: 'Alert!',
@@ -255,245 +279,243 @@ class ProfileChecklist extends Component {
     })
   }
 
-  hasCarInfo () {
-    const { profile } = this.state
+  const hasCarInfo = () => {
+    const { profile } = state
 
-    return !!profile.car_make && !!profile.car_model && !!profile.car_year && !!profile.car_color && !!this.hasCarImage()
+    return !!profile.car_make && !!profile.car_model && !!profile.car_year && !!profile.car_color && !!hasCarImage()
   }
 
-  hasCarBasicInfo () {
-    const { profile } = this.state
+  const hasCarBasicInfo = () => {
+    const { profile } = state
     return !!profile.car_make && !!profile.car_model && !!profile.car_year && !!profile.car_color
   }
 
-  originalyHasCarBasicInfo () {
-    const { currentUser } = this.props
+  const originalyHasCarBasicInfo = () => {
+    const { currentUser } = props
 
     return !!currentUser.relationships.profile.car_make && !!currentUser.relationships.profile.car_model && !!currentUser.relationships.profile.car_year && !!currentUser.relationships.profile.car_color
   }
 
-  carInfoSaved () {
-    const { profile } = this.props.currentUser.relationships
+  const carInfoSaved = () => {
+    const { profile } = props.currentUser.relationships
 
-    return !!profile.car_make && !!profile.car_model && !!profile.car_year && !!profile.car_color && !!this.hasCarImage()
+    return !!profile.car_make && !!profile.car_model && !!profile.car_year && !!profile.car_color && !!hasCarImage()
   }
 
-  render () {
-    const { profile, submitAccountForm, drive_created, imageProcessing, profileProcessing, price, carImageProcessing } =  this.state
-    const { carMakeList, currentUser } = this.props
-    const { has_payout_details } = currentUser.attributes
+  const { profile, submitAccountForm, drive_created, imageProcessing, profileProcessing, price, carImageProcessing } =  state
+  const { carMakeList, currentUser } = props
+  const { has_payout_details } = currentUser.attributes
 
-    return (
-      <div className="edit-profile-page">
-        <div className="container">
-          <div className="row">
-            <div className="col l3 s12 center-align">
-              <div className="user-img-container">
-                <img src={this.displayImage('display')} className="user-img responsive-img" alt="" />
+  return (
+    <div className="edit-profile-page">
+      <div className="container">
+        <div className="row">
+          <div className="col l3 s12 center-align">
+            <div className="user-img-container">
+              <img src={displayImage('display')} className="user-img responsive-img" alt="" />
+            </div>
+            <span className='error'>{errorMessageFor('is_driver')}</span>
+            <div className="mt20">
+              <div className='bubble-container'>
+                {!!imageProcessing && <ReactLoading type='bubbles' color='#3399ff' height='25%' width='25%' />}
               </div>
-              <span className='error'>{this.errorMessageFor('is_driver')}</span>
-              <div className="mt20">
-                <div className='bubble-container'>
-                  {!!imageProcessing && <ReactLoading type='bubbles' color='#3399ff' height='25%' width='25%' />}
-                </div>
-                <Dropzone
-                  onDrop={(files) => this.uploadImage(files, 'display')}
-                  onFileDialogCancel={this.onCancel.bind(this)}
-                  className="dropzone"
-                >
-                  <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
-                </Dropzone>
+              <Dropzone
+                onDrop={(files) => uploadImage(files, 'display')}
+                onFileDialogCancel={onCancel}
+                className="dropzone"
+              >
+                <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
+              </Dropzone>
+            </div>
+            <div className="row mt20 user-preference">
+              <div className="col l9 s9 left-align">
+                <span>Do you allow smoking?</span>
               </div>
-              <div className="row mt20 user-preference">
-                <div className="col l9 s9 left-align">
-                  <span>Do you allow smoking?</span>
-                </div>
-                <div className="col l3 s3 right-align">
-                  <Switch
-                    checked={!!profile.smoking}
-                    onChange={(checked, event, id) => this.onToggleChange('smoking', checked)}
-                    className="check-box"
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                  />
-                </div>
-              </div>
-              <div className="row user-preference">
-                <div className="col l9 s9 left-align">
-                  <span>Do you allow pets?</span>
-                </div>
-                <div className="col l3 s3 right-align">
-                  <Switch
-                    checked={!!profile.pets}
-                    onChange={(checked, event, id) => this.onToggleChange('pets', checked)}
-                    className="check-box"
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                  />
-                </div>
-              </div>
-              <div className="row user-preference">
-                <div className="col l9 s9 left-align">
-                  <span>Do you have or prefer ac?</span>
-                </div>
-                <div className="col l3 s3 right-align">
-                  <Switch
-                    checked={!!profile.car_ac}
-                    onChange={(checked, event, id) => this.onToggleChange('car_ac', checked)}
-                    className="check-box"
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                  />
-                </div>
-              </div>
-              <div className="row user-preference">
-                <div className="col l9 s9 left-align">
-                  <span>Are you open to traveling with kids?</span>
-                </div>
-                <div className="col l3 s3 right-align">
-                  <Switch
-                    checked={!!profile.kid_friendly}
-                    onChange={(checked, event, id) => this.onToggleChange('kid_friendly', checked)}
-                    className="check-box"
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                  />
-                </div>
+              <div className="col l3 s3 right-align">
+                <Switch
+                  checked={!!profile.smoking}
+                  onChange={(checked, event, id) => onToggleChange('smoking', checked)}
+                  className="check-box"
+                  uncheckedIcon={false}
+                  checkedIcon={false}
+                />
               </div>
             </div>
-            <div className="col offset-l1 l8 s12 right-side">
-              {!!drive_created && <div className='alert alert-success'>Review your required profile data in order to be listed.</div>}
-              {!this.carInfoSaved() && <div>
-                <h5 className="mt30">Car Info</h5>
-                <hr className="hr-line" />
-                <div className="mt20">
-                  <div className='bubble-container'>
-                    {!!carImageProcessing && <ReactLoading type='bubbles' color='#3399ff' height='20%' width='20%' />}
-                  </div>
-                  {this.hasCarImage() ? <div className="imgWrapper carImgWrapper">
-                    <img src={this.displayImage('car')} className="responsive-img uploadPic" alt="" />
-                  </div> : <Dropzone
-                    onDrop={(files) => this.uploadImage(files, 'car')}
-                    onFileDialogCancel={this.onCancel.bind(this)}
-                    className="dropzone"
-                  >
-                    <div>Try dropping car image here, or click to select image to upload. Size should be less than 3 MB.</div>
-                  </Dropzone>}
-                  <span className='error'>{this.errorMessageFor('has_car_image')}</span>
-                </div>
-                {!this.originalyHasCarBasicInfo() && <div>
-                  <div className="row">
-                    <div className="col l6 m6 s12">
-                      <FormControl className="selectField">
-                        <InputLabel htmlFor="select-multiple">Make* </InputLabel>
-                        <Select
-                          value={profile.car_make || ''}
-                          onChange={(event) => this.onFieldChange('car_make', event)}
-                          input={<Input id="select-multiple" />}
-                          MenuProps={MenuProps}
-                          className="selected-menu-field"
-                        >
-                          {_.map(carMakeList, (make, index) => {
-                            return <MenuItem
-                              key={`make-${index}`}
-                              value={make.car_make}
-                            >{make.car_make}</MenuItem>
-                          })}
-                        </Select>
-                        <span className='error'>{this.errorMessageFor('car_make')}</span>
-                      </FormControl>
-                    </div>
-                    <div className="col l6 m6 s12">
-                      <FormControl className="selectField">
-                        <InputLabel htmlFor="select-multiple">Model*</InputLabel>
-                        <Select
-                          value={profile.car_model || ''}
-                          onChange={(event) => this.onFieldChange('car_model', event)}
-                          input={<Input id="select-multiple" />}
-                          MenuProps={MenuProps}
-                          className="selected-menu-field"
-                        >
-                          {this.carModelList().map((model, index) => (
-                            <MenuItem
-                              key={`model-${index}`}
-                              value={model.value}
-                            >
-                              {model.value}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        <span className='error'>{this.errorMessageFor('car_model')}</span>
-                      </FormControl>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col l6 m6 s12">
-                      <FormControl className="selectField">
-                        <InputLabel htmlFor="select-multiple">Year*</InputLabel>
-                        <Select
-                          value={profile.car_year || ''}
-                          onChange={(event) => this.onFieldChange('car_year', event)}
-                          input={<Input id="select-multiple" />}
-                          MenuProps={MenuProps}
-                          className="selected-menu-field"
-                        >
-                          {this.carYearList().map((year, index) => (
-                            <MenuItem
-                              key={`year-${index}`}
-                              value={year.value}
-                            >
-                              {year.value}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        <span className='error'>{this.errorMessageFor('car_year')}</span>
-                      </FormControl>
-                    </div>
-                    <div className="col l6 m6 s12">
-                      <FormControl className="selectField">
-                        <InputLabel htmlFor="select-multiple">Color*</InputLabel>
-                        <Select
-                          value={profile.car_color || ''}
-                          onChange={(event) => this.onFieldChange('car_color', event)}
-                          input={<Input id="select-multiple" />}
-                          MenuProps={MenuProps}
-                          className="selected-menu-field"
-                        >
-                          {carColor.map(color => (
-                            <MenuItem
-                              key={color}
-                              value={color}
-                            >
-                              {color}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        <span className='error'>{this.errorMessageFor('car_color')}</span>
-                      </FormControl>
-                    </div>
-                  </div>
-                </div>}
-              </div>}
-              {!has_payout_details && price > 0 && <div className="row mt20 ml0">
-                <ProfilePayoutSection ignoreButton={true} submitAccountForm={submitAccountForm}/>
-              </div>}
-              <div className="mt40 mb20">
-                <Button
-                  variant="contained"
-                  color='primary'
-                  className='update-btn'
-                  disabled={!!profileProcessing}
-                  onClick={() => this.handleProfileSave()}
-                >
-                  {profileProcessing ? "Please Wait..." : "Update Profile"}
-                </Button>
+            <div className="row user-preference">
+              <div className="col l9 s9 left-align">
+                <span>Do you allow pets?</span>
               </div>
+              <div className="col l3 s3 right-align">
+                <Switch
+                  checked={!!profile.pets}
+                  onChange={(checked, event, id) => onToggleChange('pets', checked)}
+                  className="check-box"
+                  uncheckedIcon={false}
+                  checkedIcon={false}
+                />
+              </div>
+            </div>
+            <div className="row user-preference">
+              <div className="col l9 s9 left-align">
+                <span>Do you have or prefer ac?</span>
+              </div>
+              <div className="col l3 s3 right-align">
+                <Switch
+                  checked={!!profile.car_ac}
+                  onChange={(checked, event, id) => onToggleChange('car_ac', checked)}
+                  className="check-box"
+                  uncheckedIcon={false}
+                  checkedIcon={false}
+                />
+              </div>
+            </div>
+            <div className="row user-preference">
+              <div className="col l9 s9 left-align">
+                <span>Are you open to traveling with kids?</span>
+              </div>
+              <div className="col l3 s3 right-align">
+                <Switch
+                  checked={!!profile.kid_friendly}
+                  onChange={(checked, event, id) => onToggleChange('kid_friendly', checked)}
+                  className="check-box"
+                  uncheckedIcon={false}
+                  checkedIcon={false}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col offset-l1 l8 s12 right-side">
+            {!!drive_created && <div className='alert alert-success'>Review your required profile data in order to be listed.</div>}
+            {!carInfoSaved() && <div>
+              <h5 className="mt30">Car Info</h5>
+              <hr className="hr-line" />
+              <div className="mt20">
+                <div className='bubble-container'>
+                  {!!carImageProcessing && <ReactLoading type='bubbles' color='#3399ff' height='20%' width='20%' />}
+                </div>
+                {hasCarImage() ? <div className="imgWrapper carImgWrapper">
+                  <img src={displayImage('car')} className="responsive-img uploadPic" alt="" />
+                </div> : <Dropzone
+                  onDrop={(files) => uploadImage(files, 'car')}
+                  onFileDialogCancel={onCancel}
+                  className="dropzone"
+                >
+                  <div>Try dropping car image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                </Dropzone>}
+                <span className='error'>{errorMessageFor('has_car_image')}</span>
+              </div>
+              {!originalyHasCarBasicInfo() && <div>
+                <div className="row">
+                  <div className="col l6 m6 s12">
+                    <FormControl className="selectField">
+                      <InputLabel htmlFor="select-multiple">Make* </InputLabel>
+                      <Select
+                        value={profile.car_make || ''}
+                        onChange={(event) => onFieldChange('car_make', event)}
+                        input={<Input id="select-multiple" />}
+                        MenuProps={MenuProps}
+                        className="selected-menu-field"
+                      >
+                        {_.map(carMakeList, (make, index) => {
+                          return <MenuItem
+                            key={`make-${index}`}
+                            value={make.car_make}
+                          >{make.car_make}</MenuItem>
+                        })}
+                      </Select>
+                      <span className='error'>{errorMessageFor('car_make')}</span>
+                    </FormControl>
+                  </div>
+                  <div className="col l6 m6 s12">
+                    <FormControl className="selectField">
+                      <InputLabel htmlFor="select-multiple">Model*</InputLabel>
+                      <Select
+                        value={profile.car_model || ''}
+                        onChange={(event) => onFieldChange('car_model', event)}
+                        input={<Input id="select-multiple" />}
+                        MenuProps={MenuProps}
+                        className="selected-menu-field"
+                      >
+                        {carModelList().map((model, index) => (
+                          <MenuItem
+                            key={`model-${index}`}
+                            value={model.value}
+                          >
+                            {model.value}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <span className='error'>{errorMessageFor('car_model')}</span>
+                    </FormControl>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col l6 m6 s12">
+                    <FormControl className="selectField">
+                      <InputLabel htmlFor="select-multiple">Year*</InputLabel>
+                      <Select
+                        value={profile.car_year || ''}
+                        onChange={(event) => onFieldChange('car_year', event)}
+                        input={<Input id="select-multiple" />}
+                        MenuProps={MenuProps}
+                        className="selected-menu-field"
+                      >
+                        {carYearList().map((year, index) => (
+                          <MenuItem
+                            key={`year-${index}`}
+                            value={year.value}
+                          >
+                            {year.value}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <span className='error'>{errorMessageFor('car_year')}</span>
+                    </FormControl>
+                  </div>
+                  <div className="col l6 m6 s12">
+                    <FormControl className="selectField">
+                      <InputLabel htmlFor="select-multiple">Color*</InputLabel>
+                      <Select
+                        value={profile.car_color || ''}
+                        onChange={(event) => onFieldChange('car_color', event)}
+                        input={<Input id="select-multiple" />}
+                        MenuProps={MenuProps}
+                        className="selected-menu-field"
+                      >
+                        {carColor.map(color => (
+                          <MenuItem
+                            key={color}
+                            value={color}
+                          >
+                            {color}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <span className='error'>{errorMessageFor('car_color')}</span>
+                    </FormControl>
+                  </div>
+                </div>
+              </div>}
+            </div>}
+            {!has_payout_details && price > 0 && <div className="row mt20 ml0">
+              <ProfilePayoutSection ignoreButton={true} submitAccountForm={submitAccountForm}/>
+            </div>}
+            <div className="mt40 mb20">
+              <Button
+                variant="contained"
+                color='primary'
+                className='update-btn'
+                disabled={!!profileProcessing}
+                onClick={() => handleProfileSave()}
+              >
+                {profileProcessing ? "Please Wait..." : "Update Profile"}
+              </Button>
             </div>
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 function mapStateToProps (state) {

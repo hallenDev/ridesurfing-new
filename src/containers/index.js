@@ -51,22 +51,20 @@ const theme = createMuiTheme({
 });
 
 
-class SharedContainer extends Component {
+const SharedContainer = () => {
 
-  render () {
-    return (
-      <MuiThemeProvider theme={theme}>
-        <div className="root-container">
-          <div style={{'minHeight': '670px'}}>
-            <Nav cable={this.props.cable} />
-            <Notifications options={{zIndex: 1200}} />
-            {this.props.children}
-            <Footer />
-          </div>
+  return (
+    <MuiThemeProvider theme={theme}>
+      <div className="root-container">
+        <div style={{'minHeight': '670px'}}>
+          <Nav cable={this.props.cable} />
+          <Notifications options={{zIndex: 1200}} />
+          {this.props.children}
+          <Footer />
         </div>
-      </MuiThemeProvider>
-    )
-  }
+      </div>
+    </MuiThemeProvider>
+  )
 }
 
 export default withRouter((SharedContainer))

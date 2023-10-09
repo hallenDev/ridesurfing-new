@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import StarRatingComponent from 'react-star-rating-component'
 import _ from 'underscore'
 import ReactLoading from 'react-loading'
@@ -20,64 +20,79 @@ import { getCurrentUser } from '../reducers/SessionReducer'
 
 import missingImg from '../images/missing.png'
 
-class Review extends Component {
+const Review = (props) => {
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      review: {},
-      dataLoaded: false
-    }
+
+  const initial_state = {
+    review: {},
+    dataLoaded: false
   }
 
-  componentWillMount () {
-    if (!localStorage.accessToken) {
-      localStorage.setItem('prevUrl', `/reviews`)
-      return window.location.href = `/login`
-    }
-  }
+  const [state, setState] = useState(initial_state);
 
-  componentDidMount() {
-    const { getReviewsRequest } = this.props.actions
-    getReviewsRequest()
-  }
+  // to-do
+  // componentWillMount () {
+  //   if (!localStorage.accessToken) {
+  //     localStorage.setItem('prevUrl', `/reviews`)
+  //     return window.location.href = `/login`
+  //   }
+  // }
 
-  UNSAFE_componentWillReceiveProps (nextProps) {
-    if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-      this.setState({ dataLoaded: nextProps.dataLoaded })
-    }
-  }
+  // to-do
+  // componentDidMount() {
+  //   const { getReviewsRequest } = this.props.actions
+  //   getReviewsRequest()
+  // }
 
-  errorMessageFor = (fieldName) => {
-    const { tripErrors } = this.props
+  // to-do
+  // UNSAFE_componentWillReceiveProps (nextProps) {
+  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
+  //     this.setState({ dataLoaded: nextProps.dataLoaded })
+  //   }
+  // }
+
+  const errorMessageFor = (fieldName) => {
+    const { tripErrors } = props
     if (tripErrors && tripErrors[fieldName])
       return tripErrors[fieldName]
   }
 
-  handleClick = (index, event) => {
-    this.setState({ [`anchorEl${index}`]: event.currentTarget })
+  const handleClick = (index, event) => {
+    setState({ 
+      ...state, 
+      [`anchorEl${index}`]: event.currentTarget 
+    })
   }
 
-  handleClose = (index) => {
-    this.setState({ [`anchorEl${index}`]: null })
+  const handleClose = (index) => {
+    setState({ 
+      ...state, 
+      [`anchorEl${index}`]: null 
+    })
   }
 
-  handleDialogOpen = (index) => {
-    this.setState({ [`dialogState${index}`]: true, [`anchorEl${index}`]: null })
+  const handleDialogOpen = (index) => {
+    setState({ 
+      ...state, 
+      [`dialogState${index}`]: true, [`anchorEl${index}`]: null 
+    })
   }
 
-  handleDialogClose = (index) => {
-    this.setState({ [`dialogState${index}`]: false })
+  const handleDialogClose = (index) => {
+    setState({ 
+      ...state, 
+      [`dialogState${index}`]: false 
+    })
   }
 
 
-  handleMenuClick (url) {
-    const { history } = this.props
+  const handleMenuClick = (url) => {
+    const { history } = props
     history.push(url)
   }
 
 
-  renderStatus (trip) {
+  const renderStatus = (trip) => {
     if (!trip.attributes.is_cancelled && !!trip.attributes.is_expired) {
       return "Expired"
     } else {
@@ -91,7 +106,7 @@ class Review extends Component {
     }
   }
 
-  renderStyle (trip) {
+  const renderStyle = (trip) => {
     if (!trip.attributes.is_cancelled && !!trip.attributes.is_expired) {
       return 'exp-label'
     } else {
@@ -105,70 +120,77 @@ class Review extends Component {
     }
   }
 
-  getImage (passenger) {
+  const getImage = (passenger) => {
     return passenger.attributes.display_image ? passenger.attributes.display_image : missingImg
   }
 
-  goToProfile (user) {
-    const { currentUser } = this.props
+  const goToProfile = (user) => {
+    const { currentUser } = props
     return user.id === currentUser.id ? `/my_profile` : `/profile/${user.attributes.slug || user.id}`
   }
-  goToReview (review) {
+
+  const goToReview = (review) => {
     return `/reviews/${review.id}`
   }
 
-  renderDriver (trip) {
+  const renderDriver = (trip) => {
     const { profile } = trip.relationships
     const { user } = profile
 
     return <div className="rider-list">
-      <Link to={this.goToProfile(user)}>
+      <Link to={goToProfile(user)}>
         <div className="rider-img-container">
-          <img className="responsive-img circle user-img" src={this.getImage(user)} alt="" />
+          <img className="responsive-img circle user-img" src={getImage(user)} alt="" />
         </div>
         <div className="user-name">
-          <Link to={this.goToProfile(user)}>{user.attributes.name}</Link>
+          <Link to={goToProfile(user)}>{user.attributes.name}</Link>
         </div>
         <div className="user-type">Driver</div>
       </Link>
     </div>
   }
 
-  renderRiders (trip) {
+  // new-add
+  const sendCancelTripRequest = (tripe_id, index) => {
+
+  }
+
+  // new-add
+  const sendCancelRiderTripRequest = (tripe_id, index) => {
+
+  }
+
+  const renderRiders = (trip) => {
     const { trip_requests } = trip.relationships
 
     return _.map(trip_requests, (trip_request, index) => {
       if (trip_request.status === "Accepted") {
         const { passenger } = trip_request
         return <div className="rider-list" key={`tr_${index}`}>
-          <Link to={this.goToProfile(passenger)}>
+          <Link to={goToProfile(passenger)}>
             <div className="rider-img-container">
-              <img className="responsive-img circle user-img" src={this.getImage(passenger)} alt="" />
+              <img className="responsive-img circle user-img" src={getImage(passenger)} alt="" />
             </div>
             <div className="user-name">
-              <Link to={this.goToProfile(passenger)}>{passenger.attributes.name}</Link>
+              <Link to={goToProfile(passenger)}>{passenger.attributes.name}</Link>
             </div>
             <div className="user-type">Passenger</div>
           </Link>
         </div>
-      }
-    })
-  }
+    }
+  })
+}
 
-  goToRideDetails (trip) {
+  const goToRideDetails = (trip) => {
     return `/ride/${trip.attributes.slug || trip.id}`
   }
 
-  getImage (user) {
-    return user.attributes.display_image ? user.attributes.display_image : missingImg
-  }
-
-  renderReviews () {
-    const { reviews } = this.props
-    const { currentUser } = this.props
+  const renderReviews = () => {
+    const { reviews } = props
+    const { currentUser } = props
     return _.map(reviews, (review, index) => {
-        const anchorEl = this.state[`anchorEl${index}`]
-        const dialogState = this.state[`dialogState${index}`]      
+        const anchorEl = state[`anchorEl${index}`]
+        const dialogState = state[`dialogState${index}`]      
 	    const { trip, user } = review.relationships
 
         return <div className="trip-box card" key={`trip-${index}`}>
@@ -176,9 +198,9 @@ class Review extends Component {
             <div className="content-flex">
               <div className="main">
                 <div className="left-box pl0">
-                  <Link to={this.goToProfile(user)}>
+                  <Link to={goToProfile(user)}>
                     <div className="user-img-container">
-                      <img className="responsive-img user-img" src={this.getImage(user)} alt="" />
+                      <img className="responsive-img user-img" src={getImage(user)} alt="" />
                     </div>
                   </Link>
                 </div>
@@ -187,7 +209,7 @@ class Review extends Component {
                     <IconButton
                       aria-owns={anchorEl ? `simple-menu${index}` : undefined}
                       aria-haspopup="true"
-                      onClick={(event) => this.handleClick(index, event)}
+                      onClick={(event) => handleClick(index, event)}
                       className="dropdown"
                     >
                       <MoreVertIcon />
@@ -196,7 +218,7 @@ class Review extends Component {
                       id={`simple-menu${index}`}
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl)}
-                      onClose={() => this.handleClose(index)}
+                      onClose={() => handleClose(index)}
                       PaperProps={{
                         style: {
                           transform: 'translateX(-10%)',
@@ -207,22 +229,22 @@ class Review extends Component {
                       MenuListProps={{style: { padding: 0 }}}
                       className="trip-dropdown"
                     >
-                      <MenuItem onClick={() => this.handleDialogOpen(index)}><Icon className="menu-icon">list</Icon>View Riders</MenuItem>
-                      {!!trip.attributes.can_edit && <MenuItem onClick={() => this.handleMenuClick(`/ride/${trip.attributes.slug || trip.id}/edit`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
-                      {!!trip.attributes.can_cancel && <MenuItem onClick={() => this.sendCancelTripRequest(trip.id, index)}><Icon className="menu-icon">delete</Icon>Cancel Ride</MenuItem>}
-                      {!trip.attributes.is_expired && trip.attributes.driver_id !== currentUser.id &&  <MenuItem onClick={() => this.sendCancelRiderTripRequest(trip, index)}><Icon className="menu-icon">delete</Icon>Opt Out</MenuItem>}
+                      <MenuItem onClick={() => handleDialogOpen(index)}><Icon className="menu-icon">list</Icon>View Riders</MenuItem>
+                      {!!trip.attributes.can_edit && <MenuItem onClick={() => handleMenuClick(`/ride/${trip.attributes.slug || trip.id}/edit`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
+                      {!!trip.attributes.can_cancel && <MenuItem onClick={() => sendCancelTripRequest(trip.id, index)}><Icon className="menu-icon">delete</Icon>Cancel Ride</MenuItem>}
+                      {!trip.attributes.is_expired && trip.attributes.driver_id !== currentUser.id &&  <MenuItem onClick={() => sendCancelRiderTripRequest(trip, index)}><Icon className="menu-icon">delete</Icon>Opt Out</MenuItem>}
                     </Menu>
                   </div>
-                  <Link to={this.goToReview(review)} className="heading">{trip.attributes.name}</Link>
-                  {!!this.errorMessageFor('trip') && <span className='error'>{this.errorMessageFor('trip')}<br/></span>}
+                  <Link to={goToReview(review)} className="heading">{trip.attributes.name}</Link>
+                  {!!errorMessageFor('trip') && <span className='error'>{errorMessageFor('trip')}<br/></span>}
                   <div className="mr10">
-                    <Link to={this.goToRideDetails(trip)}>
+                    <Link to={goToRideDetails(trip)}>
                       <span className="label">
                         <span className="label">event: </span>
                         <span className="user-val">{trip.attributes.event_name}</span> &nbsp;
                       </span>
                       <span className="label-status">
-                        <span className={`label ${this.renderStyle(trip)}`}> {this.renderStatus(trip)}</span>
+                        <span className={`label ${renderStyle(trip)}`}> {renderStatus(trip)}</span>
                       </span>
                       <span className="drive-label-box">
                         <span className="drive-box-text" style={{color: (trip.attributes.drive_type === 'commute' ? '#004085' : '#856404'), background: (trip.attributes.drive_type === 'commute' ? '#cce5ff' : '#fff3cd')}}>
@@ -232,7 +254,7 @@ class Review extends Component {
                     </Link>
                   </div>
                   <div className="avb-seat">
-                    <Link to={this.goToReview(review)}>
+                    <Link to={goToReview(review)}>
                       <span className="seat-left">Seats Left : {trip.attributes.available_seats}</span>
                     </Link>
                   </div>
@@ -246,7 +268,7 @@ class Review extends Component {
                     <span className="rating-count">({user.attributes.rating_count})</span>
                   </div>
                   <div className="top-section clearfix">
-                    <Link to={this.goToReview(review)}>
+                    <Link to={goToReview(review)}>
                       <div className="row">
                         <div className="col s4 l4 pl0">
                           <div className="item-label">price</div>
@@ -266,7 +288,7 @@ class Review extends Component {
                 </div>
               </div>
               <div className="row bottom-section">
-                <Link to={this.goToReview(review)}>
+                <Link to={goToReview(review)}>
                   <div className="col s6 l6 sep-section">
                     <div className="detailsHeading">DEPARTURE</div>
                     <div className="location"><i className="fa fa-map-marker icon"/> {trip.attributes.modified_start_location},</div>
@@ -287,7 +309,7 @@ class Review extends Component {
             </div>
             <Dialog
               open={dialogState || false}
-              onClose={() => this.handleDialogClose(index)}
+              onClose={() => handleDialogClose(index)}
               className="dialog-box"
               maxWidth='sm'
               fullWidth={true}
@@ -295,18 +317,18 @@ class Review extends Component {
               <div className="dialog-heading">
                 <Icon
                   className="close-icon right"
-                  onClick={() => this.handleDialogClose(index)}
+                  onClick={() => handleDialogClose(index)}
                 >close</Icon>
                 <h3>Riders list</h3>
               </div>
               <div className="dialog-body">
-                {this.renderDriver(trip)}
-                {this.renderRiders(trip)}
+                {renderDriver(trip)}
+                {renderRiders(trip)}
               </div>
             </Dialog>
           </div>
           <div className="flex-field mob">
-            <Link to={this.goToRideDetails(trip)}>
+            <Link to={goToRideDetails(trip)}>
               <div className="card-header">
                   <div className="trip-name">{trip.attributes.name}</div>
               </div>
@@ -314,9 +336,9 @@ class Review extends Component {
 
             <div className="row">
               <div className="col s5">
-                <Link to={this.goToRideDetails(trip)}>
+                <Link to={goToRideDetails(trip)}>
                   <div className="avatar-container">
-                    <img className="responsive-img user-img" src={this.getImage(user)} alt="" />
+                    <img className="responsive-img user-img" src={getImage(user)} alt="" />
                   </div>
                   <div className="driver-name">
                     <span >{user.attributes.name}</span>
@@ -324,12 +346,12 @@ class Review extends Component {
                 </Link>
               </div>
               <div className="col s7">
-                {!!this.errorMessageFor('trip') && <span className='error'>{this.errorMessageFor('trip')}<br/></span>}
+                {!!errorMessageFor('trip') && <span className='error'>{errorMessageFor('trip')}<br/></span>}
                 <div className="dropdown-btn">
                   <IconButton
                     aria-owns={anchorEl ? `simple-menu${index}` : undefined}
                     aria-haspopup="true"
-                    onClick={(event) => this.handleClick(index, event)}
+                    onClick={(event) => handleClick(index, event)}
                     className="dropdown"
                   >
                     <MoreVertIcon />
@@ -338,7 +360,7 @@ class Review extends Component {
                     id={`simple-menu${index}`}
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
-                    onClose={() => this.handleClose(index)}
+                    onClose={() => handleClose(index)}
                     PaperProps={{
                       style: {
                         transform: 'translateX(-10%)',
@@ -349,22 +371,22 @@ class Review extends Component {
                     MenuListProps={{style: { padding: 0 }}}
                     className="trip-dropdown"
                   >
-                    <MenuItem onClick={() => this.handleDialogOpen(index)}><Icon className="menu-icon">list</Icon>View Riders</MenuItem>
-                    {!!trip.attributes.can_edit && <MenuItem onClick={() => this.handleMenuClick(`/ride/${trip.attributes.slug || trip.id}/edit`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
-                    {!!trip.attributes.can_cancel && <MenuItem onClick={() => this.sendCancelTripRequest(trip.id, index)}><Icon className="menu-icon">delete</Icon>Cancel Ride</MenuItem>}
-                    {!trip.attributes.is_expired && trip.attributes.driver_id !== currentUser.id && <MenuItem onClick={() => this.sendCancelRiderTripRequest(trip, index)}><Icon className="menu-icon">delete</Icon> Opt Out</MenuItem>}
+                    <MenuItem onClick={() => handleDialogOpen(index)}><Icon className="menu-icon">list</Icon>View Riders</MenuItem>
+                    {!!trip.attributes.can_edit && <MenuItem onClick={() => handleMenuClick(`/ride/${trip.attributes.slug || trip.id}/edit`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
+                    {!!trip.attributes.can_cancel && <MenuItem onClick={() => sendCancelTripRequest(trip.id, index)}><Icon className="menu-icon">delete</Icon>Cancel Ride</MenuItem>}
+                    {!trip.attributes.is_expired && trip.attributes.driver_id !== currentUser.id && <MenuItem onClick={() => sendCancelRiderTripRequest(trip, index)}><Icon className="menu-icon">delete</Icon> Opt Out</MenuItem>}
                   </Menu>
                 </div>
-                <Link className="event" to={this.goToReview(review)}>{trip.attributes.event_name}</Link>
-                <Link className="label-status" to={this.goToReview(review)}>
-                  <span className={`label ${this.renderStyle(trip)}`}> {this.renderStatus(trip)}</span>
+                <Link className="event" to={goToReview(review)}>{trip.attributes.event_name}</Link>
+                <Link className="label-status" to={goToReview(review)}>
+                  <span className={`label ${renderStyle(trip)}`}> {renderStatus(trip)}</span>
                 </Link>
-                <Link className="drive-label-box" to={this.goToRideDetails(trip)}>
+                <Link className="drive-label-box" to={goToRideDetails(trip)}>
                   <span className="drive-box-text" style={{color: (trip.attributes.drive_type === 'commute' ? '#004085' : '#856404'), background: (trip.attributes.drive_type === 'commute' ? '#cce5ff' : '#fff3cd')}}>
                     {trip.attributes.drive_type === 'commute' ? 'Commute' : 'Adventure'}
                   </span>
                 </Link>
-                <Link className="seatLeft" to={this.goToReview(review)}>
+                <Link className="seatLeft" to={goToReview(review)}>
                   Seats left<span className="seats"> {trip.attributes.available_seats}</span>
                 </Link>
 
@@ -378,7 +400,7 @@ class Review extends Component {
                     <span className="rating-count">({user.attributes.rating_count})</span>
                   </div>
                 <div className="clearfix mt5 mob-trip-specs">
-                  <Link to={this.goToRideDetails(trip)}>
+                  <Link to={goToRideDetails(trip)}>
                     <div className="col s3">
                       <div className="item-label">Price</div>
                       <div className="item-value">${trip.attributes.price}</div>
@@ -396,7 +418,7 @@ class Review extends Component {
               </div>
             </div>
             <div className="bottom-section">
-              <Link to={this.goToReview(review)}>
+              <Link to={goToReview(review)}>
                 <div className="row">
                   <div className="col s6 sep-section">
                     <div className="address">
@@ -421,36 +443,34 @@ class Review extends Component {
       })
   }
 
-  render () {
-    const { dataLoaded } = this.state
-    const { reviews } = this.props
+  const { dataLoaded } = state
+  const { reviews } = props
 
-    if (reviews.length > 0) {
-      return (
-        <div className="my-trips">
-        <div className="container review-page-container">
-          <h4>Reviews</h4>
-          <hr className="mb20"/>
-          <div className="trips-container">
-              {this.renderReviews()}
-          </div>
-        </div>
-        </div>
-      )
-    } else {
-      return <div className="container review-page-container">
+  if (reviews.length > 0) {
+    return (
+      <div className="my-trips">
+      <div className="container review-page-container">
         <h4>Reviews</h4>
-        <hr className="mb30"/>
-        <div className="review-page">
-          <div className="trips-container">
-            {dataLoaded ? <h4 className="center-align">No Pending Reviews!</h4> : <div className="loading">
-              {!dataLoaded && <ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' />}
-              </div>
-            }
-          </div>
+        <hr className="mb20"/>
+        <div className="trips-container">
+            {this.renderReviews()}
         </div>
       </div>
-    }
+      </div>
+    )
+  } else {
+    return <div className="container review-page-container">
+      <h4>Reviews</h4>
+      <hr className="mb30"/>
+      <div className="review-page">
+        <div className="trips-container">
+          {dataLoaded ? <h4 className="center-align">No Pending Reviews!</h4> : <div className="loading">
+            {!dataLoaded && <ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' />}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
   }
 }
 
