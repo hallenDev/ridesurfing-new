@@ -10,19 +10,17 @@ const unsubscribe = store.subscribe(
   () => console.log('State after dispatch: ', store.getState()) 
 )
                                     
-class App extends Component {
+const App = () => {
 
-  componentDidUpdate() {
-    window.scrollTo(0, 0)
-  }
+  // componentDidUpdate() {
+  //   window.scrollTo(0, 0)
+  // }
 
-  render() {
-    return (
-        <Provider store={store}>
-          { routes }
-        </Provider>
-    );
-  }
+  return (
+      <Provider store={store}>
+        { routes }
+      </Provider>
+  );
 }
 
 export default App
