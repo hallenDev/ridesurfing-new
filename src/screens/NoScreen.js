@@ -1,14 +1,12 @@
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 
-class NoScreen extends Component {
+const NoScreen = (props) => {
 
-  componentDidMount () {
-    this.props.history.push('/')
-  }
+  useEffect(() => {
+    props.history.push('/')
+  }, []);
 
-  render () {
     return <span></span>
-  }
 }
 
 export default NoScreen

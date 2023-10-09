@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { GiftedChat } from 'react-web-gifted-chat'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -12,35 +12,36 @@ import missingImg from '../images/missing.png'
 import noChat from '../images/No-chat.png'
 var chatSubscription;
 
-class Chat extends Component {
+const Chat = (props) => {
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      message: ''
-    }
+
+  const initial_state = {
+    message: ''
   }
 
-  componentWillMount () {
-    if (!localStorage.accessToken) {
-      localStorage.setItem('prevUrl', `/chat`)
-      return window.location.href = `/login`
-    }
+  const [state, setState] = useState(initial_state);
 
-    const { getChatUsersRequest, getDirectChatUserRequest } = this.props.actions
-    getChatUsersRequest()
-    if (localStorage.directChatUserId) {
-      getDirectChatUserRequest(localStorage.directChatUserId, true)
-    }
-  }
+  // to-do
+  // componentWillMount () {
+  //   if (!localStorage.accessToken) {
+  //     localStorage.setItem('prevUrl', `/chat`)
+  //     return window.location.href = `/login`
+  //   }
 
-  componentDidMount () {
-    this.subscribeChannel()
-  }
+  //   const { getChatUsersRequest, getDirectChatUserRequest } = this.props.actions
+  //   getChatUsersRequest()
+  //   if (localStorage.directChatUserId) {
+  //     getDirectChatUserRequest(localStorage.directChatUserId, true)
+  //   }
+  // }
 
-  subscribeChannel () {
-    var comp = this
-    var cable = this.props.cable
+  // to-do
+  // componentDidMount () {
+  //   this.subscribeChannel()
+  // }
+
+  const subscribeChannel = () => {
+    var cable = props.cable
 
     chatSubscription = cable.subscriptions.create({channel: "ChatsChannel"}, {
       connected: () => {
@@ -50,8 +51,8 @@ class Chat extends Component {
         console.log("Chat Channel disconnected")
       },
       received: function(data) {
-        const { chatUser, currentUser } = comp.props
-        const { getDirectChatUserRequest } = comp.props.actions
+        const { chatUser, currentUser } = props
+        const { getDirectChatUserRequest } = props.actions
 
         if (((chatUser.id === data.sender_id) && (currentUser.id === data.receiver_id)) || ((chatUser.id === data.receiver_id) && (currentUser.id === data.sender_id))) {
           getDirectChatUserRequest(chatUser.id, true)
@@ -60,47 +61,48 @@ class Chat extends Component {
     })
   }
 
-  componentWillUnmount () {
-    var cable = this.props.cable
-    cable.subscriptions.remove(chatSubscription)
-  }
+  //to-do
+  // componentWillUnmount () {
+  //   var cable = this.props.cable
+  //   cable.subscriptions.remove(chatSubscription)
+  // }
 
-  renderDirectChatUser () {
-    if (this.props.chatUser.id !== undefined) {
-      return(this.userTile(this.props.chatUser, 'active'))
+  const renderDirectChatUser = () => {
+    if (props.chatUser.id !== undefined) {
+      return(userTile(props.chatUser, 'active'))
     }
   }
 
-  goToProfile (user) {
-    const { history } = this.props
+  const goToProfile = (user) => {
+    const { history } = props
     history.push(`/profile/${user.attributes.slug || user.id}`)
   }
 
-  renderUsersList () {
-    return(_.map(this.props.users, (user) => {
-      if (user.id !== this.props.chatUser.id) {
-        return(this.userTile(user, ''))
+  const renderUsersList = () => {
+    return(_.map(props.users, (user) => {
+      if (user.id !== props.chatUser.id) {
+        return(userTile(user, ''))
       }
     }))
   }
 
-  loadChat (userId) {
+  const loadChat = (userId) => {
     localStorage.setItem("directChatUserId", userId)
-    const { getChatUsersRequest, getDirectChatUserRequest } = this.props.actions
+    const { getChatUsersRequest, getDirectChatUserRequest } = props.actions
     getDirectChatUserRequest(userId, true)
     getChatUsersRequest()
   }
 
-  sendChat (messages) {
+  const sendChat = (messages) => {
     const message = messages[0]
-    const { sendChatRequest } = this.props.actions
-    sendChatRequest({ message: message.text.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: this.props.chatUser.id })
+    const { sendChatRequest } = props.actions
+    sendChatRequest({ message: message.text.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: props.chatUser.id })
 
-    this.setState({ message: '' })
+    setState({ ...state, message: '' })
   }
 
-  userTile (user, currentChat) {
-    return <li className={"user "+currentChat} onClick={() => this.loadChat(user.id)} key={"userTile"+user.id}>
+  const userTile = (user, currentChat) => {
+    return <li className={"user "+currentChat} onClick={() => loadChat(user.id)} key={"userTile"+user.id}>
       <div className={`user-link clearfix ${user.attributes.unread > 0 && 'unread-msg-block'}`}>
         <div className="img-container">
           <img src={user.attributes.small_image_url || missingImg} className="responsive-img" alt=""/>
@@ -115,138 +117,136 @@ class Chat extends Component {
     </li>
   }
 
-  onChatKeyPress (event) {
+  const onChatKeyPress = (event) => {
     if (event.key === 'Enter') {
-      const { sendChatRequest } = this.props.actions
-      const { message } = this.state
+      const { sendChatRequest } = props.actions
+      const { message } = state
 
-      sendChatRequest({ message: message.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: this.props.chatUser.id })
-      this.setState({ message: '' })
+      sendChatRequest({ message: message.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: props.chatUser.id })
+      setState({ ...state, message: '' })
     }
   }
 
-  onChatTextChange (message) {
-    this.setState({ message: message })
+  const onChatTextChange = (message) => {
+    setState({ ...state, message: message })
   }
 
-  render () {
-    const { chats, chatUser, currentUser, users } = this.props
-    const { message } = this.state
+  const { chats, chatUser, currentUser, users } = props
+  const { message } = state
 
-    return (
-      <div className="chat-page">
-        { users.length < 0 ?
-          <div className="new-user">
-            <div className="landing-heading center-align">
-              <img src={noChat} className='chat-icon img-responsive' alt=""/>
-              <h4>No messages yet!</h4>
-              <p>Your chat will live here once you start sharing messages with Ridesurfing.</p>
-              <Link className="btn btn-sm dashboard-btn" to='/search' >
-                Go to Search
+  return (
+    <div className="chat-page">
+      { users.length < 0 ?
+        <div className="new-user">
+          <div className="landing-heading center-align">
+            <img src={noChat} className='chat-icon img-responsive' alt=""/>
+            <h4>No messages yet!</h4>
+            <p>Your chat will live here once you start sharing messages with Ridesurfing.</p>
+            <Link className="btn btn-sm dashboard-btn" to='/search' >
+              Go to Search
+            </Link>
+          </div>
+        </div>
+        :
+        <div className="row mb0">
+          <div className="row chat-list-sm">
+            <div className="col s2 mt10">
+              <Link to="/chatList" className="chatList">
+                <i className="fa fa-chevron-left"/>
+              </Link>
+            </div>
+            <div className="col s7 user-name center-align">
+              <span>{chatUser.attributes.name}</span>
+            </div>
+            <div className="col s3">
+              <Link to={`/profile/${chatUser.attributes.slug || chatUser.id}`} className="user-img-container">
+                <img src={chatUser.attributes.small_image_url || missingImg} className="responsive-img user-img" alt="" />
               </Link>
             </div>
           </div>
-          :
-          <div className="row mb0">
-            <div className="row chat-list-sm">
-              <div className="col s2 mt10">
-                <Link to="/chatList" className="chatList">
-                  <i className="fa fa-chevron-left"/>
-                </Link>
-              </div>
-              <div className="col s7 user-name center-align">
-                <span>{chatUser.attributes.name}</span>
-              </div>
-              <div className="col s3">
-                <Link to={`/profile/${chatUser.attributes.slug || chatUser.id}`} className="user-img-container">
-                  <img src={chatUser.attributes.small_image_url || missingImg} className="responsive-img user-img" alt="" />
-                </Link>
-              </div>
+          <div className="col l3 s12 user-list">
+            <div className="user-chat-list">
+              <ul className="friend-list">
+                {renderDirectChatUser()}
+                {renderUsersList()}
+              </ul>
             </div>
-            <div className="col l3 s12 user-list">
-              <div className="user-chat-list">
-                <ul className="friend-list">
-                  {this.renderDirectChatUser()}
-                  {this.renderUsersList()}
-                </ul>
-              </div>
-            </div>
-            <div className="col l9 s12">
-              <div className="row mb0">
-                <div className="col l4 chat-list-user-details pl0 pr0">
-                  <div className="user-details center-align">
-                    <Link to={`/profile/${chatUser.attributes.slug || chatUser.id}`} className="user-img-container">
-                      <img src={chatUser.attributes.small_image_url || missingImg} className="responsive-img" alt="" />
-                    </Link>
-                    <h5>{chatUser.attributes.name}</h5>
-                    <table className="table table-user-information">
-                      <tbody>
-                        <tr>
-                          <td className="info-label"><b>Gender</b></td>
-                          <td className="info-val">
-                            {chatUser.attributes.gender}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="info-label"><b>Age</b></td>
-                          <td className="info-val">
-                            {chatUser.attributes.age} Years
-                          </td>
-                        </tr>
-                        {!!chatUser.attributes.kids && <tr>
-                          <td className="info-label"><b>Kids</b></td>
-                          <td className="info-val">
-                            {chatUser.attributes.kids}
-                          </td>
-                        </tr>}
-                        {!!chatUser.attributes.relationship_status && <tr>
-                          <td className="info-label"><b>Relationship</b></td>
-                          <td className="info-val">
-                            {chatUser.attributes.relationship_status}
-                          </td>
-                        </tr>}
-                      </tbody>
-                    </table>
-                    <div className="social-icon">
-                      {!!chatUser.attributes.facebook_link && <a href={chatUser.attributes.facebook_link} target='_blank' rel="noopener noreferrer">
-                      <span className="ml20">
-                        <i className="fa fa-facebook success" />
-                      </span></a>}
-                      {!!chatUser.attributes.instagram_link && <a href={chatUser.attributes.instagram_link} target='_blank' rel="noopener noreferrer">
-                      <span className="ml20">
-                        <i className="fa fa-instagram danger" />
-                      </span></a>}
-                      {!!chatUser.attributes.linkedin_link && <a href={chatUser.attributes.linkedin_link} target='_blank' rel="noopener noreferrer">
-                      <span className="ml20">
-                        <i className="fa fa-linkedin success" />
-                      </span></a>}
-                    </div>
+          </div>
+          <div className="col l9 s12">
+            <div className="row mb0">
+              <div className="col l4 chat-list-user-details pl0 pr0">
+                <div className="user-details center-align">
+                  <Link to={`/profile/${chatUser.attributes.slug || chatUser.id}`} className="user-img-container">
+                    <img src={chatUser.attributes.small_image_url || missingImg} className="responsive-img" alt="" />
+                  </Link>
+                  <h5>{chatUser.attributes.name}</h5>
+                  <table className="table table-user-information">
+                    <tbody>
+                      <tr>
+                        <td className="info-label"><b>Gender</b></td>
+                        <td className="info-val">
+                          {chatUser.attributes.gender}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="info-label"><b>Age</b></td>
+                        <td className="info-val">
+                          {chatUser.attributes.age} Years
+                        </td>
+                      </tr>
+                      {!!chatUser.attributes.kids && <tr>
+                        <td className="info-label"><b>Kids</b></td>
+                        <td className="info-val">
+                          {chatUser.attributes.kids}
+                        </td>
+                      </tr>}
+                      {!!chatUser.attributes.relationship_status && <tr>
+                        <td className="info-label"><b>Relationship</b></td>
+                        <td className="info-val">
+                          {chatUser.attributes.relationship_status}
+                        </td>
+                      </tr>}
+                    </tbody>
+                  </table>
+                  <div className="social-icon">
+                    {!!chatUser.attributes.facebook_link && <a href={chatUser.attributes.facebook_link} target='_blank' rel="noopener noreferrer">
+                    <span className="ml20">
+                      <i className="fa fa-facebook success" />
+                    </span></a>}
+                    {!!chatUser.attributes.instagram_link && <a href={chatUser.attributes.instagram_link} target='_blank' rel="noopener noreferrer">
+                    <span className="ml20">
+                      <i className="fa fa-instagram danger" />
+                    </span></a>}
+                    {!!chatUser.attributes.linkedin_link && <a href={chatUser.attributes.linkedin_link} target='_blank' rel="noopener noreferrer">
+                    <span className="ml20">
+                      <i className="fa fa-linkedin success" />
+                    </span></a>}
                   </div>
                 </div>
-                <div className="col l8 s12 pl0 pr0">
-                  <div className="chat-block">
-                    <GiftedChat
-                      messages={chats}
-                      onSend={(messages) => this.sendChat(messages)}
-                      user={currentUser}
-                      showAvatarForEveryMessage={true}
-                      onPressAvatar={() => this.goToProfile(chatUser)}
-                      onInputTextChanged={(text) => this.onChatTextChange(text)}
-                      textInputProps={{
-                        autoFocus: true,
-                        onKeyPress: (event) => this.onChatKeyPress(event),
-                        value: message
-                      }}
-                    />
-                  </div>
+              </div>
+              <div className="col l8 s12 pl0 pr0">
+                <div className="chat-block">
+                  <GiftedChat
+                    messages={chats}
+                    onSend={(messages) => sendChat(messages)}
+                    user={currentUser}
+                    showAvatarForEveryMessage={true}
+                    onPressAvatar={() => goToProfile(chatUser)}
+                    onInputTextChanged={(text) => onChatTextChange(text)}
+                    textInputProps={{
+                      autoFocus: true,
+                      onKeyPress: (event) => onChatKeyPress(event),
+                      value: message
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
-        }
-      </div>
-    )
-  }
+        </div>
+      }
+    </div>
+  )
 }
 
 function mapStateToProps (state) {

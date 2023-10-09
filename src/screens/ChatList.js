@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import _ from 'underscore'
 import ReactLoading from 'react-loading'
 import { Link } from 'react-router-dom'
@@ -13,33 +13,34 @@ import * as actions from '../actions'
 import { getCurrentUser } from '../reducers/SessionReducer'
 import { getChatUsers, getChats, getCurrentChatUser, getChatsDataLoaded } from '../reducers/ChatReducer'
 
-class ChatList extends Component {
+const ChatList = (props) => {
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      dataLoaded: false
-    }
+  const initial_state = {
+    dataLoaded: false
   }
 
-  componentWillMount () {
-    const { getChatUsersRequest } = this.props.actions
-    getChatUsersRequest()
-    if (!localStorage.accessToken) {
-      localStorage.setItem('prevUrl', `/chatList`)
-      return window.location.href = `/login`
-    }
-  }
+  const [state, setState] = useState(initial_state);
 
-  UNSAFE_componentWillReceiveProps (nextProps) {
-    if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-      this.setState({ dataLoaded: nextProps.dataLoaded })
-    }
-  }
+  // to-do
+  // componentWillMount () {
+  //   const { getChatUsersRequest } = this.props.actions
+  //   getChatUsersRequest()
+  //   if (!localStorage.accessToken) {
+  //     localStorage.setItem('prevUrl', `/chatList`)
+  //     return window.location.href = `/login`
+  //   }
+  // }
 
-  loadChat (userId) {
-    const { history } = this.props
-    const { getChatUsersRequest, getDirectChatUserRequest } = this.props.actions
+  // to-do
+  // UNSAFE_componentWillReceiveProps (nextProps) {
+  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
+  //     this.setState({ dataLoaded: nextProps.dataLoaded })
+  //   }
+  // }
+
+  const loadChat = (userId) => {
+    const { history } = props
+    const { getChatUsersRequest, getDirectChatUserRequest } = props.actions
 
     localStorage.setItem("directChatUserId", userId)
     getDirectChatUserRequest(userId, true)
@@ -47,15 +48,15 @@ class ChatList extends Component {
     history.push('/chat')
   }
 
-  getImage (user) {
+  const getImage = (user) => {
     return user.attributes.display_image ? user.attributes.display_image : missingImg
   }
 
-  renderUsersList() {
-    const { users } = this.props
+  const renderUsersList = () => {
+    const { users } = props
     if (users.length > 0) {
       return _.map(users, (user, index) => {
-        return <li className="user" onClick={() => this.loadChat(user.id)} key={`chat-${index}`}>
+        return <li className="user" onClick={() => loadChat(user.id)} key={`chat-${index}`}>
           <div className={`user-link clearfix ${user.attributes.unread > 0 && 'unread-msg-block'}`}>
             <div className="img-container">
               <img src={user.attributes.small_image_url || missingImg} className="responsive-img" alt="" />
@@ -84,31 +85,29 @@ class ChatList extends Component {
     }
   }
 
-  render () {
-    const { dataLoaded } = this.state
-    const { users } = this.props
-    return (
-      <div className="chatList-page">
-        {(users.length > 0) ?
-          <div className="row chat-list-sm">
-            <div className="col s12 user-name center-align">
-              <span>Users List</span>
-            </div>
+  const { dataLoaded } = state
+  const { users } = props
+  return (
+    <div className="chatList-page">
+      {(users.length > 0) ?
+        <div className="row chat-list-sm">
+          <div className="col s12 user-name center-align">
+            <span>Users List</span>
           </div>
-          : ""
-        }
-        <div className="row mb0">
-          <div className="col s12 user-list">
-            <div className="user-chat-list">
-              <ul className="friend-list">
-                {dataLoaded ? this.renderUsersList() : <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
-              </ul>
-            </div>
+        </div>
+        : ""
+      }
+      <div className="row mb0">
+        <div className="col s12 user-list">
+          <div className="user-chat-list">
+            <ul className="friend-list">
+              {dataLoaded ? renderUsersList() : <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
+            </ul>
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 function mapStateToProps (state) {

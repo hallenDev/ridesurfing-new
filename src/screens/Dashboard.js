@@ -1,6 +1,6 @@
 import _ from "underscore";
 import $ from "jquery";
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
@@ -65,84 +65,88 @@ const addDays = (date, days) => {
 
 const MenuProps = { PaperProps: { style: { maxHeight: 300 } } };
 
-class Dashboard extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      latitude: 39.73915,
-      longitude: -104.9847,
-      locationAvailable: false,
-      expanded: false,
-      showTrip: false,
-      dataLoaded: false,
-      filters:
-        !!props.location.state && !!props.location.state.filters
-          ? JSON.parse(props.location.state.filters)
-          : {
-              start_price: 0,
-              end_price: 250,
-              event_name: [],
-            },
-      waypoints: [],
-      trip_cache: {},
-      selected: {},
-    };
-    const today = new Date();
-    this.state["finish_date1"] =
-      today.getMonth() + 1 + "/" + today.getDate() + "/" + today.getFullYear();
-  }
+const Dashboard = (props) => {
 
-  componentWillMount() {
-    const { getCurrentUserRequest } = this.props.actions;
+  const today = new Date();
+  const initial_state = {
+    latitude: 39.73915,
+    longitude: -104.9847,
+    locationAvailable: false,
+    expanded: false,
+    showTrip: false,
+    dataLoaded: false,
+    filters:
+      !!props.location.state && !!props.location.state.filters
+        ? JSON.parse(props.location.state.filters)
+        : {
+            start_price: 0,
+            end_price: 250,
+            event_name: [],
+          },
+    waypoints: [],
+    trip_cache: {},
+    selected: {},
+    finish_date1: today.getMonth() + 1 + "/" + today.getDate() + "/" + today.getFullYear(),
+  };
 
-    if (localStorage.accessToken) {
-      getCurrentUserRequest();
-    }
-  }
+  const [state, setState] = useState(initial_state);
+  const [node, setNode] = useState(null)
 
-  componentDidMount() {
-    $(".nav-search-btn").hide();
-    this.setCurrentPosition();
-  }
+  // to-do
+  // componentWillMount() {
+  //   const { getCurrentUserRequest } = this.props.actions;
 
-  componentWillUnmount() {
-    $(".nav-search-btn").show();
-  }
+  //   if (localStorage.accessToken) {
+  //     getCurrentUserRequest();
+  //   }
+  // }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { getTripInfoRequest } = this.props.actions;
-    if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-      this.setState({ dataLoaded: nextProps.dataLoaded });
-    }
+  // to-do
+  // componentDidMount() {
+  //   $(".nav-search-btn").hide();
+  //   this.setCurrentPosition();
+  // }
 
-    if (nextProps.dataLoaded) {
-      var elems = document.querySelectorAll(".clicked-page");
-      [].forEach.call(elems, function(el) {
-        el.classList.remove("clicked-page");
-      });
-    }
+  // to-do
+  // componentWillUnmount() {
+  //   $(".nav-search-btn").show();
+  // }
 
-    if (nextProps.waypoints && nextProps.waypoints.length > 0) {
-      this.state.waypoints = [...nextProps.waypoints];
-      markersArr = [];
-      _.map(this.state.waypoints, (wp) => {
-        const lat = wp.start_location_latitude;
-        const long = wp.start_location_longitude;
-        markersArr.push({ lat: parseFloat(lat), lng: parseFloat(long) });
-      });
-    }
-  }
+  // to-do
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { getTripInfoRequest } = this.props.actions;
+  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
+  //     this.setState({ dataLoaded: nextProps.dataLoaded });
+  //   }
 
-  setCurrentPosition() {
-    const { filters } = this.state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
-    const comp = this;
+  //   if (nextProps.dataLoaded) {
+  //     var elems = document.querySelectorAll(".clicked-page");
+  //     [].forEach.call(elems, function(el) {
+  //       el.classList.remove("clicked-page");
+  //     });
+  //   }
+
+  //   if (nextProps.waypoints && nextProps.waypoints.length > 0) {
+  //     this.state.waypoints = [...nextProps.waypoints];
+  //     markersArr = [];
+  //     _.map(this.state.waypoints, (wp) => {
+  //       const lat = wp.start_location_latitude;
+  //       const long = wp.start_location_longitude;
+  //       markersArr.push({ lat: parseFloat(lat), lng: parseFloat(long) });
+  //     });
+  //   }
+  // }
+
+  const setCurrentPosition = () => {
+    const { filters } = state;
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
       .done(function(location) {
         filters["latitude"] = location.latitude;
         filters["longitude"] = location.longitude;
-        comp.setState({
+        setState({
+          ...state,
           latitude: location.latitude,
           longitude: location.longitude,
           locationAvailable: true,
@@ -153,13 +157,16 @@ class Dashboard extends Component {
         searchTripIdsRequest(filters);
       })
       .fail(function(error) {
-        comp.setState({ locationAvailable: false });
+        setState({ 
+          ...state, 
+          locationAvailable: false 
+        });
         searchTripIdsRequest(filters);
       });
   }
 
-  setSelectedTrip(trip) {
-    const { selected } = this.state;
+  const setSelectedTrip = (trip) => {
+    const { selected } = state;
     _.map(["start_location", "destination"], (fieldname) => {
       selected[fieldname] = trip.attributes[fieldname];
       selected[`${fieldname}_latitude`] = parseFloat(
@@ -169,16 +176,24 @@ class Dashboard extends Component {
         trip.attributes[`${fieldname}_longitude`]
       );
     });
-    this.setState({ selected, showTrip: true });
+    setState({ 
+      ...state, 
+      selected, 
+      showTrip: true 
+    });
   }
 
-  unselectTrip() {
-    this.setState({ selected: {}, showTrip: false });
+  const unselectTrip = () => {
+    setState({ 
+      ...state,
+      selected: {}, 
+      showTrip: false 
+    });
   }
 
-  updateDateFilters = (fieldName, date) => {
-    const { filters } = this.state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
+  const updateDateFilters = (fieldName, date) => {
+    const { filters } = state;
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     if (!date) {
       filters[fieldName] = date;
@@ -193,26 +208,32 @@ class Dashboard extends Component {
         filters[fieldName] = date;
       }
     }
-    this.setState({ filters });
+    setState({ 
+      ...state, 
+      filters 
+    });
 
     resetDataLoadedRequest();
     searchTripIdsRequest(filters);
   };
 
-  updateFilters = (fieldName, event) => {
-    const { filters } = this.state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
+  const updateFilters = (fieldName, event) => {
+    const { filters } = state;
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     filters[fieldName] = event.target.value;
-    this.setState({ filters });
+    setState({ 
+      ...state, 
+      filters 
+    });
 
     resetDataLoadedRequest();
     searchTripIdsRequest(filters);
   };
 
-  onMarkerClick(trip) {
-    const { filters } = this.state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
+  const onMarkerClick = (trip) => {
+    const { filters } = state;
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
     const {
       start_location_latitude,
       start_location_longitude,
@@ -223,14 +244,17 @@ class Dashboard extends Component {
     filters["start_location_latitude"] = start_location_latitude;
     filters["start_location_longitude"] = start_location_longitude;
 
-    this.setState({ filters });
+    setState({ 
+      ...state, 
+      filters 
+    });
     resetDataLoadedRequest();
     searchTripIdsRequest(filters);
   }
 
-  updateSlider = (fieldName, value) => {
-    const { filters } = this.state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
+  const updateSlider = (fieldName, value) => {
+    const { filters } = state;
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     if (value === 351) {
       delete filters[fieldName];
@@ -238,27 +262,33 @@ class Dashboard extends Component {
       filters[fieldName] = value;
     }
 
-    this.setState({ filters });
+    setState({ 
+      ...state, 
+      filters 
+    });
 
     resetDataLoadedRequest();
     searchTripIdsRequest(filters);
   };
 
-  changePrice(valArray) {
-    const { filters } = this.state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
+  const changePrice = (valArray) => {
+    const { filters } = state;
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     filters["start_price"] = valArray[0];
     filters["end_price"] = valArray[1];
-    this.setState({ filters });
+    setState({ 
+      ...state, 
+      filters 
+    });
 
     resetDataLoadedRequest();
     searchTripIdsRequest(filters);
   }
 
-  setAddress(address, geometry, fieldName) {
-    const { filters, latitude, longitude, locationAvailable } = this.state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
+  const setAddress = (address, geometry, fieldName) => {
+    const { filters, latitude, longitude, locationAvailable } = state;
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     filters[fieldName] = geometry ? address : undefined;
     filters[`${fieldName}_latitude`] = geometry
@@ -276,7 +306,10 @@ class Dashboard extends Component {
       filters.longitude = null;
     }
 
-    this.setState({ filters });
+    setState({ 
+      ...state, 
+      filters 
+    });
 
     if (geometry || address === "") {
       resetDataLoadedRequest();
@@ -284,43 +317,43 @@ class Dashboard extends Component {
     }
   }
 
-  handleExpandClick = () => {
-    this.setState((state) => ({ expanded: !state.expanded }));
+  const handleExpandClick = () => {
+    setState((state) => ({ expanded: !state.expanded }));
   };
 
-  createCard(trip, trip_idx) {
-    const { getTripInfoRequest } = this.props.actions;
+  const createCard = (trip, trip_idx) => {
+    const { getTripInfoRequest } = props.actions;
     // getTripInfoRequest(trip.id)
     return (
       <TripCard
         trip={JSON.parse(JSON.stringify(trip))}
-        onMouseEnter={(trip_info) => this.setSelectedTrip(trip_info)}
-        onMouseLeave={() => this.unselectTrip()}
+        onMouseEnter={(trip_info) => setSelectedTrip(trip_info)}
+        onMouseLeave={() => unselectTrip()}
       />
     );
   }
 
-  renderTrips() {
-    const { trips } = this.props;
+  const renderTrips = () => {
+    const { trips } = props;
     if (trips.length > 0) {
       return _.map(trips, (trip, index) => {
-        return this.createCard(trip, index);
+        return createCard(trip, index);
       });
     } else {
       return "No Ridesurfers available near your location. Please try with filters.";
     }
   }
 
-  renderSimilarTrips() {
-    const { similarTrips } = this.props;
+  const renderSimilarTrips = () => {
+    const { similarTrips } = props;
     return _.map(similarTrips, (trip, index) => {
-      return this.createCard(trip, index);
+      return createCard(trip, index);
     });
   }
 
-  onPageNumClick(e, page) {
-    const { resetDataLoadedRequest, searchTripIdsRequest } = this.props.actions;
-    const { filters } = this.state;
+  const onPageNumClick = (e, page) => {
+    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
+    const { filters } = state;
 
     e.target.parentElement.classList.add("clicked-page");
 
@@ -328,8 +361,8 @@ class Dashboard extends Component {
     searchTripIdsRequest(filters, page, false);
   }
 
-  renderPagination() {
-    const { pagination } = this.props;
+  const renderPagination = () => {
+    const { pagination } = props;
     if (pagination.total_pages > 1) {
       var arr = [...Array(pagination.total_pages).keys()].map((x) => ++x);
       return _.map(arr, (page) => {
@@ -343,7 +376,7 @@ class Dashboard extends Component {
             {/* eslint-disable-next-line */}
             <a
               href="javascript:void(0)"
-              onClick={(e) => this.onPageNumClick(e, page)}
+              onClick={(e) => onPageNumClick(e, page)}
             >
               {page}
             </a>
@@ -353,101 +386,326 @@ class Dashboard extends Component {
     }
   }
 
-  render() {
-    const {
-      filters,
-      selected,
-      showTrip,
-      latitude,
-      longitude,
-      dataLoaded,
-    } = this.state;
-    const { allTrips, similarTrips, trips } = this.props;
-    return (
-      <div className="dashboard-container">
-        <div className="formSection">
-          <div className="container">
-            <div className="row">
-              <div className="col l2 m2 s12 singleSlider">
-                <div className="label search-label">Journey</div>
-              </div>
-              <div className="col l5 m5 s12 singleSlider">
-                <SearchField
-                  placeholder="Enter start location"
-                  value={filters.start_location || ""}
-                  setAddress={(address, geometry) =>
-                    this.setAddress(address, geometry, "start_location")
-                  }
-                />
-                <ReactSlider
-                  withBars
-                  defaultValue={351}
-                  min={0}
-                  max={351}
-                  value={filters.start_location_fence}
-                  onAfterChange={(value) =>
-                    this.updateSlider("start_location_fence", value)
-                  }
-                >
-                  <div className="slider-handle"></div>
-                </ReactSlider>
-                <p className="slide-value">
-                  <span id="origin_fence_val">
-                    {filters.start_location_fence === 351
-                      ? ""
-                      : filters.start_location_fence}
-                  </span>{" "}
-                  miles
-                </p>
-              </div>
-              <div className="col l5 m5 s12 singleSlider">
-                <SearchField
-                  placeholder="Enter destination"
-                  value={filters.destination || ""}
-                  setAddress={(address, geometry) =>
-                    this.setAddress(address, geometry, "destination")
-                  }
-                />
-                <ReactSlider
-                  withBars
-                  defaultValue={351}
-                  min={0}
-                  max={351}
-                  value={
-                    filters.destination_fence === 351
-                      ? ""
-                      : filters.destination_fence
-                  }
-                  onAfterChange={(value) =>
-                    this.updateSlider("destination_fence", value)
-                  }
-                >
-                  <div className="slider-handle"></div>
-                </ReactSlider>
-                <p className="slide-value">
-                  <span id="destination_fence_val">
-                    {filters.destination_fence}
-                  </span>{" "}
-                  miles
-                </p>
-              </div>
+  const {
+    filters,
+    selected,
+    showTrip,
+    latitude,
+    longitude,
+    dataLoaded,
+  } = state;
+  const { allTrips, similarTrips, trips } = props;
+  return (
+    <div className="dashboard-container">
+      <div className="formSection">
+        <div className="container">
+          <div className="row">
+            <div className="col l2 m2 s12 singleSlider">
+              <div className="label search-label">Journey</div>
             </div>
+            <div className="col l5 m5 s12 singleSlider">
+              <SearchField
+                placeholder="Enter start location"
+                value={filters.start_location || ""}
+                setAddress={(address, geometry) =>
+                  setAddress(address, geometry, "start_location")
+                }
+              />
+              <ReactSlider
+                withBars
+                defaultValue={351}
+                min={0}
+                max={351}
+                value={filters.start_location_fence}
+                onAfterChange={(value) =>
+                  updateSlider("start_location_fence", value)
+                }
+              >
+                <div className="slider-handle"></div>
+              </ReactSlider>
+              <p className="slide-value">
+                <span id="origin_fence_val">
+                  {filters.start_location_fence === 351
+                    ? ""
+                    : filters.start_location_fence}
+                </span>{" "}
+                miles
+              </p>
+            </div>
+            <div className="col l5 m5 s12 singleSlider">
+              <SearchField
+                placeholder="Enter destination"
+                value={filters.destination || ""}
+                setAddress={(address, geometry) =>
+                  setAddress(address, geometry, "destination")
+                }
+              />
+              <ReactSlider
+                withBars
+                defaultValue={351}
+                min={0}
+                max={351}
+                value={
+                  filters.destination_fence === 351
+                    ? ""
+                    : filters.destination_fence
+                }
+                onAfterChange={(value) =>
+                  updateSlider("destination_fence", value)
+                }
+              >
+                <div className="slider-handle"></div>
+              </ReactSlider>
+              <p className="slide-value">
+                <span id="destination_fence_val">
+                  {filters.destination_fence}
+                </span>{" "}
+                miles
+              </p>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col l2 m2 s12">
+              <div className="label gender-label">Gender</div>
+            </div>
+            <div className="col l5 m5 s12">
+              <FormControl className="selectField">
+                <InputLabel htmlFor="select-multiple"></InputLabel>
+                <Select
+                  value={filters.gender || ""}
+                  onChange={(event) => updateFilters("gender", event)}
+                  input={<Input id="select-multiple" />}
+                  MenuProps={MenuProps}
+                  displayEmpty
+                  className="selected-menu-field"
+                >
+                  {gender.map((data) => (
+                    <MenuItem key={data[0]} value={data[0]}>
+                      {data[1]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <div className="col l5 m5 s12 mt20ml">
+              <FormControl className="selectField">
+                <InputLabel htmlFor="select-multiple">Events</InputLabel>
+                <Select
+                  value={filters.event_name || []}
+                  onChange={(event) =>
+                    updateFilters("event_name", event)
+                  }
+                  input={<Input id="select-multiple" />}
+                  MenuProps={MenuProps}
+                  multiple={true}
+                  displayEmpty
+                  className="selected-menu-field"
+                >
+                  {eventNames.map((name) => (
+                    <MenuItem key={name} value={name}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+          </div>
+          <div
+            style={{ position: "relative" }}
+            ref={(node) => {
+              setNode(node)
+            }}
+          >
             <div className="row">
               <div className="col l2 m2 s12">
-                <div className="label gender-label">Gender</div>
+                <div className="label date-range search-label">
+                  Date Range
+                </div>
               </div>
               <div className="col l5 m5 s12">
+                <DatePicker
+                  selected={
+                    filters.finish_date1 ? new Date(filters.finish_date1) : ""
+                  }
+                  onChange={(date) =>
+                    updateDateFilters("finish_date1", date)
+                  }
+                  minDate={new Date()}
+                  maxDate={
+                    filters.finish_date2
+                      ? new Date(filters.finish_date2)
+                      : addDays(new Date(), 1000)
+                  }
+                  placeholderText="Departure Date Range #1"
+                  className="text-field"
+                />
+              </div>
+              <div className="col l5 m5 s12">
+                <DatePicker
+                  selected={
+                    filters.finish_date2 ? new Date(filters.finish_date2) : ""
+                  }
+                  onChange={(date) =>
+                    updateDateFilters("finish_date2", date)
+                  }
+                  minDate={new Date()}
+                  placeholderText="Departure Date Range #2"
+                  className="text-field"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col l2 m2 s12">
+              <div className="label search-label">Price</div>
+            </div>
+            <div className="col l10 m10 s12">
+              <ReactSlider
+                withBars
+                defaultValue={[0, 250]}
+                min={0}
+                max={250}
+                onAfterChange={changePrice}
+              >
+                <div className="slider-handle"></div>
+                <div className="slider-handle"></div>
+              </ReactSlider>
+              <span className="slide-value pull-left">
+                ${filters.start_price}
+              </span>
+              <span className="slide-value pull-right">
+                ${filters.end_price}
+              </span>
+            </div>
+          </div>
+          <div className="more-filter">
+            <span
+              onClick={handleExpandClick}
+              aria-expanded={state.expanded}
+            >
+              {state.expanded ? (
+                <Close className="close-icon" />
+              ) : (
+                <span className="show-filter">Show more filters</span>
+              )}
+            </span>
+          </div>
+          <Collapse in={state.expanded} timeout="auto" unmountOnExit>
+            <div className="row">
+              <div className="col l4 s12 mt20lg">
+                <div className="filter-label">Kid Friendly:</div>
                 <FormControl className="selectField">
                   <InputLabel htmlFor="select-multiple"></InputLabel>
                   <Select
-                    value={filters.gender || ""}
-                    onChange={(event) => this.updateFilters("gender", event)}
+                    value={filters.kid_friendly}
+                    onChange={(event) =>
+                      updateFilters("kid_friendly", event)
+                    }
                     input={<Input id="select-multiple" />}
                     MenuProps={MenuProps}
                     displayEmpty
                     className="selected-menu-field"
                   >
-                    {gender.map((data) => (
+                    <MenuItem value={filters.kid_friendly} disabled>
+                      Select
+                    </MenuItem>
+                    {basicFilters.map((data) => (
+                      <MenuItem key={`kid-${data[0]}`} value={data[0]}>
+                        {data[1]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="col l4 s12 mt20lg">
+                <div className="filter-label">Pets:</div>
+                <FormControl className="selectField">
+                  <InputLabel htmlFor="select-multiple"></InputLabel>
+                  <Select
+                    value={filters.pets}
+                    onChange={(event) => updateFilters("pets", event)}
+                    input={<Input id="select-multiple" />}
+                    MenuProps={MenuProps}
+                    displayEmpty
+                    className="selected-menu-field"
+                  >
+                    <MenuItem value={filters.pets} disabled>
+                      Select
+                    </MenuItem>
+                    {basicFilters.map((data) => (
+                      <MenuItem key={`pet-${data[0]}`} value={data[0]}>
+                        {data[1]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="col l4 s12">
+                <div className="filter-label">Smoking:</div>
+                <FormControl className="selectField">
+                  <InputLabel htmlFor="select-multiple"></InputLabel>
+                  <Select
+                    value={filters.smoking}
+                    onChange={(event) => updateFilters("smoking", event)}
+                    input={<Input id="select-multiple" />}
+                    MenuProps={MenuProps}
+                    displayEmpty
+                    className="selected-menu-field"
+                  >
+                    <MenuItem value={filters.smoking} disabled>
+                      Select
+                    </MenuItem>
+                    {basicFilters.map((data) => (
+                      <MenuItem key={`smoke-${data[0]}`} value={data[0]}>
+                        {data[1]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col l4 s12">
+                <div className="filter-label">Car AC:</div>
+                <FormControl className="selectField">
+                  <InputLabel htmlFor="select-multiple"></InputLabel>
+                  <Select
+                    value={filters.car_ac}
+                    onChange={(event) => updateFilters("car_ac", event)}
+                    input={<Input id="select-multiple" />}
+                    MenuProps={MenuProps}
+                    displayEmpty
+                    className="selected-menu-field"
+                  >
+                    <MenuItem value={filters.car_ac} disabled>
+                      Select
+                    </MenuItem>
+                    {basicFilters.map((data) => (
+                      <MenuItem key={`carAc-${data[0]}`} value={data[0]}>
+                        {data[1]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="col l4 s12">
+                <div className="filter-label">Drive Type:</div>
+                <FormControl className="selectField">
+                  <InputLabel htmlFor="select-multiple"></InputLabel>
+                  <Select
+                    value={filters.drive_type}
+                    onChange={(event) =>
+                      updateFilters("drive_type", event)
+                    }
+                    input={<Input id="select-multiple" />}
+                    MenuProps={MenuProps}
+                    displayEmpty
+                    className="selected-menu-field"
+                  >
+                    <MenuItem value={filters.drive_type} disabled>
+                      Select
+                    </MenuItem>
+                    {driveType.map((data) => (
                       <MenuItem key={data[0]} value={data[0]}>
                         {data[1]}
                       </MenuItem>
@@ -455,291 +713,64 @@ class Dashboard extends Component {
                   </Select>
                 </FormControl>
               </div>
-              <div className="col l5 m5 s12 mt20ml">
-                <FormControl className="selectField">
-                  <InputLabel htmlFor="select-multiple">Events</InputLabel>
-                  <Select
-                    value={filters.event_name || []}
-                    onChange={(event) =>
-                      this.updateFilters("event_name", event)
-                    }
-                    input={<Input id="select-multiple" />}
-                    MenuProps={MenuProps}
-                    multiple={true}
-                    displayEmpty
-                    className="selected-menu-field"
-                  >
-                    {eventNames.map((name) => (
-                      <MenuItem key={name} value={name}>
-                        {name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
             </div>
-            <div
-              style={{ position: "relative" }}
-              ref={(node) => {
-                this.node = node;
-              }}
-            >
-              <div className="row">
-                <div className="col l2 m2 s12">
-                  <div className="label date-range search-label">
-                    Date Range
+          </Collapse>
+
+          <div>
+            <Pagination
+              current_page={props.pagination.current_page}
+              per_page={props.pagination.per_page}
+              total_pages={props.pagination.total_pages}
+              total_count={props.pagination.total_count}
+              onPageNumClick={onPageNumClick}
+            />
+          </div>
+
+          {!!dataLoaded ? (
+            <div>
+              <div className="my-trips">
+                <div className="trips-container">{renderTrips()}</div>
+              </div>
+              {similarTrips.length > 0 && (
+                <div>
+                  <h4>Similar Trips</h4>
+                  <div className="trips-container">
+                    {renderSimilarTrips()}
                   </div>
                 </div>
-                <div className="col l5 m5 s12">
-                  <DatePicker
-                    selected={
-                      filters.finish_date1 ? new Date(filters.finish_date1) : ""
-                    }
-                    onChange={(date) =>
-                      this.updateDateFilters("finish_date1", date)
-                    }
-                    minDate={new Date()}
-                    maxDate={
-                      filters.finish_date2
-                        ? new Date(filters.finish_date2)
-                        : addDays(new Date(), 1000)
-                    }
-                    placeholderText="Departure Date Range #1"
-                    className="text-field"
-                  />
-                </div>
-                <div className="col l5 m5 s12">
-                  <DatePicker
-                    selected={
-                      filters.finish_date2 ? new Date(filters.finish_date2) : ""
-                    }
-                    onChange={(date) =>
-                      this.updateDateFilters("finish_date2", date)
-                    }
-                    minDate={new Date()}
-                    placeholderText="Departure Date Range #2"
-                    className="text-field"
-                  />
-                </div>
-              </div>
+              )}
             </div>
-            <div className="row">
-              <div className="col l2 m2 s12">
-                <div className="label search-label">Price</div>
-              </div>
-              <div className="col l10 m10 s12">
-                <ReactSlider
-                  withBars
-                  defaultValue={[0, 250]}
-                  min={0}
-                  max={250}
-                  onAfterChange={this.changePrice.bind(this)}
-                >
-                  <div className="slider-handle"></div>
-                  <div className="slider-handle"></div>
-                </ReactSlider>
-                <span className="slide-value pull-left">
-                  ${filters.start_price}
-                </span>
-                <span className="slide-value pull-right">
-                  ${filters.end_price}
-                </span>
-              </div>
-            </div>
-            <div className="more-filter">
-              <span
-                onClick={this.handleExpandClick}
-                aria-expanded={this.state.expanded}
-              >
-                {this.state.expanded ? (
-                  <Close className="close-icon" />
-                ) : (
-                  <span className="show-filter">Show more filters</span>
-                )}
-              </span>
-            </div>
-            <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
-              <div className="row">
-                <div className="col l4 s12 mt20lg">
-                  <div className="filter-label">Kid Friendly:</div>
-                  <FormControl className="selectField">
-                    <InputLabel htmlFor="select-multiple"></InputLabel>
-                    <Select
-                      value={filters.kid_friendly}
-                      onChange={(event) =>
-                        this.updateFilters("kid_friendly", event)
-                      }
-                      input={<Input id="select-multiple" />}
-                      MenuProps={MenuProps}
-                      displayEmpty
-                      className="selected-menu-field"
-                    >
-                      <MenuItem value={filters.kid_friendly} disabled>
-                        Select
-                      </MenuItem>
-                      {basicFilters.map((data) => (
-                        <MenuItem key={`kid-${data[0]}`} value={data[0]}>
-                          {data[1]}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="col l4 s12 mt20lg">
-                  <div className="filter-label">Pets:</div>
-                  <FormControl className="selectField">
-                    <InputLabel htmlFor="select-multiple"></InputLabel>
-                    <Select
-                      value={filters.pets}
-                      onChange={(event) => this.updateFilters("pets", event)}
-                      input={<Input id="select-multiple" />}
-                      MenuProps={MenuProps}
-                      displayEmpty
-                      className="selected-menu-field"
-                    >
-                      <MenuItem value={filters.pets} disabled>
-                        Select
-                      </MenuItem>
-                      {basicFilters.map((data) => (
-                        <MenuItem key={`pet-${data[0]}`} value={data[0]}>
-                          {data[1]}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="col l4 s12">
-                  <div className="filter-label">Smoking:</div>
-                  <FormControl className="selectField">
-                    <InputLabel htmlFor="select-multiple"></InputLabel>
-                    <Select
-                      value={filters.smoking}
-                      onChange={(event) => this.updateFilters("smoking", event)}
-                      input={<Input id="select-multiple" />}
-                      MenuProps={MenuProps}
-                      displayEmpty
-                      className="selected-menu-field"
-                    >
-                      <MenuItem value={filters.smoking} disabled>
-                        Select
-                      </MenuItem>
-                      {basicFilters.map((data) => (
-                        <MenuItem key={`smoke-${data[0]}`} value={data[0]}>
-                          {data[1]}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col l4 s12">
-                  <div className="filter-label">Car AC:</div>
-                  <FormControl className="selectField">
-                    <InputLabel htmlFor="select-multiple"></InputLabel>
-                    <Select
-                      value={filters.car_ac}
-                      onChange={(event) => this.updateFilters("car_ac", event)}
-                      input={<Input id="select-multiple" />}
-                      MenuProps={MenuProps}
-                      displayEmpty
-                      className="selected-menu-field"
-                    >
-                      <MenuItem value={filters.car_ac} disabled>
-                        Select
-                      </MenuItem>
-                      {basicFilters.map((data) => (
-                        <MenuItem key={`carAc-${data[0]}`} value={data[0]}>
-                          {data[1]}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="col l4 s12">
-                  <div className="filter-label">Drive Type:</div>
-                  <FormControl className="selectField">
-                    <InputLabel htmlFor="select-multiple"></InputLabel>
-                    <Select
-                      value={filters.drive_type}
-                      onChange={(event) =>
-                        this.updateFilters("drive_type", event)
-                      }
-                      input={<Input id="select-multiple" />}
-                      MenuProps={MenuProps}
-                      displayEmpty
-                      className="selected-menu-field"
-                    >
-                      <MenuItem value={filters.drive_type} disabled>
-                        Select
-                      </MenuItem>
-                      {driveType.map((data) => (
-                        <MenuItem key={data[0]} value={data[0]}>
-                          {data[1]}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
-            </Collapse>
-
-            <div>
-              <Pagination
-                current_page={this.props.pagination.current_page}
-                per_page={this.props.pagination.per_page}
-                total_pages={this.props.pagination.total_pages}
-                total_count={this.props.pagination.total_count}
-                onPageNumClick={this.onPageNumClick.bind(this)}
+          ) : (
+            <div className="loading">
+              <ReactLoading
+                type="bubbles"
+                color="#3399ff"
+                height="10%"
+                width="10%"
               />
             </div>
-
-            {!!dataLoaded ? (
-              <div>
-                <div className="my-trips">
-                  <div className="trips-container">{this.renderTrips()}</div>
-                </div>
-                {similarTrips.length > 0 && (
-                  <div>
-                    <h4>Similar Trips</h4>
-                    <div className="trips-container">
-                      {this.renderSimilarTrips()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="loading">
-                <ReactLoading
-                  type="bubbles"
-                  color="#3399ff"
-                  height="10%"
-                  width="10%"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="mapSection">
-          <Gmap
-            start_location={selected.start_location}
-            start_location_latitude={selected.start_location_latitude}
-            start_location_longitude={selected.start_location_longitude}
-            destination={selected.destination}
-            destination_latitude={selected.destination_latitude}
-            destination_longitude={selected.destination_longitude}
-            onMarkerClick={(trip) => this.onMarkerClick(trip)}
-            defaultLat={latitude}
-            defaultLng={longitude}
-            trips={trips}
-            allTrips={allTrips}
-            waypoints={this.state.waypoints}
-            showTrip={showTrip}
-          />
+          )}
         </div>
       </div>
-    );
-  }
+      <div className="mapSection">
+        <Gmap
+          start_location={selected.start_location}
+          start_location_latitude={selected.start_location_latitude}
+          start_location_longitude={selected.start_location_longitude}
+          destination={selected.destination}
+          destination_latitude={selected.destination_latitude}
+          destination_longitude={selected.destination_longitude}
+          onMarkerClick={(trip) => onMarkerClick(trip)}
+          defaultLat={latitude}
+          defaultLng={longitude}
+          trips={trips}
+          allTrips={allTrips}
+          waypoints={state.waypoints}
+          showTrip={showTrip}
+        />
+      </div>
+    </div>
+  );
 }
 
 function mapStateToProps(state) {

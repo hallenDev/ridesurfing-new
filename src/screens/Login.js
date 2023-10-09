@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { Component } from "react";
 import TextField from "@material-ui/core/TextField";
 import Card from "@material-ui/core/Card";
 import { Link, withRouter } from "react-router-dom";
@@ -47,104 +47,104 @@ const MenuProps = {
 
 const gender = ["Male", "Female", "Other"];
 
-const Login = (props) => {
-  const initial_state = {
-    email: "",
-    password: "",
-    loggedIn: false,
-    loginCheck: false,
-    user: {
-      first_name: "",
-      last_name: "",
+class Login extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       email: "",
-      birthday: "",
       password: "",
-      gender: "",
-    },
-    fbProcessing: false,
-    googleProcessing: false,
-    loginProcessing: false,
-    modalOpen: false,
-    googleUser: {},
-  };
+      loggedIn: false,
+      loginCheck: false,
+      user: {
+        first_name: "",
+        last_name: "",
+        email: "",
+        birthday: "",
+        password: "",
+        gender: "",
+      },
+      fbProcessing: false,
+      googleProcessing: false,
+      loginProcessing: false,
+      modalOpen: false,
+      googleUser: {},
+    };
+  }
 
-  const [state, setState] = useState(initial_state);
+  componentDidMount() {
+    this.setSocialLoginProfile();
+  }
 
-  useEffect(() => {
-    setSocialLoginProfile();
-  }, [])
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    // const {
+    //   createUserRequest,
+    //   getCurrentUserRequest,
+    //   resetCurrentUserFlagsRequest,
+    //   resetUserFlagsRequest,
+    //   resetProcessingRequest,
+    // } = this.props.actions;
+    // const { loginCheck } = this.state;
+    // const { loggedIn, error } = nextProps;
+    const { history } = this.props;
 
-  //to-do
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   // const {
-  //   //   createUserRequest,
-  //   //   getCurrentUserRequest,
-  //   //   resetCurrentUserFlagsRequest,
-  //   //   resetUserFlagsRequest,
-  //   //   resetProcessingRequest,
-  //   // } = this.props.actions;
-  //   // const { loginCheck } = this.state;
-  //   // const { loggedIn, error } = nextProps;
-  //   const { history } = this.props;
+    // if (loginCheck && error)
+    //   this.setState({
+    //     error: error || "Invalid credentials",
+    //     loginCheck: false,
+    //     loginProcessing: false,
+    //   });
 
-  //   // if (loginCheck && error)
-  //   //   this.setState({
-  //   //     error: error || "Invalid credentials",
-  //   //     loginCheck: false,
-  //   //     loginProcessing: false,
-  //   //   });
+    // if (loggedIn) {
+    //   const prevUrl = localStorage.prevUrl;
 
-  //   // if (loggedIn) {
-  //   //   const prevUrl = localStorage.prevUrl;
+    //   localStorage.removeItem("socialLoginProfile");
+    //   localStorage.removeItem("socialLoginProvider");
+    //   localStorage.removeItem("prevUrl");
+    //   this.setState({
+    //     googleProcessing: false,
+    //     fbProcessing: false,
+    //     loginProcessing: false,
+    //   });
 
-  //   //   localStorage.removeItem("socialLoginProfile");
-  //   //   localStorage.removeItem("socialLoginProvider");
-  //   //   localStorage.removeItem("prevUrl");
-  //   //   this.setState({
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //     loginProcessing: false,
-  //   //   });
+    //   return (window.location.href = prevUrl || `/search`);
+    // }
 
-  //   //   return (window.location.href = prevUrl || `/search`);
-  //   // }
+    // if (nextProps.socialLoginError) {
+    //   resetCurrentUserFlagsRequest();
+    //   const user = this.setSocialLoginProfile();
 
-  //   // if (nextProps.socialLoginError) {
-  //   //   resetCurrentUserFlagsRequest();
-  //   //   const user = this.setSocialLoginProfile();
+    //   this.setState({
+    //     loginProcessing: false,
+    //     googleProcessing: false,
+    //     fbProcessing: false,
+    //   });
+    //   createUserRequest(user);
+    // }
 
-  //   //   this.setState({
-  //   //     loginProcessing: false,
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //   });
-  //   //   createUserRequest(user);
-  //   // }
+    // if (nextProps.isUserSaved) {
+    //   localStorage.removeItem("socialLoginProfile");
+    //   localStorage.removeItem("socialLoginProvider");
 
-  //   // if (nextProps.isUserSaved) {
-  //   //   localStorage.removeItem("socialLoginProfile");
-  //   //   localStorage.removeItem("socialLoginProvider");
+    //   resetUserFlagsRequest();
+    //   resetCurrentUserFlagsRequest();
+    //   getCurrentUserRequest();
+    //   this.setState({
+    //     googleProcessing: false,
+    //     fbProcessing: false,
+    //     loginProcessing: false,
+    //   });
+    // }
 
-  //   //   resetUserFlagsRequest();
-  //   //   resetCurrentUserFlagsRequest();
-  //   //   getCurrentUserRequest();
-  //   //   this.setState({
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //     loginProcessing: false,
-  //   //   });
-  //   // }
+    // if (nextProps.isProcessing || nextProps.isProcessing === false) {
+    //   this.setState({ loginProcessing: nextProps.isProcessing });
+    //   resetProcessingRequest();
+    // }
 
-  //   // if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //   //   this.setState({ loginProcessing: nextProps.isProcessing });
-  //   //   resetProcessingRequest();
-  //   // }
+    if (nextProps.resendEmailVerification) return history.push("/verify_email");
+  }
 
-  //   if (nextProps.resendEmailVerification) return history.push("/verify_email");
-  // }
-
-  const setSocialLoginProfile = () => {
-    const { user } = state;
+  setSocialLoginProfile() {
+    const { user } = this.state;
     const socialLoginProvider = localStorage.getItem("socialLoginProvider");
 
     if (localStorage.socialLoginProfile) {
@@ -178,43 +178,36 @@ const Login = (props) => {
       user.token = socialLoginProfile.id;
       user.provider = socialLoginProvider;
 
-      setState({ 
-        ...state, 
-        user 
-      });
+      this.setState({ user });
     }
     return user;
   }
 
-  const onFieldChange = (fieldName, event) => {
-    setState({ 
-      ...state, 
-      [fieldName]: event.target.value 
-    });
+  onFieldChange = (fieldName, event) => {
+    this.setState({ [fieldName]: event.target.value });
   };
 
-  const onKeyPressEnter = (event) => {
+  onKeyPressEnter = (event) => {
     if (event.key === "Enter" || event.keyCode === 13) {
-      handleLogin();
+      this.handleLogin();
     }
   };
 
-  const handleSocialLoginFailure = (err) => {
+  handleSocialLoginFailure = (err) => {
     console.error(err);
 
-    setState({ 
-      ...state, 
-      rerender: true 
+    this.setState({ rerender: true }, () => {
+      this.setState({ rerender: false });
     });
   };
 
-  const handleFbSocialLogin = async (res) => {
+  handleFbSocialLogin = async (res) => {
     console.log(res);
     if (res.error) {
-      handleSocialLoginFailure(res.error);
+      this.handleSocialLoginFailure(res.error);
     } else {
-      const { socialLoginRequest, createUserRequest } = props.actions;
-      const { history } = props;
+      const { socialLoginRequest, createUserRequest } = this.props.actions;
+      const { history } = this.props;
 
       const user = {
         first_name: res.first_name,
@@ -247,8 +240,7 @@ const Login = (props) => {
 
         console.log(createUserResult, "createUserResult");
 
-        setState({
-          ...state,
+        this.setState({
           fbProcessing: false,
         });
 
@@ -256,26 +248,21 @@ const Login = (props) => {
           history.push("search");
         }
       } else if (result.data) {
-        setState({
-          ...state,
+        this.setState({
           fbProcessing: false,
         });
 
         history.push("search");
       } else {
-        setState({
-          ...state,
+        this.setState({
           fbProcessing: false,
         });
       }
     }
   };
 
-  const handleSocialLogin = async (user) => {
-    setState({ 
-      ...state, 
-      googleProcessing: true 
-    });
+  handleSocialLogin = async (user) => {
+    this.setState({ googleProcessing: true });
 
     if (!user._profile.birthday || !user._profile.gender) {
       const peopleInfo = await getGooglePeople(
@@ -303,8 +290,8 @@ const Login = (props) => {
 
     const { _provider, _profile } = user;
 
-    const { socialLoginRequest, createUserRequest } = props.actions;
-    const { history } = props;
+    const { socialLoginRequest, createUserRequest } = this.props.actions;
+    const { history } = this.props;
 
     const result = await socialLoginRequest(
       _provider,
@@ -313,11 +300,10 @@ const Login = (props) => {
     );
 
     if (result.errors && result.errors === "Record not found") {
-      const user = composeUserFromGoogleProfile(_provider, _profile);
+      const user = this.composeUserFromGoogleProfile(_provider, _profile);
 
       if (!user.gender || !user.birthday) {
-        setState({
-          ...state,
+        this.setState({
           googleUser: user,
           modalOpen: true,
         });
@@ -327,8 +313,7 @@ const Login = (props) => {
 
       const createUserResult = await createUserRequest(user);
 
-      setState({
-        ...state,
+      this.setState({
         googleProcessing: false,
       });
 
@@ -336,42 +321,34 @@ const Login = (props) => {
         history.push("search");
       }
     } else if (result.data) {
-      setState({
-        ...state,
+      this.setState({
         googleProcessing: false,
       });
 
       history.push("search");
     } else {
-      setState({
-        ...state,
+      this.setState({
         googleProcessing: false,
       });
     }
   };
 
-  const handleLogin = async () => {
-    const { email, password } = state;
-    const { setProcessingRequest, loginRequest } = props.actions;
-    const { history } = props;
-    setState({ 
-      ...state, 
-      loginCheck: true, 
-      loginProcessing: true 
-    });
+  handleLogin = async () => {
+    const { email, password } = this.state;
+    const { setProcessingRequest, loginRequest } = this.props.actions;
+    const { history } = this.props;
+    this.setState({ loginCheck: true, loginProcessing: true });
 
     setProcessingRequest();
     const result = await loginRequest(email, password);
     if (result.errors) {
-      setState({
-        ...state,
+      this.setState({
         loginCheck: false,
         loginProcessing: false,
         error: result.errors || "Invalid credentials",
       });
     } else {
-      setState({
-        ...state,
+      this.setState({
         loginCheck: false,
         loginProcessing: false,
         error: "",
@@ -381,31 +358,22 @@ const Login = (props) => {
     }
   };
 
-  const sendVerificationEmail = () => {
-    const { email } = state;
-    const { resendEmailVerificationRequest } = props.actions;
-    setState({ 
-      ...state, 
-      emailError: null 
-    });
+  sendVerificationEmail() {
+    const { email } = this.state;
+    const { resendEmailVerificationRequest } = this.props.actions;
+    this.setState({ emailError: null });
     if (!email) {
-      setState({ 
-        ...state, 
-        emailError: "Please enter a valid email." 
-      });
+      this.setState({ emailError: "Please enter a valid email." });
     } else {
       resendEmailVerificationRequest({ identity: email });
     }
   }
 
-  const handleFbReactLoading = () => {
-    setState({ 
-      ...state, 
-      fbProcessing: true 
-    });
+  handleFbReactLoading() {
+    this.setState({ fbProcessing: true });
   }
 
-  const composeUserFromGoogleProfile = (provider, profile) => {
+  composeUserFromGoogleProfile = (provider, profile) => {
     const user = {
       first_name: profile.firstName,
       last_name: profile.lastName,
@@ -420,15 +388,14 @@ const Login = (props) => {
     return user;
   };
 
-  const continueGoogleSignup = async () => {
-    setState({
-      ...state,
+  continueGoogleSignup = async () => {
+    this.setState({
       modalOpen: false,
     });
 
-    const { googleUser } = state;
-    const { createUserRequest } = props.actions;
-    const { history } = props;
+    const { googleUser } = this.state;
+    const { createUserRequest } = this.props.actions;
+    const { history } = this.props;
     const createUserResult = await createUserRequest(googleUser);
 
     if (!createUserResult.errors) {
@@ -436,250 +403,239 @@ const Login = (props) => {
     }
   };
 
-  const handleModalClose = () => {
-    setState({
-      ...state,
+  handleModalClose = () => {
+    this.setState({
       googleProcessing: false,
       modalOpen: false,
     });
 
-    setState({ 
-      ...state, 
-      rerender: true 
+    this.setState({ rerender: true }, () => {
+      this.setState({ rerender: false });
     });
   };
 
-  useEffect(() => {
-    if(state?.rerender == true) {
-      setState({ 
-        ...state, 
-        rerender: false 
-      });
-    }
-  }, [state])
-
-  const {
-    email,
-    password,
-    error,
-    emailError,
-    fbProcessing,
-    googleProcessing,
-    loginProcessing,
-    modalOpen,
-    googleUser,
-    rerender,
-  } = state;
-  return (
-    <div className="login-container">
-      <div className="container">
-        <Card className="cardContainer">
-          <h3 className="center-align">Login</h3>
-          <div className="subHeading">
-            As a Ridesurfing member, I will support an accepting environment
-            that nurtures safety, trust, and friendship.
-          </div>
-          <div className="mb10">
-            <FacebookLogin
-              appId={facebookId}
-              fields="first_name,last_name,email,picture.width(500).height(500),gender,birthday"
-              scope="email,user_birthday,user_gender"
-              callback={handleFbSocialLogin}
-              textButton={
-                fbProcessing ? "Please wait..." : "Sign in with Facebook"
-              }
-              cssClass="leftIcon-btn fb"
-              isMobile={true}
-              disableMobileRedirect={true}
-              icon={<i className="fa fa-facebook-square icon mr10" />}
-              onClick={() => handleFbReactLoading()}
-            />
-          </div>
-          <div className="mb20">
-            {!rerender ? (
-              <SocialButton
-                color="secondary"
-                provider="google"
-                appId={googleId}
-                onLoginSuccess={handleSocialLogin}
-                onLoginFailure={handleSocialLoginFailure}
-                buttonName={
-                  !!googleProcessing
-                    ? "Please wait..."
-                    : "Sign in with Google"
+  render() {
+    const {
+      email,
+      password,
+      error,
+      emailError,
+      fbProcessing,
+      googleProcessing,
+      loginProcessing,
+      modalOpen,
+      googleUser,
+      rerender,
+    } = this.state;
+    return (
+      <div className="login-container">
+        <div className="container">
+          <Card className="cardContainer">
+            <h3 className="center-align">Login</h3>
+            <div className="subHeading">
+              As a Ridesurfing member, I will support an accepting environment
+              that nurtures safety, trust, and friendship.
+            </div>
+            <div className="mb10">
+              <FacebookLogin
+                appId={facebookId}
+                fields="first_name,last_name,email,picture.width(500).height(500),gender,birthday"
+                scope="email,user_birthday,user_gender"
+                callback={this.handleFbSocialLogin}
+                textButton={
+                  fbProcessing ? "Please wait..." : "Sign in with Facebook"
                 }
-                icon={<i className="fa fa-google icon mr10" />}
-                className="leftIcon-btn ggl"
-                scope="email profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/userinfo.profile"
+                cssClass="leftIcon-btn fb"
+                isMobile={true}
+                disableMobileRedirect={true}
+                icon={<i className="fa fa-facebook-square icon mr10" />}
+                onClick={() => this.handleFbReactLoading()}
               />
-            ) : null}
-          </div>
-          <TextField
-            fullWidth
-            className="text-field"
-            id="email"
-            type="text"
-            label="Email"
-            margin="normal"
-            value={email || ""}
-            onChange={(event) => onFieldChange("email", event)}
-            onKeyPress={(event) => onKeyPressEnter(event)}
-          />
-          {!!emailError && <span className="error">{emailError}</span>}
-          <TextField
-            fullWidth
-            className="text-field"
-            id="password"
-            type="password"
-            label="Password"
-            margin="normal"
-            value={password || ""}
-            onChange={(event) => onFieldChange("password", event)}
-            onKeyPress={(event) => onKeyPressEnter(event)}
-          />
-          {!!error && <span className="error">{error}</span>}
-          {!!error && (
+            </div>
+            <div className="mb20">
+              {!rerender ? (
+                <SocialButton
+                  color="secondary"
+                  provider="google"
+                  appId={googleId}
+                  onLoginSuccess={this.handleSocialLogin}
+                  onLoginFailure={this.handleSocialLoginFailure}
+                  buttonName={
+                    !!googleProcessing
+                      ? "Please wait..."
+                      : "Sign in with Google"
+                  }
+                  icon={<i className="fa fa-google icon mr10" />}
+                  className="leftIcon-btn ggl"
+                  scope="email profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/userinfo.profile"
+                />
+              ) : null}
+            </div>
+            <TextField
+              fullWidth
+              className="text-field"
+              id="email"
+              type="text"
+              label="Email"
+              margin="normal"
+              value={email || ""}
+              onChange={(event) => this.onFieldChange("email", event)}
+              onKeyPress={(event) => this.onKeyPressEnter(event)}
+            />
+            {!!emailError && <span className="error">{emailError}</span>}
+            <TextField
+              fullWidth
+              className="text-field"
+              id="password"
+              type="password"
+              label="Password"
+              margin="normal"
+              value={password || ""}
+              onChange={(event) => this.onFieldChange("password", event)}
+              onKeyPress={(event) => this.onKeyPressEnter(event)}
+            />
+            {!!error && <span className="error">{error}</span>}
+            {!!error && (
+              <div className="terms-n-policy">
+                If you have not verified your email yet,{" "}
+                <a
+                  className="underline"
+                  href="#/"
+                  onClick={() => this.sendVerificationEmail()}
+                >
+                  click here
+                </a>{" "}
+                to receive a valid verification code.
+              </div>
+            )}
+            <div className="forgot-link">
+              <Link className="underline" to="/forgot_password">
+                Forgot password?
+              </Link>
+            </div>
+            <div className="mt40">
+              <PrimaryButton
+                color="primary"
+                buttonName={loginProcessing ? "Please Wait..." : "Login"}
+                disabled={!!loginProcessing}
+                className="leftIcon-btn login-btn"
+                handleButtonClick={() => this.handleLogin()}
+              />
+            </div>
+            <div className="signup-link">
+              Don't have an account? Register{" "}
+              <Link className="underline" to="/signup">
+                here
+              </Link>
+            </div>
             <div className="terms-n-policy">
-              If you have not verified your email yet,{" "}
-              <a
-                className="underline"
-                href="#/"
-                onClick={() => sendVerificationEmail()}
-              >
-                click here
-              </a>{" "}
-              to receive a valid verification code.
+              I agree to the{" "}
+              <Link className="underline" to="/terms">
+                terms of service{" "}
+              </Link>
+              and
+              <Link className="underline" to="/policies">
+                {" "}
+                privacy policy
+              </Link>
             </div>
-          )}
-          <div className="forgot-link">
-            <Link className="underline" to="/forgot_password">
-              Forgot password?
-            </Link>
-          </div>
-          <div className="mt40">
-            <PrimaryButton
-              color="primary"
-              buttonName={loginProcessing ? "Please Wait..." : "Login"}
-              disabled={!!loginProcessing}
-              className="leftIcon-btn login-btn"
-              handleButtonClick={() => handleLogin()}
-            />
-          </div>
-          <div className="signup-link">
-            Don't have an account? Register{" "}
-            <Link className="underline" to="/signup">
-              here
-            </Link>
-          </div>
-          <div className="terms-n-policy">
-            I agree to the{" "}
-            <Link className="underline" to="/terms">
-              terms of service{" "}
-            </Link>
-            and
-            <Link className="underline" to="/policies">
-              {" "}
-              privacy policy
-            </Link>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
 
-      <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-        open={modalOpen}
-        onClose={handleModalClose}
-      >
-        <div style={style} className="profile-account-section">
-          <div style={modalTitle}>Please fill your birthday and gender.</div>
-          <div>
-            <div className="date-picker-field">
-              <DatePicker
-                selected={
-                  !!googleUser.birthday ? new Date(googleUser.birthday) : ""
-                }
-                onChange={(date) => {
-                  const newGoogleUser = { ...googleUser };
-                  newGoogleUser.birthday =
-                    date.getMonth() +
-                    1 +
-                    "/" +
-                    date.getDate() +
-                    "/" +
-                    date.getFullYear();
-                  setState({
-                    ...state,
-                    googleUser: newGoogleUser,
-                  });
-                }}
-                maxDate={MAX_DATE}
-                showYearDropdown
-                dropdownMode="select"
-                placeholderText="MM/DD/YYYY"
-                className="date-field text-field"
+        <Modal
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+          open={modalOpen}
+          onClose={this.handleModalClose}
+        >
+          <div style={style} className="profile-account-section">
+            <div style={modalTitle}>Please fill your birthday and gender.</div>
+            <div>
+              <div className="date-picker-field">
+                <DatePicker
+                  selected={
+                    !!googleUser.birthday ? new Date(googleUser.birthday) : ""
+                  }
+                  onChange={(date) => {
+                    const newGoogleUser = { ...googleUser };
+                    newGoogleUser.birthday =
+                      date.getMonth() +
+                      1 +
+                      "/" +
+                      date.getDate() +
+                      "/" +
+                      date.getFullYear();
+                    this.setState({
+                      googleUser: newGoogleUser,
+                    });
+                  }}
+                  maxDate={MAX_DATE}
+                  showYearDropdown
+                  dropdownMode="select"
+                  placeholderText="MM/DD/YYYY"
+                  className="date-field text-field"
+                />
+              </div>
+            </div>
+            <div>
+              <FormControl className="selectField">
+                <InputLabel className="selectLabel" htmlFor="select-multiple">
+                  Select Gender
+                </InputLabel>
+                <Select
+                  value={googleUser.gender}
+                  onChange={(event) => {
+                    const newGoogleUser = { ...googleUser };
+                    newGoogleUser.gender = event.target.value;
+                    this.setState({
+                      googleUser: newGoogleUser,
+                    });
+                  }}
+                  input={<Input id="select-multiple" />}
+                  MenuProps={MenuProps}
+                  className="selected-menu-field"
+                >
+                  {gender.map((name) => (
+                    <MenuItem key={name} value={name} className="menu-field">
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div style={modalActionWrap}>
+              <PrimaryButton
+                disabled={!googleUser.birthday || !googleUser.gender}
+                color="primary"
+                buttonName="Continue"
+                className="leftIcon-btn login-btn"
+                handleButtonClick={this.continueGoogleSignup}
               />
             </div>
-          </div>
-          <div>
-            <FormControl className="selectField">
-              <InputLabel className="selectLabel" htmlFor="select-multiple">
-                Select Gender
-              </InputLabel>
-              <Select
-                value={googleUser.gender}
-                onChange={(event) => {
-                  const newGoogleUser = { ...googleUser };
-                  newGoogleUser.gender = event.target.value;
-                  setState({
-                    ...state,
-                    googleUser: newGoogleUser,
+
+            {/* <div style={modalActionWrap1}>
+              <PrimaryButton
+                color="secondary"
+                buttonName="Close"
+                className="leftIcon-btn"
+                handleButtonClick={() => {
+                  this.handleSocialLoginFailure();
+                  this.handleModalClose();
+                  this.setState({
+                    googleUser: {},
+                    googleProcessing: false,
                   });
                 }}
-                input={<Input id="select-multiple" />}
-                MenuProps={MenuProps}
-                className="selected-menu-field"
-              >
-                {gender.map((name) => (
-                  <MenuItem key={name} value={name} className="menu-field">
-                    {name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                // disabled={!!signupProcessing}
+                // handleButtonClick={() => this.handleSignup()}
+              />
+            </div> */}
           </div>
-
-          <div style={modalActionWrap}>
-            <PrimaryButton
-              disabled={!googleUser.birthday || !googleUser.gender}
-              color="primary"
-              buttonName="Continue"
-              className="leftIcon-btn login-btn"
-              handleButtonClick={continueGoogleSignup}
-            />
-          </div>
-
-          {/* <div style={modalActionWrap1}>
-            <PrimaryButton
-              color="secondary"
-              buttonName="Close"
-              className="leftIcon-btn"
-              handleButtonClick={() => {
-                this.handleSocialLoginFailure();
-                this.handleModalClose();
-                this.setState({
-                  googleUser: {},
-                  googleProcessing: false,
-                });
-              }}
-              // disabled={!!signupProcessing}
-              // handleButtonClick={() => this.handleSignup()}
-            />
-          </div> */}
-        </div>
-      </Modal>
-    </div>
-  );
+        </Modal>
+      </div>
+    );
+  }
 }
 
 const style = {
