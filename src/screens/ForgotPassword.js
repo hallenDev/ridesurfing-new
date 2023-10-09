@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import TextField from '@material-ui/core/TextField'
 import Card from '@material-ui/core/Card'
 import { Link } from 'react-router-dom'
