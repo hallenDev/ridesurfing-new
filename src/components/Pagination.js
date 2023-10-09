@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import * as actions from '../actions'
 
@@ -8,41 +8,42 @@ import { bindActionCreators } from 'redux'
 import missingImg from '../images/missing.png'
 
 
-class Pagination extends Component {
 
-    constructor (props) {
-    super(props)
-    this.state = {
-      current_page: this.props.current_page,
-      page_count: this.props.total_pages,
-      per_page: this.props.per_page,
-      ride_count: this.props.total_count,
-      page_click_cb: this.props.onPageNumClick
-    }
+const Pagination = (props) => {    
+
+  const initial_state = {
+    current_page: props.current_page,
+    page_count: props.total_pages,
+    per_page: props.per_page,
+    ride_count: props.total_count,
+    page_click_cb: props.onPageNumClick
   }
+
+  const [state, setState] = useState(initial_state)
   
-  static getDerivedStateFromProps(props, state) {
-    let update = {}
-    return update
-  }
+  // static getDerivedStateFromProps(props, state) {
+  //   let update = {}
+  //   return update
+  // }
 
-  renderPage(page_num){
+  const renderPage = (page_num) => {
     console.log(`render page ${page_num}`)
-    return <li key={"page"+page_num} className={page_num === this.props.current_page ? "active" : "waves-effect"}>
+    return <li key={"page"+page_num} className={page_num === props.current_page ? "active" : "waves-effect"}>
                     {/* eslint-disable-next-line */}
-             <a href="javascript:void(0)" onClick={(e) => this.props.onPageNumClick(e, page_num)}>{page_num}</a>
+             <a href="javascript:void(0)" onClick={(e) => props.onPageNumClick(e, page_num)}>{page_num}</a>
            </li>
   }
-  renderSkip() {
+  
+  const renderSkip= () => {
     return <li>...</li>
   }
-  renderPagination(){
+  const renderPagination = () => {
     // return <li>"..."</li>
-    const cnt = Math.max(this.props.total_pages, 1)
-    const current = this.props.current_page
+    const cnt = Math.max(props.total_pages, 1)
+    const current = props.current_page
     if(cnt < 6){
       let result =  [...Array(cnt-1).keys()].map(
-        x => this.renderPage(x+1)
+        x => renderPage(x+1)
       );
       return result
     }
@@ -65,19 +66,16 @@ class Pagination extends Component {
     let last = 0;
     let res = pages_a.map((x) => {
        if(x == " ..." || x == "... ")
-        return this.renderSkip();
+        return renderSkip();
        else
-        return this.renderPage(x);
+        return renderPage(x);
     });
     return res
   }
   
   
-  render () {
-    return <ul className="pagination">
-      {this.renderPagination()}
-    </ul> 
-  }
-
+  return <ul className="pagination">
+    {renderPagination()}
+  </ul> 
 }
 export default Pagination

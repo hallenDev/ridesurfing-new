@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import Dropzone from 'react-dropzone'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
@@ -13,31 +13,33 @@ import * as actions from '../actions'
 import { getCurrentUser, getProfileSaved, getProfileErrors, getImageDeleted, getIsProcessing } from '../reducers/SessionReducer'
 import close from '../images/close.png'
 
-class ProfileCarSection extends Component {
+const initial_state = {
+  userId: null,
+  lbOpen: false,
+  photoIndex: 0,
+  isProcessing: false
+}
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      userId: null,
-      lbOpen: false,
-      photoIndex: 0,
-      isProcessing: false
-    }
-  }
+const ProfileCarSection = (props) => {
 
-  componentDidMount () {
-    const { getCurrentUserRequest } = this.props.actions
-    getCurrentUserRequest()
-  }
+  const [state, setState] = useState(initial_state);
 
-  UNSAFE_componentWillReceiveProps (nextProps) {
-    if (nextProps.isProcessing || nextProps.isProcessing === false) {
-      this.setState({ isProcessing: nextProps.isProcessing })
-    }
-  }
+  // to-do
+  // componentDidMount () {
+  //   const { getCurrentUserRequest } = this.props.actions
+  //   getCurrentUserRequest()
+  // }
 
-  onDrop (files) {
-    this.setState({
+  // to-do
+  // UNSAFE_componentWillReceiveProps (nextProps) {
+  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
+  //     this.setState({ isProcessing: nextProps.isProcessing })
+  //   }
+  // }
+
+  const onDrop = (files) => {
+    setState({
+      ...state, 
       files: files.map(file => ({
         ...file,
         preview: URL.createObjectURL(file)
@@ -45,9 +47,12 @@ class ProfileCarSection extends Component {
     });
   }
 
-  uploadImage (files, imageType) {
-    const { setProcessingRequest, uploadProfileImageRequest } = this.props.actions
-    this.setState({ isProcessing: true })
+  const uploadImage = (files, imageType) => {
+    const { setProcessingRequest, uploadProfileImageRequest } = props.actions
+    setState({ 
+      ...state,
+      isProcessing: true 
+    })
     setProcessingRequest()
 
     const fileObj = files[0]
@@ -64,8 +69,8 @@ class ProfileCarSection extends Component {
     }
   }
 
-   deleteImage = (imageId) => {
-     const { deleteProfileImageRequest } = this.props.actions
+   const deleteImage = (imageId) => {
+     const { deleteProfileImageRequest } = props.actions
 
      confirmAlert({
        title: 'Alert!',
@@ -83,8 +88,8 @@ class ProfileCarSection extends Component {
      })
    }
 
-  carImages () {
-    const { profile } = this.props
+  const carImages = () => {
+    const { profile } = props
     if (profile && profile.relationships) {
       const { images } = profile.relationships
 
@@ -99,19 +104,22 @@ class ProfileCarSection extends Component {
     }
   }
 
-  profileImagesArr () {
-    const arr = this.carImages()
+  const profileImagesArr = () => {
+    const arr = carImages()
     return _.pluck(_.pluck(arr, 'attributes'), 'url')
   }
 
-  onCancel() {
-    this.setState({ files: [] })
+  const onCancel= () => {
+    setState({
+      ...state,
+       files: [] 
+      })
   }
 
-  renderCarThumbs () {
-    const { currentUser, user } = this.props
+  const renderCarThumbs = () => {
+    const { currentUser, user } = props
 
-    const carImages = this.carImages()
+    const carImages = carImages()
     return _.map(carImages, (img, index) => {
 
       return <div className="imgWrapper" key={`photo${index}`}>
@@ -119,83 +127,82 @@ class ProfileCarSection extends Component {
           src={img.attributes.url}
           className="responsive-img uploadPic"
           alt=""
-          onClick={() => this.setState({ lbOpen: true })}
+          onClick={() => setState({ ...state, lbOpen: true })}
         />
         {/* eslint-disable-next-line */}
-        {user.id === currentUser.id && <a href="javascript:void(0)" className="removeImg" onClick={() => this.deleteImage(img.id)} ><img src={close} alt="" className="close-icon" /></a>}
+        {user.id === currentUser.id && <a href="javascript:void(0)" className="removeImg" onClick={() => deleteImage(img.id)} ><img src={close} alt="" className="close-icon" /></a>}
       </div>
     })
   }
 
-  render () {
-    const { currentUser, profile, user } = this.props
-    const userInfo = profile.attributes
-    const { lbOpen, photoIndex, isProcessing } = this.state
-    const profileImagesArr = this.profileImagesArr()
+  const { currentUser, profile, user } = props
+  const userInfo = profile.attributes
+  const { lbOpen, photoIndex, isProcessing } = state
 
-    return (
-      <div className="profile-car-section">
-        <div className="row">
-          <div className="col s12 l6 m6">
-            <h5>Car Information</h5>
-            <table className="table table-user-information">
-              <tbody>
-                <tr>
-                  <td className="info-label"><b>Make</b></td>
-                  <td className="info-val">{userInfo.car_make}</td>
-                </tr>
-                <tr>
-                  <td className="info-label"><b>Model</b></td>
-                  <td className="info-val">{userInfo.car_model}</td>
-                </tr>
-                <tr>
-                  <td className="info-label"><b>Color</b></td>
-                  <td className="info-val">{userInfo.car_color}</td>
-                </tr>
-                <tr>
-                  <td className="info-label"><b>Year</b></td>
-                  <td className="info-val">{userInfo.car_year}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  return (
+    <div className="profile-car-section">
+      <div className="row">
+        <div className="col s12 l6 m6">
+          <h5>Car Information</h5>
+          <table className="table table-user-information">
+            <tbody>
+              <tr>
+                <td className="info-label"><b>Make</b></td>
+                <td className="info-val">{userInfo.car_make}</td>
+              </tr>
+              <tr>
+                <td className="info-label"><b>Model</b></td>
+                <td className="info-val">{userInfo.car_model}</td>
+              </tr>
+              <tr>
+                <td className="info-label"><b>Color</b></td>
+                <td className="info-val">{userInfo.car_color}</td>
+              </tr>
+              <tr>
+                <td className="info-label"><b>Year</b></td>
+                <td className="info-val">{userInfo.car_year}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div className="car-profile-images">
-          {this.renderCarThumbs()}
-        </div>
-        <div className='bubble-container'>
-          {!!isProcessing && <ReactLoading type='bubbles' color='#3399ff' height='12%' width='12%' />}
-        </div>
-        {currentUser.id === user.id && <div className="image image-dash mt20 l6 m6 col">
-          <Dropzone
-            onDrop={(files) => this.uploadImage(files, 'car')}
-            onFileDialogCancel={this.onCancel.bind(this)}
-            className="dropzone"
-          >
-            <div>Try dropping image here, or click to select image to upload.</div>
-          </Dropzone>
-        </div>}
-        {lbOpen && (
-          <Lightbox
-            mainSrc={profileImagesArr[photoIndex]}
-            nextSrc={profileImagesArr[(photoIndex + 1) % profileImagesArr.length]}
-            prevSrc={profileImagesArr[(photoIndex + profileImagesArr.length - 1) % profileImagesArr.length]}
-            onCloseRequest={() => this.setState({ lbOpen: false })}
-            onMovePrevRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + profileImagesArr.length - 1) % profileImagesArr.length,
-              })
-            }
-            onMoveNextRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + 1) % profileImagesArr.length,
-              })
-            }
-          />
-        )}
       </div>
-    )
-  }
+      <div className="car-profile-images">
+        {renderCarThumbs()}
+      </div>
+      <div className='bubble-container'>
+        {!!isProcessing && <ReactLoading type='bubbles' color='#3399ff' height='12%' width='12%' />}
+      </div>
+      {currentUser.id === user.id && <div className="image image-dash mt20 l6 m6 col">
+        <Dropzone
+          onDrop={(files) => uploadImage(files, 'car')}
+          onFileDialogCancel={onCancel}
+          className="dropzone"
+        >
+          <div>Try dropping image here, or click to select image to upload.</div>
+        </Dropzone>
+      </div>}
+      {lbOpen && (
+        <Lightbox
+          mainSrc={profileImagesArr[photoIndex]}
+          nextSrc={profileImagesArr[(photoIndex + 1) % profileImagesArr.length]}
+          prevSrc={profileImagesArr[(photoIndex + profileImagesArr.length - 1) % profileImagesArr.length]}
+          onCloseRequest={() => setState({ ...state, lbOpen: false })}
+          onMovePrevRequest={() =>
+            setState({
+              ...state,
+              photoIndex: (photoIndex + profileImagesArr.length - 1) % profileImagesArr.length,
+            })
+          }
+          onMoveNextRequest={() =>
+            setState({
+              ...state,
+              photoIndex: (photoIndex + 1) % profileImagesArr.length,
+            })
+          }
+        />
+      )}
+    </div>
+  )
 }
 
 function mapStateToProps (state) {

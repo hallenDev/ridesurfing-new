@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import Autosuggest from 'react-autosuggest'
 import match from 'autosuggest-highlight/match'
 import parse from 'autosuggest-highlight/parse'
@@ -15,7 +15,7 @@ const suggestions = [
   { label: 'India' },
 ];
 
-function renderInputComponent(inputProps) {
+const renderInputComponent = (inputProps) => {
   const { classes, inputRef = () => {}, ref, ...other } = inputProps;
 
   return (
@@ -36,7 +36,7 @@ function renderInputComponent(inputProps) {
   );
 }
 
-function renderSuggestion(suggestion, { query, isHighlighted }) {
+const renderSuggestion = (suggestion, { query, isHighlighted }) => {
   const matches = match(suggestion.label, query);
   const parts = parse(suggestion.label, matches);
 
@@ -59,7 +59,7 @@ function renderSuggestion(suggestion, { query, isHighlighted }) {
   );
 }
 
-function getSuggestions(value) {
+const getSuggestions = (value) => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
   let count = 0;
@@ -76,7 +76,7 @@ function getSuggestions(value) {
       });
 }
 
-function getSuggestionValue(suggestion) {
+const getSuggestionValue = (suggestion) => {
   return suggestion.label;
 }
 
@@ -104,44 +104,49 @@ const styles = theme => ({
   },
 });
 
-class AutoSearchField extends Component {
+const initial_state = {
+  single: '',
+  popper: '',
+  suggestions: [],
+};
+
+const AutoSearchField = (props) => {
   popperNode = null;
 
-  state = {
-    single: '',
-    popper: '',
-    suggestions: [],
-  };
+  const [state, setState] = useState(initial_state);
+  const [popperNode, setPopperNode] = useState(null);
 
-  handleSuggestionsFetchRequested = ({ value }) => {
-    this.setState({
+  const handleSuggestionsFetchRequested = ({ value }) => {
+    setState({
+      ...state,
       suggestions: getSuggestions(value),
     });
   };
 
-  handleSuggestionsClearRequested = () => {
-    this.setState({
+  const handleSuggestionsClearRequested = () => {
+    setState({
+      ...state, 
       suggestions: [],
     });
   };
 
-  handleChange = name => (event, { newValue }) => {
-    this.setState({
+  const handleChange = name => (event, { newValue }) => {
+    setState({
+      ...state,
       [name]: newValue,
     });
   };
 
-  render() {
-    const { classes } = this.props;
+  const { classes } = props;
 
-    const autosuggestProps = {
-      renderInputComponent,
-      suggestions: this.state.suggestions,
-      onSuggestionsFetchRequested: this.handleSuggestionsFetchRequested,
-      onSuggestionsClearRequested: this.handleSuggestionsClearRequested,
-      getSuggestionValue,
-      renderSuggestion,
-    };
+  const autosuggestProps = {
+    renderInputComponent,
+    suggestions: state.suggestions,
+    onSuggestionsFetchRequested: handleSuggestionsFetchRequested,
+    onSuggestionsClearRequested: handleSuggestionsClearRequested,
+    getSuggestionValue,
+    renderSuggestion,
+  };
 
     return (
       <div className="root-fields">
@@ -149,13 +154,13 @@ class AutoSearchField extends Component {
           {...autosuggestProps}
           inputProps={{
             classes,
-            label: this.props.label,
-            placeholder: this.props.placeholder,
+            label: props.label,
+            placeholder: props.placeholder,
             className: "home-fields",
-            value: this.state.popper,
-            onChange: this.handleChange('popper'),
+            value: state.popper,
+            onChange: handleChange('popper'),
             inputRef: node => {
-              this.popperNode = node;
+              setPopperNode(node);
             },
           }}
           theme={{
@@ -163,11 +168,11 @@ class AutoSearchField extends Component {
             suggestion: classes.suggestion,
           }}
           renderSuggestionsContainer={options => (
-            <Popper anchorEl={this.popperNode} open={Boolean(options.children)}>
+            <Popper anchorEl={popperNode} open={Boolean(options.children)}>
               <Paper
                 square
                 {...options.containerProps}
-                style={{ width: this.popperNode ? this.popperNode.clientWidth : null }}
+                style={{ width: popperNode ? popperNode.clientWidth : null }}
               >
                 {options.children}
               </Paper>
@@ -176,7 +181,6 @@ class AutoSearchField extends Component {
         />
       </div>
     );
-  }
 }
 
 export default withStyles(styles)(AutoSearchField);

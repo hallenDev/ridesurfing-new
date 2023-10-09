@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import $ from 'jquery'
-import React, { Component } from 'react'
+import React, { Component, useEffect, useState } from 'react'
 
 const google = window.google
 
@@ -11,42 +11,41 @@ var directionsService = new google.maps.DirectionsService
 var map
 var markersArray = []
 
-class Gmaps extends Component {
+const initial_state = {
+  latitude: 39.73915,
+  longitude: -104.9847
+}
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      latitude: 39.73915,
-      longitude: -104.9847
-    }
-  }
+const Gmaps = (props) => {
 
-  initializeMap () {
-    const { latitude, longitude } = this.state
+  const [state, setState] = useState(initial_state);
+
+  const initializeMap = () => {
+    const { latitude, longitude } = state
     var myLatlng = new google.maps.LatLng(latitude, longitude)
     var mapOptions = { zoom: 4, center: myLatlng }
 
     return new google.maps.Map(document.getElementById('map'), mapOptions)
   }
 
-  componentDidMount () {
-    const { defaultLat, defaultLng } = this.props
+  useEffect(() => {
+    const { defaultLat, defaultLng } = props
     if (defaultLat && defaultLng) {
-      this.setState({ latitude: defaultLat, longitude: defaultLng})
+      setState({ latitude: defaultLat, longitude: defaultLng})
     }
-    map = this.initializeMap()
-    this.rerenderGMap()
-  }
+    map = initializeMap()
+    rerenderGMap()
+  }, []);
 
-  placeStartingMarkers () {
-    const { waypoints } = this.props
+  const placeStartingMarkers = () => {
+    const { waypoints } = props
     var bounds = new google.maps.LatLngBounds()
 
     if (waypoints.length !== 0) {
       _.each(waypoints, (trip) => {
         var marker, latLng
         latLng = new google.maps.LatLng(Number(trip.start_location_latitude), Number(trip.start_location_longitude))
-        marker = this.placeMarker(trip, latLng)
+        marker = placeMarker(trip, latLng)
         bounds.extend(latLng)
         markersArray.push(marker)
       })
@@ -56,11 +55,11 @@ class Gmaps extends Component {
         map.setZoom(Math.min(15, map.getZoom()))
       }
     } else {
-      map = this.initializeMap()
+      map = initializeMap()
     }
   }
 
-  placeMarker(trip, latLng) {
+  const placeMarker = (trip, latLng) => {
     const comp = this
     const { name, price, finish_date } = trip
     var marker = new google.maps.Marker({
@@ -72,7 +71,7 @@ class Gmaps extends Component {
     return marker
   }
 
-  clearOverlays () {
+  const clearOverlays = () => {
     if (markersArray) {
       for (var i=0; i < markersArray.length; i++) {
         markersArray[i].setMap(null)
@@ -80,31 +79,32 @@ class Gmaps extends Component {
     }
   }
 
-  filterTrips (trip) {
-    this.props.onMarkerClick(trip)
+  const filterTrips = (trip) => {
+    props.onMarkerClick(trip)
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    if (prevProps.showTrip !== this.props.showTrip
-      || prevProps.start_location !== this.props.start_location
-      || prevProps.destination !== this.props.destination
-      || prevProps.latitude !== this.props.latitude
-      || prevProps.longitude !== this.props.longitude
-      || prevProps.trips !== this.props.trips
-      || prevProps.allTrips !== this.props.allTrips
-    ) {
-      this.rerenderGMap()
-    }
-  }
+  // to-do
+  // componentDidUpdate (prevProps, prevState) {
+  //   if (prevProps.showTrip !== this.props.showTrip
+  //     || prevProps.start_location !== this.props.start_location
+  //     || prevProps.destination !== this.props.destination
+  //     || prevProps.latitude !== this.props.latitude
+  //     || prevProps.longitude !== this.props.longitude
+  //     || prevProps.trips !== this.props.trips
+  //     || prevProps.allTrips !== this.props.allTrips
+  //   ) {
+  //     this.rerenderGMap()
+  //   }
+  // }
 
-  rerenderGMap() {
-    if (this.props.showTrip) {
+  const rerenderGMap = () => {
+    if (props.showTrip) {
       $('#mapError').html("")
-      if (this.props.start_location !== undefined && this.props.destination !== undefined) {
-        const { start_location_latitude, start_location_longitude, destination_latitude, destination_longitude } = this.props
+      if (props.start_location !== undefined && props.destination !== undefined) {
+        const { start_location_latitude, start_location_longitude, destination_latitude, destination_longitude } = props
         if (start_location_latitude && start_location_longitude && destination_latitude && destination_longitude) {
-          var start = new google.maps.LatLng(this.props.start_location_latitude, this.props.start_location_longitude)
-          var end = new google.maps.LatLng(this.props.destination_latitude, this.props.destination_longitude)
+          var start = new google.maps.LatLng(props.start_location_latitude, props.start_location_longitude)
+          var end = new google.maps.LatLng(props.destination_latitude, props.destination_longitude)
           directionsService.route({
             origin: start,
             destination: end,
@@ -112,14 +112,14 @@ class Gmaps extends Component {
             unitSystem: google.maps.UnitSystem.IMPERIAL
           }, (result, status) => {
             if (status === google.maps.DirectionsStatus.OK) {
-              this.clearOverlays()
+              clearOverlays()
               directionsDisplay.setMap(map)
               directionsDisplay.setDirections(result)
               $("#duration").val(directionsDisplay.directions.routes[0].legs[0].duration.text)
             } else {
               if (status !== google.maps.DirectionsStatus.OVER_QUERY_LIMIT) {
                 directionsDisplay.setDirections({routes: []})
-                this.clearOverlays()
+                clearOverlays()
                 $("#duration").val(null)
                 $('#mapError').html("No route available")
               }
@@ -129,17 +129,14 @@ class Gmaps extends Component {
       }
     } else {
       directionsDisplay.setDirections({routes: []})
-      this.clearOverlays()
-      this.placeStartingMarkers()
+      clearOverlays()
+      placeStartingMarkers()
     }
   }
 
-  render() {
-    return (
-      <div id="map" ref="map_canvas"></div>
-    );
-  }
-
+  return (
+    <div id="map" ref="map_canvas"></div>
+  );
 }
 
 export default Gmaps

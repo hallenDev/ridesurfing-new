@@ -16,16 +16,16 @@ import * as actions from '../actions'
 import { getProfileErrors } from '../reducers/ProfileReducer'
 import { getCurrentUser } from '../reducers/SessionReducer'
 
-class ProfileMainSection extends Component {
+const ProfileMainSection = (props) => {
 
-  goToProfile (user) {
-    const { history } = this.props
+  const goToProfile = (user) =>  {
+    const { history } = props
     history.push(`/profile/${user.attributes.slug || user.id}`)
   }
 
-  renderTestimonials (user) {
+  const renderTestimonials = (user) => {
     const { reviews } = user.relationships
-    const { currentUser } = this.props
+    const { currentUser } = props
     if (reviews.length > 0) {
       return <Carousel autoplay={true} className="testimonial-carousel">
         {_.map(reviews, (review, index) => {
@@ -54,85 +54,83 @@ class ProfileMainSection extends Component {
     }
   }
 
-  render () {
-    const { profile, user } = this.props
-    const userInfo = profile.attributes
+  const { profile, user } = props
+  const userInfo = profile.attributes
 
-    return (
-      <div className="profile-main-section">
-        {!!userInfo && <div className="user-info">
-          <div className="row">
-            <div className="col s12">
-              <h5>About Me</h5>
-              <p className="details">{userInfo.bio}</p>
-            </div>
+  return (
+    <div className="profile-main-section">
+      {!!userInfo && <div className="user-info">
+        <div className="row">
+          <div className="col s12">
+            <h5>About Me</h5>
+            <p className="details">{userInfo.bio}</p>
           </div>
-          <div className="row">
-            <div className="col s12 m6">
-              <h5>Personal Information</h5>
-              <table className="table table-user-information">
-                <tbody>
-                  <tr>
-                    <td className="info-label"><b>Age</b></td>
-                    <td className="info-val">{user.age || user.attributes.age}</td>
-                  </tr>
-                  <tr>
-                    <td className="info-label"><b>Gender</b></td>
-                    <td className="info-val capitalize">{user.gender || user.attributes.gender}</td>
-                  </tr>
-                  <tr>
-                    <td className="info-label"><b>Education Level</b></td>
-                    <td className="info-val">{userInfo.education}</td>
-                  </tr>
-                  <tr>
-                    <td className="info-label"><b>Occupation</b></td>
-                    <td className="info-val">{userInfo.occupation}</td>
-                  </tr>
-                  <tr>
-                    <td className="info-label"><b>Relationship</b></td>
-                    <td className="info-val capitalize">{userInfo.relationship_status}</td>
-                  </tr>
-                  <tr>
-                    <td className="info-label"><b>Kids</b></td>
-                    <td className="info-val">{userInfo.kids ? 'Yes' : (userInfo.kids == false) ? 'No' : '' }</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="col s12 offset-m1 m5 user-preferences">
-              <h5>User preferences</h5>
-              <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="Smoking Friendly">
-                <img src={smoke} alt="" className="preference-icon"/>
-                {!!userInfo.smoking && <i className="fa fa-check success"></i>}
-                {!userInfo.smoking && <i className="fa fa-times danger"></i>}
-              </span>
-              <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="Pet Friendly">
-                <img src={pet} alt="" className="preference-icon"/>
-                {!!userInfo.pets && <i className="fa fa-check success"></i>}
-                {!userInfo.pets && <i className="fa fa-times danger"></i>}
-              </span>
-              <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="Kid Friendly">
-                <img src={kid} alt="" className="preference-icon"/>
-                {!!userInfo.kid_friendly && <i className="fa fa-check success"></i>}
-                {!userInfo.kid_friendly && <i className="fa fa-times danger"></i>}
-              </span>
-              <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="AC/Heater">
-                <img src={heater} alt="" className="preference-icon"/>
-                {!!userInfo.car_ac && <i className="fa fa-check success"></i>}
-                {!userInfo.car_ac && <i className="fa fa-times danger"></i>}
-              </span>
-            </div>
+        </div>
+        <div className="row">
+          <div className="col s12 m6">
+            <h5>Personal Information</h5>
+            <table className="table table-user-information">
+              <tbody>
+                <tr>
+                  <td className="info-label"><b>Age</b></td>
+                  <td className="info-val">{user.age || user.attributes.age}</td>
+                </tr>
+                <tr>
+                  <td className="info-label"><b>Gender</b></td>
+                  <td className="info-val capitalize">{user.gender || user.attributes.gender}</td>
+                </tr>
+                <tr>
+                  <td className="info-label"><b>Education Level</b></td>
+                  <td className="info-val">{userInfo.education}</td>
+                </tr>
+                <tr>
+                  <td className="info-label"><b>Occupation</b></td>
+                  <td className="info-val">{userInfo.occupation}</td>
+                </tr>
+                <tr>
+                  <td className="info-label"><b>Relationship</b></td>
+                  <td className="info-val capitalize">{userInfo.relationship_status}</td>
+                </tr>
+                <tr>
+                  <td className="info-label"><b>Kids</b></td>
+                  <td className="info-val">{userInfo.kids ? 'Yes' : (userInfo.kids == false) ? 'No' : '' }</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div className="row">
-            <div className="col s12">
-              <h5 className="mt40 mb20">Users Testimonials/Feedback</h5>
-              {this.renderTestimonials(user)}
-            </div>
+          <div className="col s12 offset-m1 m5 user-preferences">
+            <h5>User preferences</h5>
+            <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="Smoking Friendly">
+              <img src={smoke} alt="" className="preference-icon"/>
+              {!!userInfo.smoking && <i className="fa fa-check success"></i>}
+              {!userInfo.smoking && <i className="fa fa-times danger"></i>}
+            </span>
+            <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="Pet Friendly">
+              <img src={pet} alt="" className="preference-icon"/>
+              {!!userInfo.pets && <i className="fa fa-check success"></i>}
+              {!userInfo.pets && <i className="fa fa-times danger"></i>}
+            </span>
+            <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="Kid Friendly">
+              <img src={kid} alt="" className="preference-icon"/>
+              {!!userInfo.kid_friendly && <i className="fa fa-check success"></i>}
+              {!userInfo.kid_friendly && <i className="fa fa-times danger"></i>}
+            </span>
+            <span className="preference-icon-wrapper" data-toggle="tooltip" data-placement="bottom" title="AC/Heater">
+              <img src={heater} alt="" className="preference-icon"/>
+              {!!userInfo.car_ac && <i className="fa fa-check success"></i>}
+              {!userInfo.car_ac && <i className="fa fa-times danger"></i>}
+            </span>
           </div>
-        </div>}
-      </div>
-    )
-  }
+        </div>
+        <div className="row">
+          <div className="col s12">
+            <h5 className="mt40 mb20">Users Testimonials/Feedback</h5>
+            {renderTestimonials(user)}
+          </div>
+        </div>
+      </div>}
+    </div>
+  )
 }
 
 function mapStateToProps (state) {
