@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import Autosuggest from 'react-autosuggest'
 import match from 'autosuggest-highlight/match'
 import parse from 'autosuggest-highlight/parse'
@@ -111,7 +111,6 @@ const initial_state = {
 };
 
 const AutoSearchField = (props) => {
-  popperNode = null;
 
   const [state, setState] = useState(initial_state);
   const [popperNode, setPopperNode] = useState(null);
