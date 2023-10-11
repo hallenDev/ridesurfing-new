@@ -16,13 +16,11 @@ import Icon from '@material-ui/core/Icon'
 import Badge from '@material-ui/core/Badge'
 import MenuIcon from '@material-ui/icons/Menu'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
 import logo from '../images/rs-logo.png'
-import * as actions from '../actions'
-import { getNotificationCount, getCurrentUser, getChatsCount } from '../reducers/SessionReducer'
-import { getNotifications } from '../reducers/NotificationReducer'
+
+import useNotificationStore from '../store/NotificationStore';
+import useSessionStore from '../store/SessionStore';
+import useTripRequestStore from '../store/TripRequestStore';
 
 const initial_state = {
   open: false,
@@ -31,6 +29,16 @@ const initial_state = {
 };
 
 const Nav = (props) => {
+
+  const notificationStore = useNotificationStore();
+  const sessionStore = useSessionStore();
+  const tripRequestStore = useTripRequestStore();
+
+  const currentUser = sessionStore.currentUser;
+  const notifications = notificationStore.notifications;
+  const notificationCount = sessionStore.notificationCount;
+  const chatsCount = sessionStore.chatsCount;
+
 
   const [state, setState] = useState(initial_state);
 
@@ -52,7 +60,6 @@ const Nav = (props) => {
 
   const subscribeChannel = () => {
     if (props.cable) {
-      var comp = this
       var cable = props.cable
       cable.subscriptions.create({channel: "NotificationsChannel"}, {
         connected: () => {
@@ -60,13 +67,11 @@ const Nav = (props) => {
         disconnected: () => {
         },
         received: function(data) {
-          const { setNotificationCountRequest } = comp.props.actions
-          if (comp.props.currentUser && data.user_id === comp.props.currentUser.id) {
-            setNotificationCountRequest(data)
+          if (currentUser && data.user_id === currentUser.id) {
+            sessionStore.setNotificationCountRequest(data)
 
-            const { getTripRequestsRequest, getReceivedTripRequestsRequest } = comp.props.actions
-            getReceivedTripRequestsRequest()
-            getTripRequestsRequest()
+            tripRequestStore.getReceivedTripRequestsRequest()
+            tripRequestStore.getTripRequestsRequest()
           }
         }
       })
@@ -82,8 +87,7 @@ const Nav = (props) => {
   }
 
   const handleNotificationToggle = () => {
-    const { getNotificationsRequest } = props.actions
-    getNotificationsRequest()
+    notificationStore.getNotificationsRequest()
     setState(state => ({ notificationDropdown: !state.notificationDropdown }))
   }
 
@@ -104,12 +108,11 @@ const Nav = (props) => {
   }
 
   const handleNotificationClick = (notification) => {
-    const { updateNotificationRequest } = props.actions
     const { subject_type, for_driver, review_total, review_rated_to, subject_id } = notification.attributes
-    const { currentUser, history } = props
+    const { history } = props
 
     if (!notification.attributes.is_read) {
-      updateNotificationRequest(notification.id)
+      notificationStore.updateNotificationRequest(notification.id)
     }
 
     if (subject_type === "TripRequest") {
@@ -148,13 +151,11 @@ const Nav = (props) => {
   }
 
   const handleLogout = () => {
-    const { logoutRequest } = props.actions
-    logoutRequest()
+    sessionStore.logoutRequest()
     return window.location.href = `/login`
   }
 
   const renderNotifications = () => {
-    const { notifications } = props
     if (notifications.length > 0 ) {
       return _.map(notifications, (noti, index) => {
         return <div className={`notification ${noti.attributes.is_read ? '' : 'unread'}`} onClick={() => handleNotificationClick(noti)} key={`noti-${index}`}>
@@ -173,8 +174,6 @@ const Nav = (props) => {
     localStorage.setItem('prevUrl', `/new_ride`)
     history.push('/login')
   }
-
-  const { currentUser, notificationCount, chatsCount } = props
   const { open, notificationDropdown } = state
 
   return (
@@ -401,34 +400,4 @@ const Nav = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    notifications: getNotifications(state),
-    notificationCount: getNotificationCount(state),
-    chatsCount: getChatsCount(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCurrentUserRequest, logoutRequest, getNotificationsRequest,
-    setNotificationCountRequest, updateNotificationRequest, getTripRequestsRequest,
-    getReceivedTripRequestsRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        logoutRequest,
-        getNotificationsRequest,
-        setNotificationCountRequest,
-        updateNotificationRequest,
-        getTripRequestsRequest,
-        getReceivedTripRequestsRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Nav))
+export default withRouter(Nav)

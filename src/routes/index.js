@@ -48,12 +48,14 @@ export default (
       />
       <Route exact path="/login" component={Login} />
       <Route exact path="/signup" component={Signup} />
-      {/* <Route exact path="/about" component={AboutUs} />
+      
       <Route exact path="/safety" component={Trust} />
-      <Route exact path="/help" component={Help} />
+      <Route exact path="/about" component={AboutUs} />
       <Route exact path="/careers" component={Careers} />
+      <Route exact path="/help" component={Help} />
       <Route exact path="/policies" component={Policies} />
-      <Route exact path="/terms" component={Terms} /> */}
+      <Route exact path="/terms" component={Terms} />
+      
       <Route exact path="/forgot_password" component={ForgotPassword} />
       <Route exact path="/reset_password" component={ResetPassword} />
       <Route exact path="/verify_email" component={VerifyEmail} />

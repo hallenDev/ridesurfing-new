@@ -6,12 +6,8 @@ import 'react-confirm-alert/src/react-confirm-alert.css'
 import Lightbox from 'react-image-lightbox'
 import ReactLoading from 'react-loading'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getCurrentUser, getProfileSaved, getProfileErrors, getImageDeleted, getIsProcessing } from '../reducers/SessionReducer'
 import close from '../images/close.png'
+import useSessionStore from '../store/SessionStore';
 
 const initial_state = {
   userId: null,
@@ -21,6 +17,15 @@ const initial_state = {
 }
 
 const ProfileCarSection = (props) => {
+
+  const sessionStore = useSessionStore();
+
+  const currentUser = sessionStore.currentUser;
+  const { profile } = currentUser.relationships;
+  // const profileErrors = sessionStore.profileErrors;
+  // const profileSaved = sessionStore.profileSaved;
+  // const imageDeleted = sessionStore.imageDeleted;
+  // const isProcessing = sessionStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
@@ -48,12 +53,11 @@ const ProfileCarSection = (props) => {
   }
 
   const uploadImage = (files, imageType) => {
-    const { setProcessingRequest, uploadProfileImageRequest } = props.actions
     setState({ 
       ...state,
       isProcessing: true 
     })
-    setProcessingRequest()
+    sessionStore.setProcessingRequest()
 
     const fileObj = files[0]
     let img
@@ -62,7 +66,7 @@ const ProfileCarSection = (props) => {
 
       FR.addEventListener("load", function(e) {
         img = e.target.result
-        uploadProfileImageRequest(imageType, img)
+        sessionStore.uploadProfileImageRequest(imageType, img)
       })
 
       FR.readAsDataURL(fileObj)
@@ -70,7 +74,6 @@ const ProfileCarSection = (props) => {
   }
 
    const deleteImage = (imageId) => {
-     const { deleteProfileImageRequest } = props.actions
 
      confirmAlert({
        title: 'Alert!',
@@ -78,7 +81,7 @@ const ProfileCarSection = (props) => {
        buttons: [
          {
            label: 'Yes',
-           onClick: () => deleteProfileImageRequest(imageId)
+           onClick: () => sessionStore.deleteProfileImageRequest(imageId)
          },
          {
            label: 'No',
@@ -89,7 +92,6 @@ const ProfileCarSection = (props) => {
    }
 
   const carImages = () => {
-    const { profile } = props
     if (profile && profile.relationships) {
       const { images } = profile.relationships
 
@@ -117,7 +119,7 @@ const ProfileCarSection = (props) => {
   }
 
   const renderCarThumbs = () => {
-    const { currentUser, user } = props
+    const { user } = profile
 
     const carImages = carImages()
     return _.map(carImages, (img, index) => {
@@ -135,7 +137,7 @@ const ProfileCarSection = (props) => {
     })
   }
 
-  const { currentUser, profile, user } = props
+  const { user } = profile
   const userInfo = profile.attributes
   const { lbOpen, photoIndex, isProcessing } = state
 
@@ -205,30 +207,4 @@ const ProfileCarSection = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    profileErrors: getProfileErrors(state),
-    profileSaved: getProfileSaved(state),
-    imageDeleted: getImageDeleted(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCurrentUserRequest, uploadProfileImageRequest, deleteProfileImageRequest, setProcessingRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        uploadProfileImageRequest,
-        deleteProfileImageRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileCarSection)
+export default (ProfileCarSection)

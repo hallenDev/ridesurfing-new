@@ -12,10 +12,7 @@ import 'react-confirm-alert/src/react-confirm-alert.css'
 import { PrimaryButton } from '../components/Buttons'
 import Cards from '../images/card.png'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import * as actions from '../actions'
-import { getCards, getCard, getCardErrors, getCardSaved, getCardDeleted, getCardPrimary, getIsProcessing } from '../reducers/CardReducer'
+import useCardStore from '../store/CardStore';
 
 const expMonth = [ '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 const selectYear = [ '2019', '2020', '2021', '2022', '2023', '2024']
@@ -35,6 +32,15 @@ const initial_state = {
 }
 
 const ProfileCardSection = (props) => {
+
+  const cardStore = useCardStore();
+  const card = cardStore.card;
+  const cards = cardStore.cards;
+  const cardErrors = cardStore.errors;
+  // const cardSaved = cardStore.isSaved;
+  // const cardDeleted = cardStore.isDeleted;
+  // const cardPrimary = cardStore.isPrimary;
+  // const isProcessing = cardStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
@@ -96,21 +102,19 @@ const ProfileCardSection = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { cardErrors } = props
     if (cardErrors && cardErrors[fieldName])
       return cardErrors[fieldName]
   }
 
   const handleCardSave = () => {
     const { card } = state
-    const { setCardProcessingRequest, createCardRequest, updateCardRequest } = props.actions
     setState({ 
       ...state,
       cardProcessing: true 
     })
 
-    setCardProcessingRequest()
-    card.id ? updateCardRequest(card.id, card) : createCardRequest(card)
+    cardStore.setCardProcessingRequest()
+    card.id ? cardStore.updateCardRequest(card.id, card) : cardStore.createCardRequest(card)
   }
 
   const handleEditCard = (cardToUpdate) => {
@@ -123,16 +127,14 @@ const ProfileCardSection = (props) => {
   }
 
   const setAsPrimaryCard = (cardId) => {
-    const { setAsPrimaryCardRequest } = props.actions
     setState({ 
       ...state,
       primaryProcessing: true 
     })
-    setAsPrimaryCardRequest(cardId)
+    cardStore.setAsPrimaryCardRequest(cardId)
   }
 
   const handleDeleteCard = (cardId) => {
-    const { deleteCardRequest } = props.actions
 
     confirmAlert({
       title: 'Alert!',
@@ -140,7 +142,7 @@ const ProfileCardSection = (props) => {
       buttons: [
         {
           label: 'Yes',
-          onClick: () => deleteCardRequest(cardId)
+          onClick: () => cardStore.deleteCardRequest(cardId)
         },
         {
           label: 'No',
@@ -150,8 +152,8 @@ const ProfileCardSection = (props) => {
     })
   }
 
-  const { card, cardProcessing, primaryProcessing } = state
-  const { cards, ignoreButton, cardErrors  } = props
+  const { cardProcessing, primaryProcessing } = state
+  const { ignoreButton } = props
 
   return (
     <div className="profile-card-section">
@@ -306,37 +308,4 @@ const ProfileCardSection = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    card: getCard(state),
-    cards: getCards(state),
-    cardErrors: getCardErrors(state),
-    cardSaved: getCardSaved(state),
-    cardDeleted: getCardDeleted(state),
-    cardPrimary: getCardPrimary(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCardRequest, getCardsRequest, createCardRequest, updateCardRequest, deleteCardRequest, setAsPrimaryCardRequest, resetCardsFlagRequest, setProcessingRequest, setCardProcessingRequest  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCardRequest,
-        getCardsRequest,
-        createCardRequest,
-        updateCardRequest,
-        deleteCardRequest,
-        setAsPrimaryCardRequest,
-        resetCardsFlagRequest,
-        setProcessingRequest,
-        setCardProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileCardSection)
+export default (ProfileCardSection)

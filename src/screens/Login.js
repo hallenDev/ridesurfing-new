@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import Card from "@material-ui/core/Card";
 import { Link, withRouter } from "react-router-dom";
@@ -70,6 +70,10 @@ const Login = (props) => {
   };
 
   const [state, setState] = useState(initial_state);
+
+  useEffect(() => {
+    setSocialLoginProfile();
+  }, []);
 
   // to-do
   // componentDidMount() {

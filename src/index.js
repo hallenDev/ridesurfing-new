@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import HttpsRedirect from 'react-https-redirect'
 
@@ -14,13 +14,15 @@ import '../node_modules/slick-carousel/slick/slick-theme.css'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+
+root.render(
   <HttpsRedirect>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </HttpsRedirect>,
-  document.getElementById('root')
+  </HttpsRedirect>
+  // document.getElementById('root')
 )
 
 serviceWorker.unregister()

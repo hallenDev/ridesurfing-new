@@ -51,15 +51,15 @@ const theme = createMuiTheme({
 });
 
 
-const SharedContainer = () => {
+const SharedContainer = (props) => {
 
   return (
     <MuiThemeProvider theme={theme}>
       <div className="root-container">
         <div style={{'minHeight': '670px'}}>
-          <Nav cable={this.props.cable} />
+          <Nav cable={props.cable} />
           <Notifications options={{zIndex: 1200}} />
-          {this.props.children}
+          {props.children}
           <Footer />
         </div>
       </div>

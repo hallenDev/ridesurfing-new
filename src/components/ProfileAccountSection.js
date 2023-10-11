@@ -1,26 +1,11 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import TextField from "@material-ui/core/TextField";
 
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import DatePicker from "react-datepicker";
 import moment from "moment";
 import { PrimaryButton } from "../components/Buttons";
-import * as actions from "../actions";
-import {
-  getCurrentUser,
-  getCurrentUserErrors,
-  getUserUpdated,
-  getPasswordUpdated,
-  getIsProcessing,
-} from "../reducers/SessionReducer";
-import {
-  FormControl,
-  Input,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@material-ui/core";
+import { FormControl, Input, InputLabel, MenuItem, Select } from "@material-ui/core";
+import useSessionStore from '../store/SessionStore';
 
 const gender = ["Male", "Female", "Other"];
 
@@ -43,6 +28,14 @@ const initial_state = {
 };
 
 const ProfileAccountSection = (props) => {
+
+  const sessionStore = useSessionStore();
+
+  const currentUser = sessionStore.currentUser;
+  const currentUserErrors = sessionStore.userErrors;
+  // const userUpdated = sessionStore.userUpdated;
+  // const passwordUpdated = sessionStore.passwordUpdated;
+  // const isProcessing = sessionStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
@@ -96,7 +89,6 @@ const ProfileAccountSection = (props) => {
   };
 
   const errorMessageFor = (fieldName) => {
-    const { currentUserErrors } = props;
     if (currentUserErrors && currentUserErrors[fieldName]) {
       return currentUserErrors[fieldName];
     }
@@ -104,23 +96,20 @@ const ProfileAccountSection = (props) => {
 
   const handleAccountSave = () => {
     const { user } = state;
-    const { currentUser } = props;
-    const { updateUserRequest } = props.actions;
     setState({ 
       ...state,
       accountProcessing: true 
     });
-    updateUserRequest(currentUser.id, user);
+    sessionStore.updateUserRequest(currentUser.id, user);
   }
 
   const handleUpdatePassword = () => {
     const { user } = state;
-    const { changeUserPasswordRequest } = props.actions;
     setState({ 
       ...state, 
       passwordProcessing: true 
     });
-    changeUserPasswordRequest(user);
+    sessionStore.changeUserPasswordRequest(user);
   }
 
   const { user, accountProcessing, passwordProcessing } = state;
@@ -267,40 +256,4 @@ const ProfileAccountSection = (props) => {
   );
 }
 
-function mapStateToProps(state) {
-  return {
-    currentUser: getCurrentUser(state),
-    currentUserErrors: getCurrentUserErrors(state),
-    userUpdated: getUserUpdated(state),
-    passwordUpdated: getPasswordUpdated(state),
-    isProcessing: getIsProcessing(state),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  const {
-    getCurrentUserRequest,
-    updateUserRequest,
-    changeUserPasswordRequest,
-    resetCurrentUserFlagsRequest,
-    setProcessingRequest,
-  } = actions;
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        updateUserRequest,
-        changeUserPasswordRequest,
-        resetCurrentUserFlagsRequest,
-        setProcessingRequest,
-      },
-      dispatch
-    ),
-  };
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProfileAccountSection);
+export default (ProfileAccountSection);

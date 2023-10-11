@@ -1,17 +1,13 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import Dropzone from 'react-dropzone'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import Lightbox from 'react-image-lightbox'
 import ReactLoading from 'react-loading'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getCurrentUser, getProfileSaved, getProfileErrors, getImageDeleted, getIsProcessing } from '../reducers/SessionReducer'
 import close from '../images/close.png'
+import useSessionStore from '../store/SessionStore';
 
 const initial_state = {
   userId: null,
@@ -22,6 +18,14 @@ const initial_state = {
 
 const ProfileImageSection = (props) => {
 
+  const sessionStore = useSessionStore();
+
+  const currentUser = sessionStore.currentUser;
+  // const profileErrors = sessionStore.profileErrors;
+  // const profileSaved = sessionStore.profileSaved;
+  // const imageDeleted = sessionStore.imageDeleted;
+  // const isProcessing = sessionStore.isProcessing;
+  
   const [state, setState] = useState(initial_state);
 
   // to-do
@@ -49,12 +53,11 @@ const ProfileImageSection = (props) => {
   }
 
   const uploadImage = (files, imageType) => {
-    const { uploadProfileImageRequest, setProcessingRequest } = props.actions
     setState ({ 
       ...state,
       isProcessing: true 
     })
-    setProcessingRequest()
+    sessionStore.setProcessingRequest()
 
     const fileObj = files[0]
     let img
@@ -63,7 +66,7 @@ const ProfileImageSection = (props) => {
 
       FR.addEventListener("load", function(e) {
         img = e.target.result
-        uploadProfileImageRequest(imageType, img)
+        sessionStore.uploadProfileImageRequest(imageType, img)
       })
 
       FR.readAsDataURL(fileObj)
@@ -71,7 +74,7 @@ const ProfileImageSection = (props) => {
   }
 
   const profileImages = () => {
-    const { profile } = props
+    const { profile } = currentUser.relationships;
     if (profile && profile.relationships) {
       const { images } = profile.relationships
 
@@ -92,7 +95,6 @@ const ProfileImageSection = (props) => {
   }
 
   const deleteImage = (imageId) => {
-    const { deleteProfileImageRequest } = props.actions
 
     confirmAlert({
       title: 'Alert!',
@@ -100,7 +102,7 @@ const ProfileImageSection = (props) => {
       buttons: [
         {
           label: 'Yes',
-          onClick: () => deleteProfileImageRequest(imageId)
+          onClick: () => sessionStore.deleteProfileImageRequest(imageId)
         },
         {
           label: 'No',
@@ -111,7 +113,7 @@ const ProfileImageSection = (props) => {
   }
 
   const renderProfileThumbs = () => {
-    const { currentUser, user } = props
+    const { user } = currentUser.relationships.profile;
     const profileImages = profileImages()
     return _.map(profileImages, (img, index) => {
 
@@ -131,7 +133,7 @@ const ProfileImageSection = (props) => {
     })
   }
 
-  const { currentUser, user } = props
+  const { user } = currentUser.relationships.profile;
   const { lbOpen, photoIndex, isProcessing } = state
 
   return (
@@ -175,30 +177,4 @@ const ProfileImageSection = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    profileErrors: getProfileErrors(state),
-    profileSaved: getProfileSaved(state),
-    imageDeleted: getImageDeleted(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCurrentUserRequest, uploadProfileImageRequest, deleteProfileImageRequest, setProcessingRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        uploadProfileImageRequest,
-        deleteProfileImageRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileImageSection)
+export default (ProfileImageSection)
