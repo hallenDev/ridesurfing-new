@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { withRouter, Link } from 'react-router-dom'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'

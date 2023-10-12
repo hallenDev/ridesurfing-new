@@ -10,6 +10,7 @@ import { getCurrentUser, getProfileSaved, getProfileErrors, getIsProcessing } fr
 import { PrimaryButton } from '../components/Buttons'
 import Card from '../images/card.png'
 import fetch from 'isomorphic-fetch'
+import useSessionStore from '../store/SessionStore';
 
 const initial_state = {
   account: {
@@ -30,6 +31,12 @@ const initial_state = {
 }
 
 const ProfilePayoutSection = (props) => {
+
+  const sessionStore = useSessionStore();
+
+  const profileErrors = sessionStore.profileErrors;
+  const profileSaved = sessionStore.profileSaved;
+  const currentUser = sessionStore.currentUser;
 
   const [state, setState] = useState(initial_state);
 
@@ -66,12 +73,11 @@ const ProfilePayoutSection = (props) => {
 
   const handleAccountSave = () => {
     const { account, address, ip } = state
-    const { setAccountProcessingRequest, saveAccountRequest } = props.actions
     setState({ isProcessing: true })
 
     if (allFieldsPresent()) {
-      setAccountProcessingRequest('payout')
-      saveAccountRequest(account, address, ip)
+      sessionStore.setAccountProcessingRequest('payout')
+      sessionStore.saveAccountRequest(account, address, ip)
     }
   }
 
@@ -111,13 +117,11 @@ const ProfilePayoutSection = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { profileErrors } = props
     if (profileErrors && profileErrors[fieldName])
       return profileErrors[fieldName]
   }
   const { account, address, accountErrors, addressErrors, isProcessing } = state
-  const { profileErrors } = props
-  const { currentUser, ignoreButton } = props
+  const { ignoreButton } = props
   
   return (
     <div className="profile-payout-section">
@@ -253,28 +257,4 @@ const ProfilePayoutSection = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    profileErrors: getProfileErrors(state),
-    profileSaved: getProfileSaved(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { saveAccountRequest, resetProfileFlagsRequest, setAccountProcessingRequest  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        saveAccountRequest,
-        resetProfileFlagsRequest,
-        setAccountProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfilePayoutSection)
+export default (ProfilePayoutSection)

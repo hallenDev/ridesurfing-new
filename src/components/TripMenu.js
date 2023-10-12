@@ -1,18 +1,40 @@
 import _ from "underscore";
-import React, { Component, useState } from "react";
-import * as actions from "../actions";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import IconButton from "@material-ui/core/IconButton";
 import Icon from "@material-ui/core/Icon";
 import Dialog from "@material-ui/core/Dialog";
-import { getCurrentUser } from "../reducers/SessionReducer";
+import useTripStore from '../store/TripStore';
+import useTripRequestStore from '../store/TripRequestStore';
+import useSessionStore from '../store/SessionStore';
 
 const TripMenu = (props) => {
+
+  const tripStore = useTripStore();
+  const tripRequestStore = useTripRequestStore();
+  const sessionStore = useSessionStore();
+
+  const index = tripStore.trips?.trip?.id;
+  const trip_link = `/ride/${tripStore.trips.trip?.attributes?.slug ||
+    tripStore.trips?.trip?.id}/edit`;
+  const current_user = sessionStore.currentUser;
+  //   driver: state.trips.trip.driver_details,
+  //   requests: state.trips.trip.attributes.requests,
+  //   is_dialog_open: state.is_dialog_open,
+  //   can_edit: state.trips.trip.attributes.can_edit,
+  //   can_cancel: state.trips.trip.attributes.can_cancel,
+  //   is_expired: state.trips.trip.attributes.is_expired,
+  //   driver_id: state.trips.trip.attributes.driver_id,
+  //   driver_pfp: state.trips.trip.driver_details.display_image,
+  //   driver_name: state.trips.trip.driver_details.name,
+  //   driver_profile: `/profile/${state.trips.trip.attributes.driver_id}`,
+  //   trip_link: `/ride/${state.trips.trip.attributes.slug ||
+  //     state.trips.trip.id}/edit`,
+  //   current_user: getCurrentUser(state),
+
   const initial_state = {
     id: props.trip.id,
     anchorEl: null,
@@ -44,7 +66,7 @@ const TripMenu = (props) => {
       is_open: true, 
       anchorEl: event.currentTarget 
     });
-    state.menu_open_cb(props.index);
+    state.menu_open_cb(index);
     // don't forward to parent
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
@@ -52,7 +74,7 @@ const TripMenu = (props) => {
   };
 
   const handleClose = () => {
-    state.menu_closed_cb(props.index);
+    state.menu_closed_cb(index);
     setState({ 
       ...state,
       is_open: false, 
@@ -61,7 +83,7 @@ const TripMenu = (props) => {
   };
 
   const handleDialogOpen = () => {
-    state.menu_open_cb(props.index);
+    state.menu_open_cb(index);
     setState({ 
       ...state,
       is_dialog_open: true, 
@@ -74,7 +96,7 @@ const TripMenu = (props) => {
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     event.preventDefault();
-    state.menu_closed_cb(props.index);
+    state.menu_closed_cb(index);
     setState({ 
       ...state, 
       is_dialog_open: false 
@@ -82,12 +104,11 @@ const TripMenu = (props) => {
   };
 
   const handleMenuClick = () => {
-    props.history.push(props.trip_link);
+    props.history.push(trip_link);
   };
 
   const sendCancelTripRequest = () => {
-    const { cancelTripRequest } = props.actions;
-    cancelTripRequest(props.trip.id);
+    tripStore.cancelTripRequest(props.trip.id);
     setState({ 
       ...state, 
       is_open: false, 
@@ -97,15 +118,13 @@ const TripMenu = (props) => {
   };
 
   const sendCancelRiderTripRequest = () => {
-    const { current_user } = props;
-    const { cancelTripRequestRequest } = props.actions;
     const request = props.trip.relationships.trip_requests.requests.find(
       (x) => {
         return x.requested_by === current_user.id;
       }
     );
     const id = request.id;
-    cancelTripRequestRequest(id);
+    tripRequestStore.cancelTripRequestRequest(id);
     setState({ 
       ...state,
       is_open: false 
@@ -115,10 +134,10 @@ const TripMenu = (props) => {
 
   const renderDriver = () => {
     // const {driver_profile, driver_pfp, driver_name } = this.props;
-    const driver_profile = `/profile/${state.trip.attributes.driver_id}`;
-    const driver_pfp = state.trip.relationships.profile.user.attributes
+    const driver_profile = `/profile/${props.trip.attributes.driver_id}`;
+    const driver_pfp = props.trip.relationships.profile.user.attributes
       .display_image;
-    const driver_name = state.trip.relationships.profile.user.attributes
+    const driver_name = props.trip.relationships.profile.user.attributes
       .name;
 
     return (
@@ -170,7 +189,7 @@ const TripMenu = (props) => {
   };
 
   if (!state.trip) return <div></div>;
-  const { index, trip } = props;
+  const { trip } = props;
   const { can_edit, can_cancel, is_expired, is_cancelled } = trip.attributes;
   return (
     <div
@@ -247,50 +266,5 @@ const TripMenu = (props) => {
   );
 }
 
-function mapStateToProps(state, ownProps) {
-  if (
-    !(
-      state.trips.trip &&
-      state.trips.trip.driver_details &&
-      state.trips.trip.attributes
-    )
-  )
-    return {};
 
-  return {
-    index: state.trips.trip.id,
-    driver: state.trips.trip.driver_details,
-    requests: state.trips.trip.attributes.requests,
-    is_dialog_open: state.is_dialog_open,
-    can_edit: state.trips.trip.attributes.can_edit,
-    can_cancel: state.trips.trip.attributes.can_cancel,
-    is_expired: state.trips.trip.attributes.is_expired,
-    driver_id: state.trips.trip.attributes.driver_id,
-    driver_pfp: state.trips.trip.driver_details.display_image,
-    driver_name: state.trips.trip.driver_details.name,
-    driver_profile: `/profile/${state.trips.trip.attributes.driver_id}`,
-    trip_link: `/ride/${state.trips.trip.attributes.slug ||
-      state.trips.trip.id}/edit`,
-    current_user: getCurrentUser(state),
-  };
-}
-function mapDispatchToProps(dispatch) {
-  const {
-    cancelTripRequest,
-    cancelTripRequestRequest,
-    getCurrentUserRequest,
-  } = actions;
-
-  return {
-    actions: bindActionCreators(
-      {
-        cancelTripRequest,
-        cancelTripRequestRequest,
-        getCurrentUserRequest,
-      },
-      dispatch
-    ),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(TripMenu);
+export default (TripMenu);

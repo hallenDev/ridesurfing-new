@@ -8,15 +8,12 @@ import smoke from '../images/smoke.jpg'
 import pet from '../images/pet.jpg'
 import kid from '../images/kid.jpg'
 import heater from '../images/ac-heater.jpg'
-
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getProfileErrors } from '../reducers/ProfileReducer'
-import { getCurrentUser } from '../reducers/SessionReducer'
+import useSessionStore from '../store/SessionStore';
 
 const ProfileMainSection = (props) => {
+
+  const sessionStore = useSessionStore();
+  const currentUser = sessionStore.currentUser;
 
   const goToProfile = (user) =>  {
     const { history } = props
@@ -25,7 +22,6 @@ const ProfileMainSection = (props) => {
 
   const renderTestimonials = (user) => {
     const { reviews } = user.relationships
-    const { currentUser } = props
     if (reviews.length > 0) {
       return <Carousel autoplay={true} className="testimonial-carousel">
         {_.map(reviews, (review, index) => {
@@ -133,25 +129,4 @@ const ProfileMainSection = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    profileErrors: getProfileErrors(state),
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCurrentUserRequest, getProfileRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        getProfileRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileMainSection)
+export default (ProfileMainSection)
