@@ -1,14 +1,7 @@
-import React, { Component } from 'react'
-import { Provider } from 'react-redux'
+import React from 'react'
 
 import routes from './routes'
-import configureStore from './store'
 
-const store = configureStore()
-// Debug console logs
-const unsubscribe = store.subscribe(
-  () => console.log('State after dispatch: ', store.getState()) 
-)
                                     
 const App = () => {
 
@@ -18,9 +11,9 @@ const App = () => {
   // }
 
   return (
-      <Provider store={store}>
+      <>
         { routes }
-      </Provider>
+      </>
   );
 }
 

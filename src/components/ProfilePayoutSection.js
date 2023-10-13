@@ -2,11 +2,6 @@ import _ from 'underscore'
 import React, { Component, useState } from 'react'
 import TextField from '@material-ui/core/TextField'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import * as actions from '../actions'
-import { getCurrentUser, getProfileSaved, getProfileErrors, getIsProcessing } from '../reducers/SessionReducer'
-
 import { PrimaryButton } from '../components/Buttons'
 import Card from '../images/card.png'
 import fetch from 'isomorphic-fetch'

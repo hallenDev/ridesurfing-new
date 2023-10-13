@@ -1,9 +1,5 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import * as actions from '../actions'
-
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 
 import missingImg from '../images/missing.png'
 
