@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { GiftedChat } from 'react-web-gifted-chat'
 import { Link } from 'react-router-dom'
 
@@ -26,24 +26,25 @@ const Chat = (props) => {
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentWillMount () {
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/chat`)
-  //     return window.location.href = `/login`
-  //   }
 
-  //   const { getChatUsersRequest, getDirectChatUserRequest } = this.props.actions
-  //   getChatUsersRequest()
-  //   if (localStorage.directChatUserId) {
-  //     getDirectChatUserRequest(localStorage.directChatUserId, true)
-  //   }
-  // }
+  useEffect(() => {
+    subscribeChannel();
+    return() => {
+      var cable = props.cable;
+      cable.subscriptions.remove(chatSubscription);
+    }
+  }, [])
 
-  // to-do
-  // componentDidMount () {
-  //   this.subscribeChannel()
-  // }
+  /******* component will mount **********/
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/chat`)
+    return window.location.href = `/login`
+  }
+  chatStore.getChatUsersRequest();
+  if (localStorage.directChatUserId) {
+    chatStore.getDirectChatUserRequest(localStorage.directChatUserId, true)
+  }
+  /*----------------------------------*/
 
   const subscribeChannel = () => {
     var cable = props.cable
@@ -62,12 +63,6 @@ const Chat = (props) => {
       }
     })
   }
-
-  //to-do
-  // componentWillUnmount () {
-  //   var cable = this.props.cable
-  //   cable.subscriptions.remove(chatSubscription)
-  // }
 
   const renderDirectChatUser = () => {
     if (chatUser.id !== undefined) {

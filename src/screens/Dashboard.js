@@ -1,6 +1,6 @@
 import _ from "underscore";
 import $ from "jquery";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
@@ -90,56 +90,54 @@ const Dashboard = (props) => {
   const [state, setState] = useState(initial_state);
   const [node, setNode] = useState(null)
 
-  // to-do
-  // componentWillMount() {
-  //   const { getCurrentUserRequest } = this.props.actions;
+  useEffect(() => {
+    $(".nav-search-btn").hide();
+    setCurrentPosition();
 
-  //   if (localStorage.accessToken) {
-  //     getCurrentUserRequest();
-  //   }
-  // }
+    return () => {
+      $(".nav-search-btn").show();
+    }
+  }, [])
 
-  // to-do
-  // componentDidMount() {
-  //   $(".nav-search-btn").hide();
-  //   this.setCurrentPosition();
-  // }
+  useEffect(() => {
+    if (dataLoaded || dataLoaded === false) {
+      setState({ 
+        ...state, 
+        dataLoaded: dataLoaded 
+      });
+    }
+    if(dataLoaded) {
+      var elems = document.querySelectorAll(".clicked-page");
+      [].forEach.call(elems, function(el) {
+        el.classList.remove("clicked-page");
+      });
+    }
+  }, [dataLoaded])
 
-  // to-do
-  // componentWillUnmount() {
-  //   $(".nav-search-btn").show();
-  // }
+  useEffect(() => {
+    if (waypoints && waypoints.length > 0) {
+      setState({
+        ...state,
+        waypoints: waypoints
+      })
+      markersArr = [];
+      _.map(waypoints, (wp) => {
+        const lat = wp.start_location_latitude;
+        const long = wp.start_location_longitude;
+        markersArr.push({ lat: parseFloat(lat), lng: parseFloat(long) });
+      });
+    }
+  }, [waypoints])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   const { getTripInfoRequest } = this.props.actions;
-  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-  //     this.setState({ dataLoaded: nextProps.dataLoaded });
-  //   }
-
-  //   if (nextProps.dataLoaded) {
-  //     var elems = document.querySelectorAll(".clicked-page");
-  //     [].forEach.call(elems, function(el) {
-  //       el.classList.remove("clicked-page");
-  //     });
-  //   }
-
-  //   if (nextProps.waypoints && nextProps.waypoints.length > 0) {
-  //     this.state.waypoints = [...nextProps.waypoints];
-  //     markersArr = [];
-  //     _.map(this.state.waypoints, (wp) => {
-  //       const lat = wp.start_location_latitude;
-  //       const long = wp.start_location_longitude;
-  //       markersArr.push({ lat: parseFloat(lat), lng: parseFloat(long) });
-  //     });
-  //   }
-  // }
-
+  if (localStorage.accessToken) {
+    sessionStore.getCurrentUserRequest();
+  }
+    
   const setCurrentPosition = () => {
     const { filters } = state;
-
+    
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
-      .done(function(location) {
+    .done(function(location) {
         filters["latitude"] = location.latitude;
         filters["longitude"] = location.longitude;
         setState({

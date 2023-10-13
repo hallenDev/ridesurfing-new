@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import _ from 'underscore'
 import ReactLoading from 'react-loading'
 import { Link } from 'react-router-dom'
@@ -17,29 +17,31 @@ const ChatList = (props) => {
   const chats = chatStore.chats;
   const users = chatStore.users;
   const chatUser = chatStore.user;
+  const dataLoaded = chatStore.dataLoaded;
 
   const initial_state = {
     dataLoaded: false
   }
-
+  
   const [state, setState] = useState(initial_state);
+  
+  useEffect(() => {
+    if (dataLoaded || dataLoaded === false) {
+      setState({ 
+        ...state, 
+        dataLoaded: dataLoaded 
+      })
+    }
+  }, [dataLoaded])
+  
+  /*********** component will mount ***************/
+  chatStore.getChatUsersRequest()
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/chatList`)
+    return window.location.href = `/login`
+  }
+  /**************************************/
 
-  // to-do
-  // componentWillMount () {
-  //   const { getChatUsersRequest } = this.props.actions
-  //   getChatUsersRequest()
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/chatList`)
-  //     return window.location.href = `/login`
-  //   }
-  // }
-
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-  //     this.setState({ dataLoaded: nextProps.dataLoaded })
-  //   }
-  // }
 
   const loadChat = (userId) => {
     const { history } = props
@@ -86,7 +88,6 @@ const ChatList = (props) => {
     }
   }
 
-  const { dataLoaded } = state
   return (
     <div className="chatList-page">
       {(users.length > 0) ?
@@ -101,7 +102,7 @@ const ChatList = (props) => {
         <div className="col s12 user-list">
           <div className="user-chat-list">
             <ul className="friend-list">
-              {dataLoaded ? renderUsersList() : <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
+              {state.dataLoaded ? renderUsersList() : <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
             </ul>
           </div>
         </div>
