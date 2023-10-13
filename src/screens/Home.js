@@ -1,18 +1,14 @@
 import $ from 'jquery'
-import React, { Component, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
-import DatePicker from 'react-datepicker'
-
-import SearchField from '../components/SearchField'
 
 import logo from '../images/rs-logo.png'
 import findRide from '../images/FAR3.png'
 import buySeat from '../images/BYS2.png'
 import enjoyTrip from '../images/EYT1.png'
 import jamie from '../images/jamie.jpg'
-import useTripStore from '../store/TripStore';
 
 const initial_state = {
   selectedDate: '',
@@ -24,64 +20,25 @@ const initial_state = {
 
 const Home = (props) => {
 
-  const tripStore = useTripStore();
-
-  const trip = tripStore.trip;
-  const tripErrors = tripStore.errors;
-
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentDidMount() {
-  //   $('.home-nav').addClass('nav-bg')
-  //   $('.nav-search-btn').hide()
-  //   $(window).scroll(function() {
-  //     var scrollTop = $(window).scrollTop()
-  //     if (scrollTop > 30) {
-  //       $('.home-nav').removeClass('nav-bg')
-  //     } else {
-  //       $('.home-nav').addClass('nav-bg')
-  //     }
-  //   })
-  // }
-
-  // to-do
-  // componentWillUnmount() {
-  //   $('.home-nav').removeClass('nav-bg')
-  //   $('.nav-search-btn').show()
-  //   $(window).unbind("scroll")
-  // }
-
-  const onDateChange = (fieldName, date) => {
-    const { filters } = state
-    if (!date) {
-      filters[fieldName] = date
-    } else {
-      try {
-        if (date < new Date()) { date = new Date() }
-        filters[fieldName] = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear()
-      } catch {
-        filters[fieldName] = date
+  useEffect(() => {
+    $('.home-nav').addClass('nav-bg')
+    $('.nav-search-btn').hide()
+    $(window).scroll(function() {
+      var scrollTop = $(window).scrollTop()
+      if (scrollTop > 30) {
+        $('.home-nav').removeClass('nav-bg')
+      } else {
+        $('.home-nav').addClass('nav-bg')
       }
-    }
-    setState({ 
-      ...state, 
-      filters 
     })
-  }
-
-  const setAddress = (address, geometry, fieldName) => {
-    const { filters } = state
-    filters[fieldName] = address
-    if (geometry) {
-      filters[`${fieldName}_latitude`] = geometry.location.lat()
-      filters[`${fieldName}_longitude`] = geometry.location.lng()
+    return () => {
+      $('.home-nav').removeClass('nav-bg')
+      $('.nav-search-btn').show()
+      $(window).unbind("scroll")
     }
-    setState({ 
-      ...state, 
-      filters 
-    })
-  }
+  }, [])
 
   const goToSearch = () => {
     const { history } = props
@@ -89,7 +46,6 @@ const Home = (props) => {
     history.push({ pathname: '/search', state: { filters: JSON.stringify(filters) } })
   }
 
-  const { filters } = state
   return (
     <div className="home-container">
       <div className="section-one">
