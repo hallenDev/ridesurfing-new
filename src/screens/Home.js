@@ -20,6 +20,7 @@ const initial_state = {
 
 const Home = (props) => {
 
+  // eslint-disable-next-line no-unused-vars
   const [state, setState] = useState(initial_state);
 
   useEffect(() => {
