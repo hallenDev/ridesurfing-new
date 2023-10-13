@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState} from 'react'
+import React, { useState} from 'react'
 import { Link } from 'react-router-dom'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -10,26 +10,34 @@ import Dialog from '@material-ui/core/Dialog'
 import ReactLoading from 'react-loading'
 import StarRatingComponent from 'react-star-rating-component'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getTrips, getDataLoaded, getTripCancelled, getTripErrors, getPagination } from '../reducers/TripReducer'
-import { getTripRequest, getTripRequestCancelled } from '../reducers/TripRequestReducer'
-import { getCurrentUser } from '../reducers/SessionReducer'
-
 import TripCard from '../components/TripCard'
 import Pagination from '../components/Pagination'
 
 import missingImg from '../images/missing.png'
+import useSessionStore from '../store/SessionStore';
+import useTripStore from '../store/TripStore';
+import useTripRequestStore from '../store/TripRequestStore';
+
+const initial_state = {
+  trip: {},
+  tripErrors: {},
+  dataLoaded: false
+}
 
 const MyTrips = (props) => {
 
-  const initial_state = {
-    trip: {},
-    tripErrors: {},
-    dataLoaded: false
-  }
+  const tripStore = useTripStore();
+  const sessionStore = useSessionStore();
+  const tripRequestStore = useTripRequestStore();
+
+  // const dataLoaded = tripStore.dataLoaded;
+  const trips = tripStore.trips;
+  const tripRequest = tripRequestStore.tripRequest;
+  const currentUser = sessionStore.currentUser;
+  const tripErrors = tripStore.errors;
+  const tripCancelled = tripStore.isCancelled;
+  const tripRequestCancelled = tripRequestStore.isCancelled;
+  const pagination = tripStore.pagination;
 
   const [state, setState] = useState(initial_state);
 
@@ -68,7 +76,6 @@ const MyTrips = (props) => {
   // }
 
   const errorMessageFor = (fieldName) => {
-    const { tripErrors } = props
     if (tripErrors && tripErrors[fieldName])
       return tripErrors[fieldName]
   }
@@ -81,7 +88,7 @@ const MyTrips = (props) => {
   }
 
   const handleClose = (index) => {
-    this.setState({ 
+    setState({ 
       ...state, 
       [`anchorEl${index}`]: null 
     })
@@ -106,8 +113,7 @@ const MyTrips = (props) => {
   }
 
   const sendCancelTripRequest = (tripId, index) => {
-    const { cancelTripRequest } = props.actions
-    cancelTripRequest(tripId)
+    tripStore.cancelTripRequest(tripId)
     setState({ 
       ...state, 
       [`anchorEl${index}`]: null 
@@ -116,32 +122,27 @@ const MyTrips = (props) => {
 
   const sendCancelRiderTripRequest = (trip, index) => {
     const { trip_requests } = trip.relationships
-    const { currentUser } = props
-    const { cancelTripRequestRequest } = props.actions
     const trip_request = _.find(trip_requests, (tr) => { return tr.requested_by === currentUser.id})
     setState({ 
       ...state,
       [`anchorEl${index}`]: null 
     })
-    cancelTripRequestRequest(trip_request.id)
+    tripRequestStore.cancelTripRequestRequest(trip_request.id)
   }
   const onPageNumClick = (e, page) => {
-    const { getTripsRequest, resetDataLoadedRequest } = props.actions
 
     e.target.parentElement.classList.add("clicked-page")
 
-    resetDataLoadedRequest()
-    getTripsRequest(page)
+    tripStore.resetDataLoadedRequest()
+    tripStore.getTripsRequest(page)
   }
 
 
   const renderCard = (trip, trip_idx) => {
-    const { getTripInfoRequest } = props.actions;
     return  <TripCard trip={JSON.parse(JSON.stringify(trip))} render_status={true} render_menu={true} />
   }
 
   const renderTrips = () => {
-    const { trips } = props
     if (trips.length > 0)
       return _.map(trips, (trip, index)=>{ return renderCard(trip, index); });
     return "You have no trips yet. Consider listing your next ride or tagging along with someone :)";
@@ -154,10 +155,10 @@ const MyTrips = (props) => {
         <h4>My Rides</h4>
           <div>
               <Pagination
-                  current_page={props.pagination.current_page}
-                  per_page={props.pagination.per_page}
-                  total_pages={props.pagination.total_pages}
-                  total_count={props.pagination.total_count}
+                  current_page={pagination.current_page}
+                  per_page={pagination.per_page}
+                  total_pages={pagination.total_pages}
+                  total_count={pagination.total_count}
                   onPageNumClick={onPageNumClick}
               />
           </div>
@@ -172,40 +173,4 @@ const MyTrips = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    dataLoaded: getDataLoaded(state),
-    trips: getTrips(state),
-    tripRequest: getTripRequest(state),
-    currentUser: getCurrentUser(state),
-    tripErrors: getTripErrors(state),
-    tripCancelled: getTripCancelled(state),
-    tripRequestCancelled: getTripRequestCancelled(state),
-    pagination: getPagination(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const {
-    getTripsRequest, getTripRequest, getCurrentUserRequest, resetDataLoadedRequest, cancelTripRequest, resetTripFlagRequest, cancelTripRequestRequest,
-    resetTripRequestsFlagRequest
-  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getTripsRequest,
-        getTripRequest,
-        getCurrentUserRequest,
-        resetDataLoadedRequest,
-        resetTripFlagRequest,
-        cancelTripRequest,
-        cancelTripRequestRequest,
-        resetTripRequestsFlagRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(MyTrips)
+export default (MyTrips)

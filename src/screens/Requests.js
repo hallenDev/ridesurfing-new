@@ -11,17 +11,21 @@ import Dialog from '@material-ui/core/Dialog'
 import ReactLoading from 'react-loading'
 import StarRatingComponent from 'react-star-rating-component'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getTripRequests, getReceivedTripRequests, getDataLoaded } from '../reducers/TripRequestReducer'
-import { getCurrentUser } from '../reducers/SessionReducer'
-import { getTripRequestErrors } from '../reducers/TripRequestReducer'
+import useSessionStore from '../store/SessionStore';
+import useTripRequestStore from '../store/TripRequestStore';
 
 import missingImg from '../images/missing.png'
 
 const Requests = (props) => {
+
+  const sessionStore = useSessionStore();
+  const tripRequestStore = useTripRequestStore();
+
+  const currentUser = sessionStore
+  const receivedTripRequests = tripRequestStore.receivedTripRequests;
+  const sentTripRequests = tripRequestStore.tripRequests;
+  const tripErrors = tripRequestStore.errors;
+  // const dataLoaded = tripRequestStore.dataLoaded;
 
   const initial_state = {
     anchorEl: null,
@@ -100,7 +104,6 @@ const Requests = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { tripErrors } = props
     if (tripErrors && tripErrors[fieldName])
       return tripErrors[fieldName]
   }
@@ -111,18 +114,15 @@ const Requests = (props) => {
   }
 
   const sendAcceptTripRequest = (tripRequestId) => {
-    const { acceptTripRequestRequest } = props.actions
-    acceptTripRequestRequest(tripRequestId)
+    tripRequestStore.acceptTripRequestRequest(tripRequestId)
   }
 
   const sendIgnoreTripRequest = (tripRequestId) => {
-    const { ignoreTripRequestRequest } = props.actions
-    ignoreTripRequestRequest(tripRequestId)
+    tripRequestStore.ignoreTripRequestRequest(tripRequestId)
   }
 
   const sendCancelTripRequest = (tripRequestId) => {
-    const { cancelTripRequestRequest } = props.actions
-    cancelTripRequestRequest(tripRequestId)
+    tripRequestStore.cancelTripRequestRequest(tripRequestId)
   }
 
   const getImage = (passenger) => {
@@ -200,7 +200,6 @@ const Requests = (props) => {
   }
 
   const renderReceivedRequests = () => {
-    const { receivedTripRequests } = props
     const reqList = _.filter(receivedTripRequests, (req) => {
       const { trip } = req.relationships
       return !trip.attributes.is_expired
@@ -508,7 +507,6 @@ const Requests = (props) => {
   }
 
   const renderSentRequests = () => {
-    const { sentTripRequests } = props
     const reqList = _.filter(sentTripRequests, (req) => {
       const { trip } = req.relationships
       return !trip.attributes.is_expired
@@ -824,37 +822,4 @@ const Requests = (props) => {
   </div>
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    receivedTripRequests: getReceivedTripRequests(state),
-    sentTripRequests: getTripRequests(state),
-    tripErrors: getTripRequestErrors(state),
-    dataLoaded: getDataLoaded(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const {
-    getTripRequestsRequest,
-    getReceivedTripRequestsRequest,
-    acceptTripRequestRequest,
-    ignoreTripRequestRequest,
-    cancelTripRequestRequest
-  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getTripRequestsRequest,
-        getReceivedTripRequestsRequest,
-        acceptTripRequestRequest,
-        ignoreTripRequestRequest,
-        cancelTripRequestRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Requests)
+export default (Requests)

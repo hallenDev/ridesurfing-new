@@ -2,24 +2,25 @@ import React, { useState } from 'react'
 import TextField from '@material-ui/core/TextField'
 import Card from '@material-ui/core/Card'
 import { Link } from 'react-router-dom'
-
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router-dom'
 
 import { PrimaryButton } from '../components/Buttons'
+import useUserStore from '../store/UserStore';
 
-import * as actions from '../actions'
-import { getUserErrors, getCodeSent, getIsProcessing } from '../reducers/UserReducer'
+const initial_state = {
+  identity: '',
+  userErrors: {},
+  otp: '',
+  isProcessing: false
+}
 
 const ForgotPassword = (props) => {
 
-  const initial_state = {
-    identity: '',
-    userErrors: {},
-    otp: '',
-    isProcessing: false
-  }
+  const userStore = useUserStore();
+
+  const userErrors = userStore.errors;
+  const codeSent = userStore.codeSent;
+  // const isProcessing = userStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
@@ -49,9 +50,8 @@ const ForgotPassword = (props) => {
   }
 
   const handleForgotPassword = () => {
-    const { forgotPasswordRequest } = props.actions
     const { identity } = state
-    forgotPasswordRequest(identity)
+    userStore.forgotPasswordRequest(identity)
     setState({ 
       ...state, 
       isProcessing: true 
@@ -65,7 +65,6 @@ const ForgotPassword = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { userErrors } = props
     if (userErrors && userErrors[fieldName]) {
       return userErrors[fieldName]
     }
@@ -110,27 +109,4 @@ const ForgotPassword = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    userErrors: getUserErrors(state),
-    codeSent: getCodeSent(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { forgotPasswordRequest, resetUserFlagsRequest, setProcessingRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        forgotPasswordRequest,
-        resetUserFlagsRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ForgotPassword))
+export default withRouter(ForgotPassword)

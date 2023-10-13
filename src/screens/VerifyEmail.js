@@ -2,16 +2,18 @@ import React, { Component, useState } from 'react'
 import TextField from '@material-ui/core/TextField'
 import Card from '@material-ui/core/Card'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router-dom'
 
 import { PrimaryButton } from '../components/Buttons'
-
-import * as actions from '../actions'
-import { getUserErrors, getEmailVerified, getIsProcessing } from '../reducers/UserReducer'
+import useUserStore from '../store/UserStore';
 
 const VerifyEmail = (props) => {
+
+  const userStore = useUserStore();
+
+  const userErrors = userStore.errors;
+  // const emailVerified = userStore.emailVerified;
+  // const isProcessing = userStore.isProcessing;
 
   const initial_state = {
     identity: '',
@@ -47,9 +49,8 @@ const VerifyEmail = (props) => {
   }
 
   const handleVerifyEmail = () => {
-    const { verifyOtpRequest } = props.actions
     const { otp } = state
-    verifyOtpRequest({otp: otp})
+    userStore.verifyOtpRequest({otp: otp})
     setState({ 
       ...state,
       isProcessing: true 
@@ -57,7 +58,6 @@ const VerifyEmail = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { userErrors } = props
     if (userErrors && userErrors[fieldName]) {
       return userErrors[fieldName]
     }
@@ -103,28 +103,4 @@ const VerifyEmail = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    userErrors: getUserErrors(state),
-    emailVerified: getEmailVerified(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { forgotPasswordRequest, resetUserFlagsRequest, verifyOtpRequest, setProcessingRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        forgotPasswordRequest,
-        resetUserFlagsRequest,
-        verifyOtpRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(VerifyEmail))
+export default withRouter(VerifyEmail)

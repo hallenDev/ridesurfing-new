@@ -1,12 +1,10 @@
 import _ from "underscore";
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import { Tabs, Tab, TabPanel, TabList } from "react-web-tabs";
 import Button from "@material-ui/core/Button";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { Link } from "react-router-dom";
 
 import { notify } from "react-notify-toast";
@@ -19,18 +17,24 @@ import ProfileAccountSection from "../components/ProfileAccountSection";
 import ProfilePayoutSection from "../components/ProfilePayoutSection";
 import ProfileCardSection from "../components/ProfileCardSection";
 
-import * as actions from "../actions";
-import { getCurrentUser } from "../reducers/SessionReducer";
-import {
-  getTrip,
-  getTripErrors,
-  getTripBooked,
-  getIsProcessing,
-  getTripError,
-} from "../reducers/TripReducer";
 import missingImg from "../images/missing.png";
+import useSessionStore from '../store/SessionStore';
+import useTripStore from '../store/TripStore';
+import useChatStore from '../store/ChatStore';
 
 const TripDetails = (props) => {
+
+  const sessionStore = useSessionStore();
+  const tripStore = useTripStore();
+  const chatStore = useChatStore();
+
+  const currentUser = sessionStore.currentUser;
+  const trip = tripStore.trip;
+  // const tripError = tripStore.error;
+  const tripErrors = tripStore.errors;
+  // const tripBooked = tripStore.isBooked;
+  // const isProcessing = tripStore.isProcessing;
+
   const initial_state = {
     seats: 1,
     rideId: props.match.params.rideId,
@@ -91,7 +95,7 @@ const TripDetails = (props) => {
   // }
 
   const navigateToUrl = (trip) => {
-    const { currentUser, history } = props;
+    const { history } = props;
     const { has_cards } = currentUser.attributes;
 
     const url =
@@ -107,7 +111,6 @@ const TripDetails = (props) => {
   }
 
   const displayImage = () => {
-    const { trip } = props;
     if (trip) {
       const { profile } = trip.relationships;
 
@@ -123,12 +126,10 @@ const TripDetails = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { tripErrors } = props;
     if (tripErrors && tripErrors[fieldName]) return tripErrors[fieldName];
   };
 
   const incrementItem = () => {
-    const { trip } = props;
     if (!trip.attributes.is_expired) {
       setState({
         ...state,
@@ -141,7 +142,6 @@ const TripDetails = (props) => {
   };
 
   const decreaseItem = () => {
-    const { trip } = props;
     if (!trip.attributes.is_expired) {
       setState({ 
         ...state, 
@@ -151,9 +151,8 @@ const TripDetails = (props) => {
   };
 
   const sendBookTripRequest = () => {
-    const { bookTripRequest } = props.actions;
     const { seats } = state;
-    const { trip, currentUser, history } = props;
+    const { history } = props;
 
     localStorage.setItem("prevUrl", `/ride/${trip.attributes.slug}`);
 
@@ -169,7 +168,7 @@ const TripDetails = (props) => {
                 ...state, 
                 isProcessing: true 
               });
-              bookTripRequest(trip.id, { seats, trip_id: trip.id });
+              tripStore.bookTripRequest(trip.id, { seats, trip_id: trip.id });
             },
           },
           {
@@ -186,7 +185,6 @@ const TripDetails = (props) => {
   const alreadyBooked = (trip) => {
     if (trip.id) {
       const { trip_requests } = trip.relationships;
-      const { currentUser } = props;
       const { has_cards } = currentUser.attributes;
 
       if (parseFloat(trip.attributes.price) === 0) {
@@ -208,7 +206,6 @@ const TripDetails = (props) => {
   const alreadyAccepted = (trip) => {
     if (trip.id) {
       const { trip_requests } = trip.relationships;
-      const { currentUser } = props;
       return !!_.find(trip_requests, (tr) => {
         return tr.requested_by === currentUser.id && tr.status === "Accepted";
       });
@@ -218,7 +215,6 @@ const TripDetails = (props) => {
   const pendingRequest = (trip) => {
     if (trip.id) {
       const { trip_requests } = trip.relationships;
-      const { currentUser } = props;
 
       return _.find(trip_requests, (tr) => {
         return tr.requested_by === currentUser.id && tr.status === "Pending";
@@ -227,15 +223,13 @@ const TripDetails = (props) => {
   }
 
   const isOwner = () => {
-    const { currentUser, trip } = props;
     return trip.attributes.driver_id === currentUser.id;
   }
 
   const goToChat = (userId) => {
     const { history } = props;
     localStorage.setItem("directChatUserId", userId);
-    const { getDirectChatUserRequest } = props.actions;
-    getDirectChatUserRequest(userId, true);
+    chatStore.getDirectChatUserRequest(userId, true);
 
     history.push("/chat");
   }
@@ -247,7 +241,6 @@ const TripDetails = (props) => {
   }
 
   const goToProfile = (user) => {
-    const { currentUser } = props;
     return user.id === currentUser.id
       ? `/my_profile`
       : `/profile/${user.attributes.slug || user.id}`;
@@ -303,7 +296,6 @@ const TripDetails = (props) => {
     });
   }
 
-  const { currentUser, trip } = props;
   const { has_cards, has_completed_rider_profile } = currentUser.attributes;
   const { profile, seats, isProcessing } = state;
   const { user } = profile;
@@ -714,42 +706,4 @@ const TripDetails = (props) => {
   );
 }
 
-function mapStateToProps(state) {
-  return {
-    currentUser: getCurrentUser(state),
-    tripError: getTripError(state),
-    tripErrors: getTripErrors(state),
-    trip: getTrip(state),
-    tripBooked: getTripBooked(state),
-    isProcessing: getIsProcessing(state),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  const {
-    getCurrentUserRequest,
-    getTripRequest,
-    getTripInfoRequest,
-    bookTripRequest,
-    resetTripFlagRequest,
-    getDirectChatUserRequest,
-    setProcessingRequest,
-  } = actions;
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        getTripRequest,
-        getTripInfoRequest,
-        bookTripRequest,
-        resetTripFlagRequest,
-        getDirectChatUserRequest,
-        setProcessingRequest,
-      },
-      dispatch
-    ),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(TripDetails);
+export default (TripDetails);

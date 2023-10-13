@@ -12,39 +12,46 @@ import MenuItem from '@material-ui/core/MenuItem'
 import DatePicker from 'react-datepicker'
 import geolib from 'geolib'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getCurrentUser } from '../reducers/SessionReducer'
-import { getTrip, getTripErrors, getTripSaved, getTripCompleted, getIsProcessing } from '../reducers/TripReducer'
-
 import SearchField from '../components/SearchField'
 import { PrimaryButton } from '../components/Buttons'
 import Gmap from '../components/Gmap'
+import useSessionStore from '../store/SessionStore';
+import useTripStore from '../store/TripStore';
 
 const eventName = [ 'No Event', 'Concerts', 'Music Festivals', 'Entertainment show', 'Museum', 'Cultural Event']
 const MenuProps = { PaperProps: { style: { maxHeight: 300 } } }
 
+const initial_state = {
+  latitude: 34.0489,
+  longitude: -111.0937,
+  selectedDate: '',
+  value: 'commute',
+  trip: {
+    seats: 1,
+    price: '0',
+    drive_type: 'commute',
+    event_name: 'No Event'
+  },
+  dates: null,
+  priceTip: 0,
+  miles: '',
+  tripErrors: {},
+  isProcessing: false
+};
+
 const NewRide = (props) => {
 
-  const initial_state = {
-    latitude: 34.0489,
-    longitude: -111.0937,
-    selectedDate: '',
-    value: 'commute',
-    trip: {
-      seats: 1,
-      price: '0',
-      drive_type: 'commute',
-      event_name: 'No Event'
-    },
-    dates: null,
-    priceTip: 0,
-    miles: '',
-    tripErrors: {},
-    isProcessing: false
-  };
+  const sessionStore = useSessionStore();
+  const tripStore = useTripStore();
+  
+  const currentUser = sessionStore.currentUser;
+  // const trip = tripStore.trip;
+  const tripErrors = tripStore.errors;
+  const tripSaved = tripStore.isSaved;
+  const tripCompleted = tripStore.isCompleted;
+  // const isProcessing = tripStore.isProcessing;
+
+  
 
   const [state, setState] = useState(initial_state);
   const [node, setNode] = useState(null);
@@ -78,7 +85,6 @@ const NewRide = (props) => {
   // }
 
   const navigationUrl = (trip) => {
-    const { currentUser } = props
     const { has_payout_details, has_completed_profile, has_car_image } = currentUser.attributes
 
     return ((parseFloat(trip.attributes.price) === 0 || (parseFloat(trip.attributes.price) > 0 && !!has_payout_details)) && !!has_completed_profile && !!has_car_image) ? `/ride/${trip.attributes.slug || trip.id}` : '/complete_profile'
@@ -132,15 +138,13 @@ const NewRide = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { tripErrors } = props
     if (tripErrors && tripErrors[fieldName])
       return tripErrors[fieldName]
   }
 
   const handleSaveTrip = () => {
     const { trip } = state
-    const { createTripRequest, updateTripRequest } = props.actions
-    trip.id ? updateTripRequest(trip.id, trip) : createTripRequest(trip)
+    trip.id ? tripStore.updateTripRequest(trip.id, trip) : tripStore.createTripRequest(trip)
     setState({ 
       ...state, 
       isProcessing: true 
@@ -457,34 +461,4 @@ const NewRide = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    trip: getTrip(state),
-    tripErrors: getTripErrors(state),
-    tripSaved: getTripSaved(state),
-    tripCompleted: getTripCompleted(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getTripRequest, createTripRequest, updateTripRequest,
-    resetTripFlagRequest, setProcessingRequest
-  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getTripRequest,
-        createTripRequest,
-        updateTripRequest,
-        resetTripFlagRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(NewRide)
+export default (NewRide)

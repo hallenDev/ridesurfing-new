@@ -11,21 +11,12 @@ import DatePicker from "react-datepicker";
 import FacebookLogin from "react-facebook-login";
 import moment from "moment";
 
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-
-import * as actions from "../actions";
-import { getUserErrors, getUserSaved } from "../reducers/UserReducer";
-import {
-  getLoggedIn,
-  getSocialLoginError,
-  getIsProcessing,
-} from "../reducers/SessionReducer";
-
 import { PrimaryButton } from "../components/Buttons";
 import SocialButton from "../components/SocialButton";
 import { getGooglePeople } from "../apis/session";
 import { Modal } from "@material-ui/core";
+import useUserStore from '../store/UserStore';
+import useSessionStore from '../store/SessionStore';
 
 const gender = ["Male", "Female", "Other"];
 const facebookId = process.env.REACT_APP_FACEBOOK_ID;
@@ -39,28 +30,38 @@ const MenuProps = {
   },
 };
 
+const initial_state = {
+  user: {
+    first_name: "",
+    last_name: "",
+    email: "",
+    birthday: "",
+    password: "",
+    gender: "",
+  },
+  userErrors: {},
+  fbProcessing: false,
+  googleProcessing: false,
+  signupProcessing: false,
+  modalOpen: false,
+  googleUser: {},
+};
+
 const MAX_DATE = moment()
   .subtract(18, "years")
   .toDate();
 
 const Signup = (props) => {
+
+  const userStore = useUserStore();
+  const sessionStore = useSessionStore();
+
+  const userErrors = userStore.errors;
+  const isUserSaved = userStore.isSaved;
+  const loggedIn = sessionStore.loggedIn;
+  const socialLoginError = sessionStore.socialLoginError;
+  const isProcessing = sessionStore.isProcessing;
   
-  const initial_state = {
-    user: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      birthday: "",
-      password: "",
-      gender: "",
-    },
-    userErrors: {},
-    fbProcessing: false,
-    googleProcessing: false,
-    signupProcessing: false,
-    modalOpen: false,
-    googleUser: {},
-  };
   const [state, setState] = useState(initial_state);
   const [nodes, setNodes] = useState({});
 
@@ -202,7 +203,6 @@ const Signup = (props) => {
   };
 
   const errorMessageFor = (fieldName) => {
-    const { userErrors } = props;
     if (userErrors && userErrors[fieldName]) {
       return userErrors[fieldName];
     }
@@ -223,7 +223,6 @@ const Signup = (props) => {
     if (res.error) {
       handleSocialLoginFailure(res.error);
     } else {
-      const { socialLoginRequest, createUserRequest } = props.actions;
       const { history } = props;
 
       const user = {
@@ -244,7 +243,7 @@ const Signup = (props) => {
       };
 
       console.log(user);
-      const result = await socialLoginRequest(
+      const result = await sessionStore.socialLoginRequest(
         "facebook",
         user.token,
         user.email
@@ -253,7 +252,7 @@ const Signup = (props) => {
 
       if (result.errors && result.errors === "Record not found") {
         console.log("error happened");
-        const createUserResult = await createUserRequest(user);
+        const createUserResult = await userStore.createUserRequest(user);
 
         console.log(createUserResult, "createUserResult");
 
@@ -314,10 +313,9 @@ const Signup = (props) => {
 
     const { _provider, _profile } = user;
 
-    const { socialLoginRequest, createUserRequest } = props.actions;
     const { history } = props;
 
-    const result = await socialLoginRequest(
+    const result = await sessionStore.socialLoginRequest(
       _provider,
       _profile.id,
       _profile.email
@@ -336,7 +334,7 @@ const Signup = (props) => {
         return;
       }
 
-      const createUserResult = await createUserRequest(user);
+      const createUserResult = await userStore.createUserRequest(user);
 
       setState({
         ...state,
@@ -358,9 +356,8 @@ const Signup = (props) => {
     });
 
     const { googleUser } = state;
-    const { createUserRequest } = props.actions;
     const { history } = props;
-    const createUserResult = await createUserRequest(googleUser);
+    const createUserResult = await userStore.createUserRequest(googleUser);
 
     if (!createUserResult.errors) {
       history.push("search");
@@ -369,11 +366,10 @@ const Signup = (props) => {
 
   const handleSignup = async () => {
     const { user } = state;
-    const { createUserRequest } = props.actions;
     const { history } = props;
     setState({ ...state, signupProcessing: true });
 
-    const res = await createUserRequest(user);
+    const res = await userStore.createUserRequest(user);
 
     setState({ ...state, signupProcessing: false });
 
@@ -718,37 +714,4 @@ const modalActionWrap = {
 //   marginTop: 10,
 // };
 
-function mapStateToProps(state) {
-  return {
-    userErrors: getUserErrors(state),
-    isUserSaved: getUserSaved(state),
-    loggedIn: getLoggedIn(state),
-    socialLoginError: getSocialLoginError(state),
-    isProcessing: getIsProcessing(state),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  const {
-    createUserRequest,
-    socialLoginRequest,
-    getCurrentUserRequest,
-    resetCurrentUserFlagsRequest,
-    setProcessingRequest,
-  } = actions;
-
-  return {
-    actions: bindActionCreators(
-      {
-        createUserRequest,
-        socialLoginRequest,
-        getCurrentUserRequest,
-        resetCurrentUserFlagsRequest,
-        setProcessingRequest,
-      },
-      dispatch
-    ),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Signup);
+export default Signup;

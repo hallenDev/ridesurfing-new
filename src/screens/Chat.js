@@ -1,19 +1,24 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import { GiftedChat } from 'react-web-gifted-chat'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { Link } from 'react-router-dom'
-import * as actions from '../actions'
-import { getCurrentUser } from '../reducers/SessionReducer'
-import { getChatUsers, getChats, getCurrentChatUser } from '../reducers/ChatReducer'
 
 import missingImg from '../images/missing.png'
 import noChat from '../images/No-chat.png'
+import useSessionStore from '../store/SessionStore';
+import useChatStore from '../store/ChatStore';
+
 var chatSubscription;
 
 const Chat = (props) => {
 
+  const sessionStore = useSessionStore();
+  const chatStore = useChatStore();
+
+  const currentUser = sessionStore.currentUser;
+  const chats = chatStore.chats;
+  const users = chatStore.users;
+  const chatUser = chatStore.user;
 
   const initial_state = {
     message: ''
@@ -51,11 +56,8 @@ const Chat = (props) => {
         console.log("Chat Channel disconnected")
       },
       received: function(data) {
-        const { chatUser, currentUser } = props
-        const { getDirectChatUserRequest } = props.actions
-
         if (((chatUser.id === data.sender_id) && (currentUser.id === data.receiver_id)) || ((chatUser.id === data.receiver_id) && (currentUser.id === data.sender_id))) {
-          getDirectChatUserRequest(chatUser.id, true)
+          chatStore.getDirectChatUserRequest(chatUser.id, true)
         }
       }
     })
@@ -68,8 +70,8 @@ const Chat = (props) => {
   // }
 
   const renderDirectChatUser = () => {
-    if (props.chatUser.id !== undefined) {
-      return(userTile(props.chatUser, 'active'))
+    if (chatUser.id !== undefined) {
+      return(userTile(chatUser, 'active'))
     }
   }
 
@@ -79,8 +81,8 @@ const Chat = (props) => {
   }
 
   const renderUsersList = () => {
-    return(_.map(props.users, (user) => {
-      if (user.id !== props.chatUser.id) {
+    return(_.map(users, (user) => {
+      if (user.id !== chatUser.id) {
         return(userTile(user, ''))
       }
     }))
@@ -88,15 +90,13 @@ const Chat = (props) => {
 
   const loadChat = (userId) => {
     localStorage.setItem("directChatUserId", userId)
-    const { getChatUsersRequest, getDirectChatUserRequest } = props.actions
-    getDirectChatUserRequest(userId, true)
-    getChatUsersRequest()
+    chatStore.getDirectChatUserRequest(userId, true)
+    chatStore.getChatUsersRequest()
   }
 
   const sendChat = (messages) => {
     const message = messages[0]
-    const { sendChatRequest } = props.actions
-    sendChatRequest({ message: message.text.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: props.chatUser.id })
+    chatStore.sendChatRequest({ message: message.text.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: chatUser.id })
 
     setState({ ...state, message: '' })
   }
@@ -119,10 +119,9 @@ const Chat = (props) => {
 
   const onChatKeyPress = (event) => {
     if (event.key === 'Enter') {
-      const { sendChatRequest } = props.actions
       const { message } = state
 
-      sendChatRequest({ message: message.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: props.chatUser.id })
+      chatStore.sendChatRequest({ message: message.trim().replace(/(\r\n|\n|\r)/gm,''), receiver_id: chatUser.id })
       setState({ ...state, message: '' })
     }
   }
@@ -131,7 +130,6 @@ const Chat = (props) => {
     setState({ ...state, message: message })
   }
 
-  const { chats, chatUser, currentUser, users } = props
   const { message } = state
 
   return (
@@ -249,28 +247,4 @@ const Chat = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    chats: getChats(state),
-    users: getChatUsers(state),
-    chatUser: getCurrentChatUser(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getChatUsersRequest, getDirectChatUserRequest, sendChatRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getChatUsersRequest,
-        getDirectChatUserRequest,
-        sendChatRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Chat)
+export default (Chat)

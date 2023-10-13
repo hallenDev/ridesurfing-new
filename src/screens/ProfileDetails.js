@@ -12,16 +12,22 @@ import ProfilePayoutSection from '../components/ProfilePayoutSection'
 import ProfileCardSection from '../components/ProfileCardSection'
 
 import { notify } from 'react-notify-toast'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 
-import * as actions from '../actions'
-import { getUserErrors } from '../reducers/UserReducer'
-import { getCurrentUser, getErrors } from '../reducers/SessionReducer'
-import { getUser } from '../reducers/UserReducer'
 import missingImg from '../images/missing.png'
+import useUserStore from '../store/UserStore';
+import useSessionStore from '../store/SessionStore';
+import useChatStore from '../store/ChatStore';
 
 const ProfileDetails = (props) => {
+
+  const userStore = useUserStore();
+  const sessionStore = useSessionStore();
+  const chatStore = useChatStore();
+
+  const currentUser = sessionStore.currentUser;
+  const user = userStore.user;
+  const error = sessionStore.errors;
+  const userErrors = userStore.errors;
 
   const initial_state = {
     userId: props.match.params.userId
@@ -62,17 +68,16 @@ const ProfileDetails = (props) => {
 
   const goToChat = (userId) => {
     const { history } = props
-    const { getDirectChatUserRequest } = props.actions
 
     localStorage.setItem("directChatUserId", userId)
-    getDirectChatUserRequest(userId, true)
+    chatStore.getDirectChatUserRequest(userId, true)
 
     history.push('/chat')
   }
 
   const { userId } = state
-  const { currentUser } = props
-  const user = userId ? props.user : currentUser
+  // to-do
+  // const user = userId ? user : currentUser
   const { profile } = user.relationships
 
   return (
@@ -154,28 +159,4 @@ const ProfileDetails = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    user: getUser(state),
-    error: getErrors(state),
-    userErrors: getUserErrors(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getUserRequest, getDirectChatUserRequest, resetUserFlagsRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getUserRequest,
-        resetUserFlagsRequest,
-        getDirectChatUserRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileDetails)
+export default (ProfileDetails)

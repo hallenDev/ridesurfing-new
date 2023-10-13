@@ -34,7 +34,7 @@ const useSessionStore = create((set) => ({
     getIsCarImageProcessing: false,
     isPayoutProcessing: false,
 
-    loginRequest: (email, password) => {
+    loginRequest: async (email, password) => {
         callApi(`login`, "post", { email, password }).then((res) => {
             if (!res || res.errors) {
                 set({
@@ -58,6 +58,7 @@ const useSessionStore = create((set) => ({
                 isPayoutProcessing: false,
               })
             }
+            return res;
         });
     }, 
     logoutRequest: () => {
@@ -176,7 +177,7 @@ const useSessionStore = create((set) => ({
             set({ carMakeList: res })
         });
     },
-    socialLoginRequest: (social_type, token, email) => {
+    socialLoginRequest: async (social_type, token, email) => {
         callApi(`sessions/check_provider.json`, "post", { social_type, token, email }).then((res) => {
             if (res && res.data) {
               if (res.data.attributes.token) {
@@ -193,6 +194,7 @@ const useSessionStore = create((set) => ({
             } else {
               set({ socialLoginError: true })
             }
+            return res;
         });
     },
     saveAccountRequest: (account_params, address_params, ip) => {

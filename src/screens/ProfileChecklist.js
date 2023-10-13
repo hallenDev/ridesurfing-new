@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import FormControl from '@material-ui/core/FormControl'
 import MenuItem from '@material-ui/core/MenuItem'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -11,16 +11,8 @@ import Switch from "react-switch"
 import ReactLoading from 'react-loading'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
-
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
 import ProfilePayoutSection from '../components/ProfilePayoutSection'
-
-import * as actions from '../actions'
-import { getCurrentUser, getProfileSaved, getProfileErrors, getCarMakeList, getIsProcessing,
-  getImageUploaded, getAccountUpdated, getIsCarImageProcessing, getIsPayoutProcessing
-} from '../reducers/SessionReducer'
+import useSessionStore from '../store/SessionStore';
 
 import missingImg from '../images/missing.png'
 
@@ -29,6 +21,17 @@ const MenuProps = { PaperProps: { style: { maxHeight: 300 } } }
 
 const ProfileChecklist = (props) => {
 
+  const sessionStore = useSessionStore();
+
+  const currentUser = sessionStore.currentUser;
+  const profileErrors = sessionStore.profileErrors;
+  const carMakeList = sessionStore.carMakeList;
+  // const profileSaved = sessionStore.profileSaved;
+  // const isProcessing = sessionStore.isProcessing;
+  // const isCarImageProcessing = sessionStore.isCarImageProcessing;
+  // const isPayoutProcessing = sessionStore.isPayoutProcessing;
+  // const imageUploaded = sessionStore.imageUploaded;
+  // const accountUpdated = sessionStore.accountUpdated;
   
   const initial_state = {
     submitAccountForm: false,
@@ -102,7 +105,6 @@ const ProfileChecklist = (props) => {
   // }
 
   const displayImage = (imageType) => {
-    const { currentUser } = props
 
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
@@ -114,7 +116,6 @@ const ProfileChecklist = (props) => {
   }
 
   const hasCarImage = () => {
-    const { currentUser } = props
 
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
@@ -126,8 +127,6 @@ const ProfileChecklist = (props) => {
   }
 
   const hasDisplayImage = () => {
-    const { currentUser } = props
-
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
       const { images } = profile.relationships
@@ -151,7 +150,6 @@ const ProfileChecklist = (props) => {
   const onCancel = () => {}
 
   const errorMessageFor = (fieldName) => {
-    const { profileErrors } = props
     if (profileErrors && profileErrors[fieldName]) {
       return profileErrors[fieldName]
     }
@@ -184,7 +182,6 @@ const ProfileChecklist = (props) => {
 
   const carModelList = () => {
     const { car_make } = state.profile
-    const { carMakeList } = props
 
     if (car_make && carMakeList[car_make]) {
       const models = carMakeList[car_make].car_models
@@ -198,7 +195,6 @@ const ProfileChecklist = (props) => {
 
   const carYearList = () => {
     const { car_make, car_model } = state.profile
-    const { carMakeList } = props
 
     if (car_make && carMakeList[car_make]) {
       const models = carMakeList[car_make].car_models
@@ -217,7 +213,6 @@ const ProfileChecklist = (props) => {
   }
 
   const uploadImage = (files, imageType) => {
-    const { setProcessingRequest, uploadProfileImageRequest } = props.actions
     if (imageType === 'car') {
       setState({
         ...state, 
@@ -230,7 +225,7 @@ const ProfileChecklist = (props) => {
         imageProcessing: true
       })
     }
-    setProcessingRequest(imageType)
+    sessionStore.setProcessingRequest(imageType)
     const fileObj = files[0]
     let img
 
@@ -239,7 +234,7 @@ const ProfileChecklist = (props) => {
 
       FR.addEventListener("load", function(e) {
         img = e.target.result
-        uploadProfileImageRequest(imageType, img)
+        sessionStore.uploadProfileImageRequest(imageType, img)
       })
 
       FR.readAsDataURL(fileObj)
@@ -248,12 +243,11 @@ const ProfileChecklist = (props) => {
 
   const handleProfileSave = () => {
     const { profile } = state
-    const { saveProfileRequest } = props.actions
     setState({ 
       ...state, 
       profileProcessing: true 
     })
-    saveProfileRequest(profile.id, profile)
+    sessionStore.saveProfileRequest(profile.id, profile)
     setState({ 
       ...state, 
       submitAccountForm: true 
@@ -261,7 +255,6 @@ const ProfileChecklist = (props) => {
   }
 
   const deleteImage = (imageId) => {
-    const { deleteProfileImageRequest } = props.actions
 
     confirmAlert({
       title: 'Alert!',
@@ -269,7 +262,7 @@ const ProfileChecklist = (props) => {
       buttons: [
         {
           label: 'Yes',
-          onClick: () => deleteProfileImageRequest(imageId)
+          onClick: () => sessionStore.deleteProfileImageRequest(imageId)
         },
         {
           label: 'No',
@@ -291,19 +284,17 @@ const ProfileChecklist = (props) => {
   }
 
   const originalyHasCarBasicInfo = () => {
-    const { currentUser } = props
 
     return !!currentUser.relationships.profile.car_make && !!currentUser.relationships.profile.car_model && !!currentUser.relationships.profile.car_year && !!currentUser.relationships.profile.car_color
   }
 
   const carInfoSaved = () => {
-    const { profile } = props.currentUser.relationships
+    const { profile } = currentUser.relationships
 
     return !!profile.car_make && !!profile.car_model && !!profile.car_year && !!profile.car_color && !!hasCarImage()
   }
 
   const { profile, submitAccountForm, drive_created, imageProcessing, profileProcessing, price, carImageProcessing } =  state
-  const { carMakeList, currentUser } = props
   const { has_payout_details } = currentUser.attributes
 
   return (
@@ -518,38 +509,4 @@ const ProfileChecklist = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    profileErrors: getProfileErrors(state),
-    profileSaved: getProfileSaved(state),
-    carMakeList: getCarMakeList(state),
-    isProcessing: getIsProcessing(state),
-    isCarImageProcessing: getIsCarImageProcessing(state),
-    isPayoutProcessing: getIsPayoutProcessing(state),
-    imageUploaded: getImageUploaded(state),
-    accountUpdated: getAccountUpdated(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCurrentUserRequest, saveProfileRequest, uploadProfileImageRequest, resetProfileFlagsRequest, carMakeListRequest, setProcessingRequest,
-  deleteProfileImageRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        saveProfileRequest,
-        resetProfileFlagsRequest,
-        carMakeListRequest,
-        uploadProfileImageRequest,
-        setProcessingRequest,
-        deleteProfileImageRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileChecklist)
+export default (ProfileChecklist)

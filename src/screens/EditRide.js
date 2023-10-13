@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -12,21 +12,24 @@ import MenuItem from '@material-ui/core/MenuItem'
 import DatePicker from 'react-datepicker'
 import geolib from 'geolib'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getCurrentUser } from '../reducers/SessionReducer'
-import { getTrip, getTripErrors, getTripSaved, getTripCompleted } from '../reducers/TripReducer'
-
 import SearchField from '../components/SearchField'
 import { PrimaryButton } from '../components/Buttons'
 import Gmap from '../components/Gmap'
+import useTripStore from '../store/TripStore';
+import useSessionStore from '../store/SessionStore';
 
 const eventName = ['No event', 'Concerts', 'Music Festivals', 'Entertainment show', 'Museum', 'Cultural Event']
 const MenuProps = { PaperProps: { style: { maxHeight: 300 } } }
 
 const EditRide = (props) => {
+
+  const tripStore = useTripStore();
+  const sessionStore = useSessionStore();
+  const currentUser = sessionStore.currentUser;
+  // const trip = tripStore.trip;
+  const tripErrors = tripStore.errors;
+  const tripSaved = tripStore.isSaved;
+  const tripCompleted = tripStore.isCompleted;
 
   const initial_state = {
     latitude: 39.73915,
@@ -47,6 +50,7 @@ const EditRide = (props) => {
   }
 
   const [state, setState] = useState(initial_state);
+  const [node, setNode] =useState(null);
 
   // to-do
   // componentWillMount () {
@@ -88,7 +92,6 @@ const EditRide = (props) => {
   // }
 
   const navigationUrl = (trip) => {
-    const { currentUser } = props
     const { has_payout_details, has_completed_profile, has_car_image } = currentUser.attributes
 
     return ((parseFloat(trip.attributes.price) === 0 || (parseFloat(trip.attributes.price) > 0 && !!has_payout_details)) && !!has_completed_profile && !!has_car_image) ? `/ride/${trip.attributes.slug || trip.id}` : '/complete_profile'
@@ -113,7 +116,7 @@ const EditRide = (props) => {
   }
 
   const onFieldChange = (fieldName, event) => {
-    const { trip } = this.state
+    const { trip } = state
     trip[fieldName] = event.target.value
     setState({ 
       ...state, 
@@ -144,15 +147,13 @@ const EditRide = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { tripErrors } = props
     if (tripErrors && tripErrors[fieldName])
       return tripErrors[fieldName]
   }
 
   const handleSaveTrip = () => {
     const { trip, tripId } = state
-    const { updateTripRequest } = props.actions
-    updateTripRequest(tripId, trip)
+    tripStore.updateTripRequest(tripId, trip)
   }
 
   const setAddress = (address, geometry, fieldName) => {
@@ -310,7 +311,7 @@ const EditRide = (props) => {
               <span className='error'>{errorMessageFor('start_location')}</span>
             </div>
           </div>
-          <div style={{position: 'relative'}} ref={node => { node = node; }}>
+          <div style={{position: 'relative'}} ref={node => { setNode(node) }}>
             <div className="row">
               <div className="col l6 m6 s12">
                 <div className="label">Leaving{trip.drive_type === 'commute' ? '*' : ''}</div>
@@ -470,32 +471,4 @@ const EditRide = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    trip: getTrip(state),
-    tripErrors: getTripErrors(state),
-    tripSaved: getTripSaved(state),
-    tripCompleted: getTripCompleted(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getTripRequest, createTripRequest, updateTripRequest,
-    resetTripFlagRequest
-  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getTripRequest,
-        createTripRequest,
-        updateTripRequest,
-        resetTripFlagRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditRide)
+export default (EditRide)

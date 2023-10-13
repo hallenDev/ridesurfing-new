@@ -21,7 +21,7 @@ const useUserStore = create((set) => ({
     emailVerified: false,
     isProcessing: false,
 
-    createUserRequest: (user) => {
+    createUserRequest: async (user) => {
         callApi(`signup`, "post", { user }).then((res) => {
             if (res.errors) {
                 set({
@@ -37,6 +37,7 @@ const useUserStore = create((set) => ({
                 })
                 // dispatch(loginUser(res));
             }
+            return res;
         });
     },
     getUserRequest: (userId) => {

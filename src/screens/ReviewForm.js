@@ -9,15 +9,22 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormControl from '@material-ui/core/FormControl'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getReviews, getReview, getDataLoaded, getReviewUpdated, getReviewErrors, getIsProcessing } from '../reducers/ReviewReducer'
-import { getCurrentUser } from '../reducers/SessionReducer'
 import missingImg from '../images/missing.png'
+import useSessionStore from '../store/SessionStore';
+import useReviewStore from '../store/ReviewStore';
 
 const ReviewForm = (props) => {
+
+  const sessionStore = useSessionStore();
+  const reviewStore = useReviewStore();
+
+  const reviewErrors = reviewStore.errors;
+  const dataLoaded = reviewStore.dataLoaded;
+  const reviews = reviewStore.reviews;
+  const review = reviewStore.review;
+  const currentUser = sessionStore.currentUser;
+  const reviewUpdated = reviewStore.isUpdated;
+  // const isProcessing = reviewStore.isProcessing;
 
   
   const initial_state = {
@@ -98,14 +105,12 @@ const ReviewForm = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { reviewErrors } = props
     if (reviewErrors && reviewErrors[fieldName])
       return reviewErrors[fieldName]
   }
 
   const sendReviewRequest = (review) => {
     const { reviewData } = state
-    const { updateReviewRequest } = props.actions
     setState({ 
       ...state, 
       isProcessing: true 
@@ -117,11 +122,10 @@ const ReviewForm = (props) => {
       })
     }
 
-    updateReviewRequest(review.id, reviewData)
+    reviewStore.updateReviewRequest(review.id, reviewData)
   }
 
   const { reviewData, isProcessing } = state
-  const { review } = props
   const { trip, user } = review.relationships
   return (
     <div className="review-form-page">
@@ -384,35 +388,4 @@ const ReviewForm = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    reviewErrors: getReviewErrors(state),
-    dataLoaded: getDataLoaded(state),
-    reviews: getReviews(state),
-    review: getReview(state),
-    currentUser: getCurrentUser(state),
-    reviewUpdated: getReviewUpdated(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getReviewsRequest, getReviewRequest, getCurrentUserRequest, resetDataLoadedRequest, updateReviewRequest, setProcessingRequest, resetReviewFlagRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getReviewsRequest,
-        getReviewRequest,
-        getCurrentUserRequest,
-        resetDataLoadedRequest,
-        updateReviewRequest,
-        setProcessingRequest,
-        resetReviewFlagRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ReviewForm)
+export default (ReviewForm)

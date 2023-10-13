@@ -5,18 +5,24 @@ import Button from '@material-ui/core/Button'
 import Switch from "react-switch"
 import ReactLoading from 'react-loading'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
 import ProfileCardSection from '../components/ProfileCardSection'
-
-import * as actions from '../actions'
-import { getCurrentUser, getProfileSaved, getProfileErrors, getIsProcessing } from '../reducers/SessionReducer'
-import { getCardErrors, getCardSaved, getIsCardProcessing } from '../reducers/CardReducer'
+import useSessionStore from '../store/SessionStore';
+import useCardStore from '../store/CardStore';
 
 import missingImg from '../images/missing.png'
 
 const RiderChecklist = (props) => {
+
+  const sessionStore = useSessionStore();
+  // const cardStore = useCardStore();
+
+  const currentUser = sessionStore.currentUser;
+  const profileErrors = sessionStore.profileErrors;
+  // const profileSaved = sessionStore.profileSaved;
+  // const cardErrors = cardStore.errors;
+  // const cardSaved = cardStore.isSaved;
+  // const isProcessing = sessionStore.isProcessing;
+  // const isCardProcessing = cardStore.isCardProcessing;
 
   const initial_state = {
     submitCardForm: false,
@@ -89,7 +95,6 @@ const RiderChecklist = (props) => {
   // }
 
   const displayImage = () => {
-    const { currentUser } = props
 
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
@@ -114,7 +119,6 @@ const RiderChecklist = (props) => {
   const onCancel= () => {}
 
   const errorMessageFor = (fieldName) => {
-    const { profileErrors } = props
     if (profileErrors && profileErrors[fieldName]) {
       return profileErrors[fieldName]
     }
@@ -147,12 +151,11 @@ const RiderChecklist = (props) => {
 
   const uploadImage = (files, imageType) => {
     const fileObj = files[0]
-    const { uploadProfileImageRequest, setProcessingRequest } = props.actions
     setState({
       ...state,
       imageProcessing: true
     })
-    setProcessingRequest()
+    sessionStore.setProcessingRequest()
 
     let img
 
@@ -161,7 +164,7 @@ const RiderChecklist = (props) => {
 
       FR.addEventListener("load", function(e) {
         img = e.target.result
-        uploadProfileImageRequest(imageType, img)
+        sessionStore.uploadProfileImageRequest(imageType, img)
       })
 
       FR.readAsDataURL(fileObj)
@@ -170,12 +173,11 @@ const RiderChecklist = (props) => {
 
   const handleProfileSave = () => {
     const { profile } = state
-    const { saveProfileRequest } = props.actions
     setState({ 
       ...state,
       profileProcessing: true 
     })
-    saveProfileRequest(profile.id, profile)
+    sessionStore.saveProfileRequest(profile.id, profile)
     setState({ 
       ...state,
       submitCardForm: true 
@@ -183,7 +185,6 @@ const RiderChecklist = (props) => {
   }
 
   const { profile, submitCardForm, imageProcessing, profileProcessing } =  state
-  const { currentUser } = props
   const { has_cards } = currentUser.attributes
 
   return (
@@ -287,34 +288,4 @@ const RiderChecklist = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    profileErrors: getProfileErrors(state),
-    profileSaved: getProfileSaved(state),
-    cardErrors: getCardErrors(state),
-    cardSaved: getCardSaved(state),
-    isProcessing: getIsProcessing(state),
-    isCardProcessing: getIsCardProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCurrentUserRequest, saveProfileRequest, uploadProfileImageRequest, resetProfileFlagsRequest, resetCardsFlagRequest, setProcessingRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        saveProfileRequest,
-        resetProfileFlagsRequest,
-        uploadProfileImageRequest,
-        resetCardsFlagRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(RiderChecklist)
+export default (RiderChecklist)

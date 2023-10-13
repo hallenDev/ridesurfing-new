@@ -1,6 +1,6 @@
 import _ from "underscore";
 import $ from "jquery";
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
@@ -12,25 +12,12 @@ import Collapse from "@material-ui/core/Collapse";
 import DatePicker from "react-datepicker";
 import ReactLoading from "react-loading";
 
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-
-import * as actions from "../actions";
-import { getCurrentUser } from "../reducers/SessionReducer";
-import {
-  getAllTrips,
-  getSearchedTrips,
-  getSearchedTripIds,
-  getSimilarTrips,
-  getPagination,
-  getDataLoaded,
-  getWaypoints,
-} from "../reducers/TripReducer";
-
 import SearchField from "../components/SearchField";
 import Gmap from "../components/Gmap";
 import TripCard from "../components/TripCard";
 import Pagination from "../components/Pagination";
+import useTripStore from '../store/TripStore';
+import useSessionStore from '../store/SessionStore';
 
 const basicFilters = [
   ["", "All"],
@@ -66,6 +53,17 @@ const addDays = (date, days) => {
 const MenuProps = { PaperProps: { style: { maxHeight: 300 } } };
 
 const Dashboard = (props) => {
+
+  const sessionStore = useSessionStore();
+  const tripStore = useTripStore();
+
+  const trips = tripStore.searchedTrips;
+  const waypoints = tripStore.waypoints;
+  const allTrips = tripStore.allTrips;
+  const similarTrips = tripStore.similarTrips;
+  const pagination = tripStore.pagination;
+  const currentUser = sessionStore.currentUser;
+  const dataLoaded = tripStore.dataLoaded;
 
   const today = new Date();
   const initial_state = {
@@ -139,7 +137,6 @@ const Dashboard = (props) => {
 
   const setCurrentPosition = () => {
     const { filters } = state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
       .done(function(location) {
@@ -153,15 +150,15 @@ const Dashboard = (props) => {
           filters,
         });
 
-        resetDataLoadedRequest();
-        searchTripIdsRequest(filters);
+        tripStore.resetDataLoadedRequest();
+        tripStore.searchTripIdsRequest(filters);
       })
       .fail(function(error) {
         setState({ 
           ...state, 
           locationAvailable: false 
         });
-        searchTripIdsRequest(filters);
+        tripStore.searchTripIdsRequest(filters);
       });
   }
 
@@ -193,7 +190,6 @@ const Dashboard = (props) => {
 
   const updateDateFilters = (fieldName, date) => {
     const { filters } = state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     if (!date) {
       filters[fieldName] = date;
@@ -213,13 +209,12 @@ const Dashboard = (props) => {
       filters 
     });
 
-    resetDataLoadedRequest();
-    searchTripIdsRequest(filters);
+    tripStore.resetDataLoadedRequest();
+    tripStore.searchTripIdsRequest(filters);
   };
 
   const updateFilters = (fieldName, event) => {
     const { filters } = state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     filters[fieldName] = event.target.value;
     setState({ 
@@ -227,13 +222,12 @@ const Dashboard = (props) => {
       filters 
     });
 
-    resetDataLoadedRequest();
-    searchTripIdsRequest(filters);
+    tripStore.resetDataLoadedRequest();
+    tripStore.searchTripIdsRequest(filters);
   };
 
   const onMarkerClick = (trip) => {
     const { filters } = state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
     const {
       start_location_latitude,
       start_location_longitude,
@@ -248,13 +242,12 @@ const Dashboard = (props) => {
       ...state, 
       filters 
     });
-    resetDataLoadedRequest();
-    searchTripIdsRequest(filters);
+    tripStore.resetDataLoadedRequest();
+    tripStore.searchTripIdsRequest(filters);
   }
 
   const updateSlider = (fieldName, value) => {
     const { filters } = state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     if (value === 351) {
       delete filters[fieldName];
@@ -267,13 +260,12 @@ const Dashboard = (props) => {
       filters 
     });
 
-    resetDataLoadedRequest();
-    searchTripIdsRequest(filters);
+    tripStore.resetDataLoadedRequest();
+    tripStore.searchTripIdsRequest(filters);
   };
 
   const changePrice = (valArray) => {
     const { filters } = state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     filters["start_price"] = valArray[0];
     filters["end_price"] = valArray[1];
@@ -282,13 +274,12 @@ const Dashboard = (props) => {
       filters 
     });
 
-    resetDataLoadedRequest();
-    searchTripIdsRequest(filters);
+    tripStore.resetDataLoadedRequest();
+    tripStore.searchTripIdsRequest(filters);
   }
 
   const setAddress = (address, geometry, fieldName) => {
     const { filters, latitude, longitude, locationAvailable } = state;
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
 
     filters[fieldName] = geometry ? address : undefined;
     filters[`${fieldName}_latitude`] = geometry
@@ -312,8 +303,8 @@ const Dashboard = (props) => {
     });
 
     if (geometry || address === "") {
-      resetDataLoadedRequest();
-      searchTripIdsRequest(filters);
+      tripStore.resetDataLoadedRequest();
+      tripStore.searchTripIdsRequest(filters);
     }
   }
 
@@ -322,7 +313,6 @@ const Dashboard = (props) => {
   };
 
   const createCard = (trip, trip_idx) => {
-    const { getTripInfoRequest } = props.actions;
     // getTripInfoRequest(trip.id)
     return (
       <TripCard
@@ -334,7 +324,6 @@ const Dashboard = (props) => {
   }
 
   const renderTrips = () => {
-    const { trips } = props;
     if (trips.length > 0) {
       return _.map(trips, (trip, index) => {
         return createCard(trip, index);
@@ -345,24 +334,21 @@ const Dashboard = (props) => {
   }
 
   const renderSimilarTrips = () => {
-    const { similarTrips } = props;
     return _.map(similarTrips, (trip, index) => {
       return createCard(trip, index);
     });
   }
 
   const onPageNumClick = (e, page) => {
-    const { resetDataLoadedRequest, searchTripIdsRequest } = props.actions;
     const { filters } = state;
 
     e.target.parentElement.classList.add("clicked-page");
 
-    resetDataLoadedRequest();
-    searchTripIdsRequest(filters, page, false);
+    tripStore.resetDataLoadedRequest();
+    tripStore.searchTripIdsRequest(filters, page, false);
   }
 
   const renderPagination = () => {
-    const { pagination } = props;
     if (pagination.total_pages > 1) {
       var arr = [...Array(pagination.total_pages).keys()].map((x) => ++x);
       return _.map(arr, (page) => {
@@ -386,15 +372,7 @@ const Dashboard = (props) => {
     }
   }
 
-  const {
-    filters,
-    selected,
-    showTrip,
-    latitude,
-    longitude,
-    dataLoaded,
-  } = state;
-  const { allTrips, similarTrips, trips } = props;
+  const { filters, selected, showTrip, latitude, longitude } = state;
   return (
     <div className="dashboard-container">
       <div className="formSection">
@@ -773,39 +751,4 @@ const Dashboard = (props) => {
   );
 }
 
-function mapStateToProps(state) {
-  return {
-    trips: getSearchedTripIds(state),
-    waypoints: getWaypoints(state),
-    allTrips: getAllTrips(state),
-    similarTrips: getSimilarTrips(state),
-    pagination: getPagination(state),
-    currentUser: getCurrentUser(state),
-    dataLoaded: getDataLoaded(state),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  const {
-    searchTripIdsRequest,
-    searchTripsRequest,
-    getCurrentUserRequest,
-    resetDataLoadedRequest,
-    getTripInfoRequest,
-  } = actions;
-
-  return {
-    actions: bindActionCreators(
-      {
-        searchTripIdsRequest,
-        searchTripsRequest,
-        getCurrentUserRequest,
-        resetDataLoadedRequest,
-        getTripInfoRequest,
-      },
-      dispatch
-    ),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+export default (Dashboard);

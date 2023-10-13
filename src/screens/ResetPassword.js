@@ -1,25 +1,26 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import TextField from '@material-ui/core/TextField'
 import Card from '@material-ui/core/Card'
-
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router-dom'
 
 import { PrimaryButton } from '../components/Buttons'
+import useUserStore from '../store/UserStore';
 
-import * as actions from '../actions'
-import { getUserErrors, getResetPassword, getIsProcessing } from '../reducers/UserReducer'
+const initial_state = {
+  otp: '',
+  password: '',
+  userErrors: {},
+  isProcessing: false
+}
 
 const ResetPassword = (props) => {
 
+  const userStore = useUserStore();
+
+  const userErrors = userStore.errors;
+  const resetPassword = userStore.isReset;
+  // const isProcessing = userStore.isProcessing;
   
-  const initial_state = {
-    otp: '',
-    password: '',
-    userErrors: {},
-    isProcessing: false
-  }
 
   const [state, setState] = useState(initial_state);
 
@@ -42,7 +43,6 @@ const ResetPassword = (props) => {
   // }
 
   const errorMessageFor = (fieldName) => {
-    const { userErrors } = props
     if (userErrors && userErrors[fieldName]) {
       return userErrors[fieldName]
     }
@@ -63,8 +63,7 @@ const ResetPassword = (props) => {
 
   const handleResetPassword = () => {
     const { otp, password } = state
-    const { resetPasswordRequest } = props.actions
-    resetPasswordRequest(otp, password)
+    userStore.resetPasswordRequest(otp, password)
     setState({ 
       ...state, 
       isProcessing: true 
@@ -114,27 +113,4 @@ const ResetPassword = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    userErrors: getUserErrors(state),
-    resetPassword: getResetPassword(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { resetPasswordRequest, resetUserFlagsRequest, setProcessingRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        resetPasswordRequest,
-        resetUserFlagsRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ResetPassword))
+export default withRouter(ResetPassword)

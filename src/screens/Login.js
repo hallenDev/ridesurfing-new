@@ -3,23 +3,11 @@ import TextField from "@material-ui/core/TextField";
 import Card from "@material-ui/core/Card";
 import { Link, withRouter } from "react-router-dom";
 import FacebookLogin from "react-facebook-login";
-import { connect } from "react-redux";
 import DatePicker from "react-datepicker";
-import { bindActionCreators } from "redux";
 import moment from "moment";
 
 import { PrimaryButton } from "../components/Buttons";
 import SocialButton from "../components/SocialButton";
-
-import * as actions from "../actions";
-import { getUserSaved, getUserErrors } from "../reducers/UserReducer";
-import {
-  getLoggedIn,
-  getSocialLoginError,
-  getErrors,
-  getResendEmailVerification,
-  getIsProcessing,
-} from "../reducers/SessionReducer";
 import { getGooglePeople } from "../apis/session";
 import {
   FormControl,
@@ -29,6 +17,8 @@ import {
   Modal,
   Select,
 } from "@material-ui/core";
+import useUserStore from '../store/UserStore';
+import useSessionStore from '../store/SessionStore';
 
 const facebookId = process.env.REACT_APP_FACEBOOK_ID;
 const googleId = process.env.REACT_APP_GOOGLE_ID;
@@ -47,27 +37,38 @@ const MenuProps = {
 
 const gender = ["Male", "Female", "Other"];
 
+const initial_state = {
+  email: "",
+  password: "",
+  loggedIn: false,
+  loginCheck: false,
+  user: {
+    first_name: "",
+    last_name: "",
+    email: "",
+    birthday: "",
+    password: "",
+    gender: "",
+  },
+  fbProcessing: false,
+  googleProcessing: false,
+  loginProcessing: false,
+  modalOpen: false,
+  googleUser: {},
+};
+
 const Login = (props) => {
 
-  const initial_state = {
-    email: "",
-    password: "",
-    loggedIn: false,
-    loginCheck: false,
-    user: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      birthday: "",
-      password: "",
-      gender: "",
-    },
-    fbProcessing: false,
-    googleProcessing: false,
-    loginProcessing: false,
-    modalOpen: false,
-    googleUser: {},
-  };
+  const userStore = useUserStore();
+  const sessionStore = useSessionStore();
+
+  const isUserSaved = userStore.isSaved;
+  const loggedIn = sessionStore.loggedIn;
+  const error = sessionStore.errors;
+  const socialLoginError = sessionStore.socialLoginError;
+  const resendEmailVerification = sessionStore.resendEmailVerification;
+  const isProcessing = sessionStore.isProcessing;
+  const userErrors = userStore.errors;
 
   const [state, setState] = useState(initial_state);
 
@@ -216,7 +217,6 @@ const Login = (props) => {
     if (res.error) {
       handleSocialLoginFailure(res.error);
     } else {
-      const { socialLoginRequest, createUserRequest } = props.actions;
       const { history } = props;
 
       const user = {
@@ -237,7 +237,7 @@ const Login = (props) => {
       };
 
       console.log(user);
-      const result = await socialLoginRequest(
+      const result = await sessionStore.socialLoginRequest(
         "facebook",
         user.token,
         user.email
@@ -246,7 +246,7 @@ const Login = (props) => {
 
       if (result.errors && result.errors === "Record not found") {
         console.log("error happened");
-        const createUserResult = await createUserRequest(user);
+        const createUserResult = await userStore.createUserRequest(user);
 
         console.log(createUserResult, "createUserResult");
 
@@ -306,10 +306,9 @@ const Login = (props) => {
 
     const { _provider, _profile } = user;
 
-    const { socialLoginRequest, createUserRequest } = props.actions;
     const { history } = props;
 
-    const result = await socialLoginRequest(
+    const result = await sessionStore.socialLoginRequest(
       _provider,
       _profile.id,
       _profile.email
@@ -328,7 +327,7 @@ const Login = (props) => {
         return;
       }
 
-      const createUserResult = await createUserRequest(user);
+      const createUserResult = await userStore.createUserRequest(user);
 
       setState({
         ...state,
@@ -354,13 +353,12 @@ const Login = (props) => {
   };
 
   const handleLogin = async () => {
-    const { email, password } = state;
-    const { setProcessingRequest, loginRequest } = props.actions;
+    const { email, password } = state;    
     const { history } = props;
     setState({ loginCheck: true, loginProcessing: true });
 
-    setProcessingRequest();
-    const result = await loginRequest(email, password);
+    sessionStore.setProcessingRequest();
+    const result = await sessionStore.loginRequest(email, password);
     if (result.errors) {
       setState({
         ...state,
@@ -382,7 +380,6 @@ const Login = (props) => {
 
   const sendVerificationEmail = () => {
     const { email } = state;
-    const { resendEmailVerificationRequest } = props.actions;
     setState({ 
       ...state,
       emailError: null 
@@ -393,7 +390,7 @@ const Login = (props) => {
         emailError: "Please enter a valid email." 
       });
     } else {
-      resendEmailVerificationRequest({ identity: email });
+      sessionStore.resendEmailVerificationRequest({ identity: email });
     }
   }
 
@@ -426,9 +423,8 @@ const Login = (props) => {
     });
 
     const { googleUser } = state;
-    const { createUserRequest } = props.actions;
     const { history } = props;
-    const createUserResult = await createUserRequest(googleUser);
+    const createUserResult = await userStore.createUserRequest(googleUser);
 
     if (!createUserResult.errors) {
       history.push("search");
@@ -451,7 +447,6 @@ const Login = (props) => {
   const {
     email,
     password,
-    error,
     emailError,
     fbProcessing,
     googleProcessing,
@@ -702,47 +697,4 @@ const modalActionWrap = {
 //   marginTop: 10,
 // };
 
-function mapStateToProps(state) {
-  return {
-    isUserSaved: getUserSaved(state),
-    loggedIn: getLoggedIn(state),
-    error: getErrors(state),
-    socialLoginError: getSocialLoginError(state),
-    resendEmailVerification: getResendEmailVerification(state),
-    isProcessing: getIsProcessing(state),
-    userErrors: getUserErrors(state),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  const {
-    loginRequest,
-    socialLoginRequest,
-    getCurrentUserRequest,
-    resetCurrentUserFlagsRequest,
-    resendEmailVerificationRequest,
-    setProcessingRequest,
-    createUserRequest,
-    resetUserFlagsRequest,
-    resetProcessingRequest,
-  } = actions;
-
-  return {
-    actions: bindActionCreators(
-      {
-        createUserRequest,
-        loginRequest,
-        socialLoginRequest,
-        getCurrentUserRequest,
-        resetCurrentUserFlagsRequest,
-        resendEmailVerificationRequest,
-        setProcessingRequest,
-        resetProcessingRequest,
-        resetUserFlagsRequest,
-      },
-      dispatch
-    ),
-  };
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Login));
+export default withRouter(Login);

@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import StarRatingComponent from 'react-star-rating-component'
 import _ from 'underscore'
 import ReactLoading from 'react-loading'
@@ -10,19 +10,22 @@ import IconButton from '@material-ui/core/IconButton'
 import Icon from '@material-ui/core/Icon'
 import Dialog from '@material-ui/core/Dialog'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getReviews, getReview, getDataLoaded, getReviewUpdated } from '../reducers/ReviewReducer'
-import { getCurrentUser } from '../reducers/SessionReducer'
-
+import useReviewStore from '../store/ReviewStore';
+import useSessionStore from '../store/SessionStore';
 
 import missingImg from '../images/missing.png'
 
 const Review = (props) => {
 
+  const reviewStore = useReviewStore();
+  const sessionStore = useSessionStore();
 
+  const reviews = reviewStore.reviews;
+  const currentUser = sessionStore.currentUser;
+  // const review = reviewStore.review;
+  // const reviewUpdated = reviewStore.isUpdated;
+  // const dataLoaded = reviewStore.dataLoaded;
+  
   const initial_state = {
     review: {},
     dataLoaded: false
@@ -125,7 +128,6 @@ const Review = (props) => {
   }
 
   const goToProfile = (user) => {
-    const { currentUser } = props
     return user.id === currentUser.id ? `/my_profile` : `/profile/${user.attributes.slug || user.id}`
   }
 
@@ -186,12 +188,10 @@ const Review = (props) => {
   }
 
   const renderReviews = () => {
-    const { reviews } = props
-    const { currentUser } = props
     return _.map(reviews, (review, index) => {
         const anchorEl = state[`anchorEl${index}`]
         const dialogState = state[`dialogState${index}`]      
-	    const { trip, user } = review.relationships
+	      const { trip, user } = review.relationships
 
         return <div className="trip-box card" key={`trip-${index}`}>
           <div className="flex-field web">
@@ -444,7 +444,6 @@ const Review = (props) => {
   }
 
   const { dataLoaded } = state
-  const { reviews } = props
 
   if (reviews.length > 0) {
     return (
@@ -453,7 +452,7 @@ const Review = (props) => {
         <h4>Reviews</h4>
         <hr className="mb20"/>
         <div className="trips-container">
-            {this.renderReviews()}
+            {renderReviews()}
         </div>
       </div>
       </div>
@@ -474,33 +473,4 @@ const Review = (props) => {
   }
 }
 
-function mapStateToProps (state) {
-  return {
-    dataLoaded: getDataLoaded(state),
-    reviews: getReviews(state),
-    review: getReview(state),
-    currentUser: getCurrentUser(state),
-    reviewUpdated: getReviewUpdated(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const {
-    getReviewsRequest, getReviewRequest, getCurrentUserRequest, resetDataLoadedRequest, updateReviewRequest
-  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getReviewsRequest,
-        getReviewRequest,
-        getCurrentUserRequest,
-        resetDataLoadedRequest,
-        updateReviewRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Review)
+export default (Review)

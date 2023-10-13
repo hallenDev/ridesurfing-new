@@ -12,22 +12,22 @@ import findRide from '../images/FAR3.png'
 import buySeat from '../images/BYS2.png'
 import enjoyTrip from '../images/EYT1.png'
 import jamie from '../images/jamie.jpg'
+import useTripStore from '../store/TripStore';
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getTrip, getTripErrors } from '../reducers/TripReducer'
+const initial_state = {
+  selectedDate: '',
+  filters: {
+    start_price: 0,
+    end_price: 250
+  }
+}
 
 const Home = (props) => {
 
-  const initial_state = {
-    selectedDate: '',
-    filters: {
-      start_price: 0,
-      end_price: 250
-    }
-  }
+  const tripStore = useTripStore();
+
+  const trip = tripStore.trip;
+  const tripErrors = tripStore.errors;
 
   const [state, setState] = useState(initial_state);
 
@@ -174,28 +174,4 @@ const Home = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    trip: getTrip(state),
-    tripErrors: getTripErrors(state),
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getTripRequest, resetDataLoadedRequest, resetTripFlagRequest, searchTripsRequest
-  } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getTripRequest,
-        resetDataLoadedRequest,
-        resetTripFlagRequest,
-        searchTripsRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default (Home)

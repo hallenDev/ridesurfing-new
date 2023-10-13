@@ -1,19 +1,22 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import _ from 'underscore'
 import ReactLoading from 'react-loading'
 import { Link } from 'react-router-dom'
 
 import missingImg from '../images/missing.png'
 import noChat from '../images/No-chat.png'
-
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getCurrentUser } from '../reducers/SessionReducer'
-import { getChatUsers, getChats, getCurrentChatUser, getChatsDataLoaded } from '../reducers/ChatReducer'
+import useSessionStore from '../store/SessionStore';
+import useChatStore from '../store/ChatStore';
 
 const ChatList = (props) => {
+
+  const sessionStore = useSessionStore();
+  const chatStore = useChatStore();
+
+  const currentUser = sessionStore.currentUser;
+  const chats = chatStore.chats;
+  const users = chatStore.users;
+  const chatUser = chatStore.user;
 
   const initial_state = {
     dataLoaded: false
@@ -40,11 +43,10 @@ const ChatList = (props) => {
 
   const loadChat = (userId) => {
     const { history } = props
-    const { getChatUsersRequest, getDirectChatUserRequest } = props.actions
 
     localStorage.setItem("directChatUserId", userId)
-    getDirectChatUserRequest(userId, true)
-    getChatUsersRequest()
+    chatStore.getDirectChatUserRequest(userId, true)
+    chatStore.getChatUsersRequest()
     history.push('/chat')
   }
 
@@ -53,7 +55,6 @@ const ChatList = (props) => {
   }
 
   const renderUsersList = () => {
-    const { users } = props
     if (users.length > 0) {
       return _.map(users, (user, index) => {
         return <li className="user" onClick={() => loadChat(user.id)} key={`chat-${index}`}>
@@ -86,7 +87,6 @@ const ChatList = (props) => {
   }
 
   const { dataLoaded } = state
-  const { users } = props
   return (
     <div className="chatList-page">
       {(users.length > 0) ?
@@ -110,30 +110,4 @@ const ChatList = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    chats: getChats(state),
-    users: getChatUsers(state),
-    chatUser: getCurrentChatUser(state),
-    dataLoaded: getChatsDataLoaded(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getChatUsersRequest, getDirectChatUserRequest, sendChatRequest, resetDataLoadedRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getChatUsersRequest,
-        getDirectChatUserRequest,
-        sendChatRequest,
-        resetDataLoadedRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ChatList)
+export default (ChatList)

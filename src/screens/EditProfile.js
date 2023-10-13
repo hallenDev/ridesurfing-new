@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import TextField from '@material-ui/core/TextField'
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl'
@@ -12,13 +12,8 @@ import Button from '@material-ui/core/Button'
 import Switch from "react-switch";
 import ReactLoading from 'react-loading'
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import * as actions from '../actions'
-import { getCurrentUser, getProfileSaved, getProfileErrors, getCarMakeList, getIsProcessing } from '../reducers/SessionReducer'
-
 import missingImg from '../images/missing.png'
+import useSessionStore from '../store/SessionStore';
 
 const selectChildren = [
   {label: 'Yes', value: "true"},
@@ -55,6 +50,14 @@ const initial_state = {
 }
 
 const EditProfile = (props) => {
+
+  const sessionStore = useSessionStore();
+
+  const currentUser = sessionStore.currentUser;
+  const profileErrors = sessionStore.profileErrors;
+  const profileSaved = sessionStore.profileSaved;
+  const carMakeList = sessionStore.carMakeList;
+  // const isProcessing = sessionStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
@@ -104,7 +107,6 @@ const EditProfile = (props) => {
   // }
 
   const displayImage = () => {
-    const { currentUser } = props
 
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
@@ -140,7 +142,6 @@ const EditProfile = (props) => {
   }
 
   const errorMessageFor = (fieldName) => {
-    const { profileErrors } = props
     if (profileErrors && profileErrors[fieldName]) {
       return profileErrors[fieldName]
     }
@@ -148,7 +149,6 @@ const EditProfile = (props) => {
 
   const onFieldChange = (fieldName, event) => {
     const { profile } = state
-    const { profileErrors } = props
 
     profile[fieldName] = event.target.value
 
@@ -179,7 +179,6 @@ const EditProfile = (props) => {
 
   const carModelList = () => {
     const { car_make } = state.profile
-    const { carMakeList } = props
 
     if (car_make && carMakeList[car_make]) {
       const models = carMakeList[car_make].car_models
@@ -193,7 +192,6 @@ const EditProfile = (props) => {
 
   const carYearList = () => {
     const { car_make, car_model } = state.profile
-    const { carMakeList } = props
 
     if (car_make && carMakeList[car_make]) {
       const models = carMakeList[car_make].car_models
@@ -213,12 +211,11 @@ const EditProfile = (props) => {
 
   const uploadImage = (files, imageType) => {
     const fileObj = files[0]
-    const { uploadProfileImageRequest, setProcessingRequest } = props.actions
     setState({ 
       ...state, 
       imageProcessing: true 
     })
-    setProcessingRequest()
+    sessionStore.setProcessingRequest()
 
     let img
     if (fileObj) {
@@ -226,7 +223,7 @@ const EditProfile = (props) => {
 
       FR.addEventListener("load", function(e) {
         img = e.target.result
-        uploadProfileImageRequest(imageType, img)
+        sessionStore.uploadProfileImageRequest(imageType, img)
       })
 
       FR.readAsDataURL(fileObj)
@@ -235,7 +232,6 @@ const EditProfile = (props) => {
 
   const handleProfileSave = () => {
     const { profile } = state
-    const { saveProfileRequest } = props.actions
     setState({ 
       ...state, 
       isProcessing: true 
@@ -260,7 +256,7 @@ const EditProfile = (props) => {
       }
     }
 
-    saveProfileRequest(profile.id, profile)
+    sessionStore.saveProfileRequest(profile.id, profile)
   }
 
   const kidsVal = (profile) => {
@@ -276,7 +272,6 @@ const EditProfile = (props) => {
   }
 
   const { profile, isProcessing, imageProcessing } =  state
-  const { carMakeList, profileErrors } = props
 
   return (
     <div className="edit-profile-page">
@@ -602,32 +597,4 @@ const EditProfile = (props) => {
   )
 }
 
-function mapStateToProps (state) {
-  return {
-    currentUser: getCurrentUser(state),
-    profileErrors: getProfileErrors(state),
-    profileSaved: getProfileSaved(state),
-    carMakeList: getCarMakeList(state),
-    isProcessing: getIsProcessing(state)
-  }
-}
-
-function mapDispatchToProps (dispatch) {
-  const { getCurrentUserRequest, saveProfileRequest, uploadProfileImageRequest, resetProfileFlagsRequest, carMakeListRequest, setProcessingRequest } = actions
-
-  return {
-    actions: bindActionCreators(
-      {
-        getCurrentUserRequest,
-        saveProfileRequest,
-        resetProfileFlagsRequest,
-        carMakeListRequest,
-        uploadProfileImageRequest,
-        setProcessingRequest
-      },
-      dispatch
-    )
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditProfile)
+export default (EditProfile)
