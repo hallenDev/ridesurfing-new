@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import Card from "@material-ui/core/Card";
 import { Link, withRouter } from "react-router-dom";
@@ -64,7 +64,7 @@ const Login = (props) => {
 
   const isUserSaved = userStore.isSaved;
   const loggedIn = sessionStore.loggedIn;
-  const error = sessionStore.errors;
+  // const error = sessionStore.errors;
   const socialLoginError = sessionStore.socialLoginError;
   const resendEmailVerification = sessionStore.resendEmailVerification;
   const isProcessing = sessionStore.isProcessing;
@@ -73,13 +73,8 @@ const Login = (props) => {
   const [state, setState] = useState(initial_state);
 
   useEffect(() => {
-    setSocialLoginProfile();
+    // setSocialLoginProfile();
   }, []);
-
-  // to-do
-  // componentDidMount() {
-  //   this.setSocialLoginProfile();
-  // }
 
   // to-do
   // UNSAFE_componentWillReceiveProps(nextProps) {
@@ -313,7 +308,6 @@ const Login = (props) => {
       _profile.id,
       _profile.email
     );
-
     if (result.errors && result.errors === "Record not found") {
       const user = composeUserFromGoogleProfile(_provider, _profile);
 
@@ -352,8 +346,11 @@ const Login = (props) => {
     }
   };
 
+  
+
   const handleLogin = async () => {
-    const { email, password } = state;    
+    const { email, password } = state;
+    console.log(email, password);
     const { history } = props;
     setState({ loginCheck: true, loginProcessing: true });
 
@@ -454,6 +451,7 @@ const Login = (props) => {
     modalOpen,
     googleUser,
     rerender,
+    error
   } = state;
   return (
     <div className="login-container">
@@ -506,7 +504,7 @@ const Login = (props) => {
             type="text"
             label="Email"
             margin="normal"
-            value={email || ""}
+            value={email}
             onChange={(event) => onFieldChange("email", event)}
             onKeyPress={(event) => onKeyPressEnter(event)}
           />
@@ -518,7 +516,7 @@ const Login = (props) => {
             type="password"
             label="Password"
             margin="normal"
-            value={password || ""}
+            value={password}
             onChange={(event) => onFieldChange("password", event)}
             onKeyPress={(event) => onKeyPressEnter(event)}
           />
@@ -582,7 +580,7 @@ const Login = (props) => {
             <div className="date-picker-field">
               <DatePicker
                 selected={
-                  !!googleUser.birthday ? new Date(googleUser.birthday) : ""
+                  !!googleUser?.birthday ? new Date(googleUser.birthday) : ""
                 }
                 onChange={(date) => {
                   const newGoogleUser = { ...googleUser };
@@ -612,7 +610,7 @@ const Login = (props) => {
                 Select Gender
               </InputLabel>
               <Select
-                value={googleUser.gender}
+                value={googleUser?.gender}
                 onChange={(event) => {
                   const newGoogleUser = { ...googleUser };
                   newGoogleUser.gender = event.target.value;
@@ -636,7 +634,7 @@ const Login = (props) => {
 
           <div style={modalActionWrap}>
             <PrimaryButton
-              disabled={!googleUser.birthday || !googleUser.gender}
+              disabled={!googleUser?.birthday || !googleUser?.gender}
               color="primary"
               buttonName="Continue"
               className="leftIcon-btn login-btn"

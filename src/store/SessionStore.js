@@ -35,31 +35,30 @@ const useSessionStore = create((set) => ({
     isPayoutProcessing: false,
 
     loginRequest: async (email, password) => {
-        callApi(`login`, "post", { email, password }).then((res) => {
-            if (!res || res.errors) {
-                set({
-                    accessToken: null,
-                    loggedIn: false,
-                    errors: "Invalid Credentials",
-                    isProcessing: false,
-                    isCarImageProcessing: false,
-                    isPayoutProcessing: false,
-                })
-            } else {
-              if(res.data.attributes.token) {
-                localStorage.setItem(`accessToken`, res.data.attributes.token);
-              }
-              set({
-                accessToken: res.data.attributes.token,
-                loggedIn: !!res.data.attributes.token,
-                errors: null,
-                isProcessing: false,
-                isCarImageProcessing: false,
-                isPayoutProcessing: false,
-              })
-            }
-            return res;
-        });
+      const res = await callApi(`login`, "post", { email, password });
+      if (!res || res.errors) {
+        set({
+            accessToken: null,
+            loggedIn: false,
+            errors: "Invalid Credentials",
+            isProcessing: false,
+            isCarImageProcessing: false,
+            isPayoutProcessing: false,
+        })
+      } else {
+        if(res.data.attributes.token) {
+          localStorage.setItem(`accessToken`, res.data.attributes.token);
+        }
+        set({
+          accessToken: res.data.attributes.token,
+          loggedIn: !!res.data.attributes.token,
+          errors: null,
+          isProcessing: false,
+          isCarImageProcessing: false,
+          isPayoutProcessing: false,
+        })
+      }
+      return res;
     }, 
     logoutRequest: () => {
         callApi(`logout`, "delete").then((res) => {
@@ -178,24 +177,23 @@ const useSessionStore = create((set) => ({
         });
     },
     socialLoginRequest: async (social_type, token, email) => {
-        callApi(`sessions/check_provider.json`, "post", { social_type, token, email }).then((res) => {
-            if (res && res.data) {
-              if (res.data.attributes.token) {
-                localStorage.setItem(`accessToken`, res.data.attributes.token);
-                set({
-                    accessToken: res.data.attributes.token,
-                    loggedIn: !!res.data.attributes.token,
-                    errors: null,
-                    isProcessing: false,
-                    isCarImageProcessing: false,
-                    isPayoutProcessing: false,
-                })
-              }
-            } else {
-              set({ socialLoginError: true })
-            }
-            return res;
-        });
+        const res = await callApi(`sessions/check_provider.json`, "post", { social_type, token, email });
+        if (res && res.data) {
+          if (res.data.attributes.token) {
+            localStorage.setItem(`accessToken`, res.data.attributes.token);
+            set({
+                accessToken: res.data.attributes.token,
+                loggedIn: !!res.data.attributes.token,
+                errors: null,
+                isProcessing: false,
+                isCarImageProcessing: false,
+                isPayoutProcessing: false,
+            })
+          }
+        } else {
+          set({ socialLoginError: true })
+        }
+        return res;
     },
     saveAccountRequest: (account_params, address_params, ip) => {
         callApi(`users/save_account`, "post", { account_params, address_params, ip }).then((res) => {

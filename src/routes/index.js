@@ -59,12 +59,12 @@ export default (
       <Route exact path="/forgot_password" component={ForgotPassword} />
       <Route exact path="/reset_password" component={ResetPassword} />
       <Route exact path="/verify_email" component={VerifyEmail} />
+      <Route exact path="/search" render={(props) => <Dashboard {...props} cable={cable} />} />
       {/* <Route exact path="/my_profile" component={ProfileDetails} />
       <Route exact path="/profile/:userId" component={ProfileDetails} />
       <Route exact path="/complete_profile" component={ProfileChecklist} />
       <Route exact path="/profile_details" component={RiderChecklist} />
       <Route exact path="/edit_profile" component={EditProfile} />
-      <Route exact path="/search" render={(props) => <Dashboard {...props} cable={cable} />} />
       <Route path="/my_rides" component={MyTrips} />
       <Route exact path="/requests" component={Requests} />
       <Route exact path="/chatList" render={(props) => <ChatList {...props} cable={cable} />} />

@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import $ from 'jquery'
-import React, { Component, useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 const google = window.google
 
@@ -19,6 +19,7 @@ const initial_state = {
 const Gmaps = (props) => {
 
   const [state, setState] = useState(initial_state);
+  const map_canvas = useRef();
 
   const initializeMap = () => {
     const { latitude, longitude } = state
@@ -135,7 +136,7 @@ const Gmaps = (props) => {
   }
 
   return (
-    <div id="map" ref="map_canvas"></div>
+    <div id="map" ref={map_canvas}></div>
   );
 }
 

@@ -67,4 +67,4 @@ const SharedContainer = (props) => {
   )
 }
 
-export default withRouter((SharedContainer))
+export default withRouter(SharedContainer)

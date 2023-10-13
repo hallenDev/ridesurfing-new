@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -61,6 +61,7 @@ const Signup = (props) => {
   const loggedIn = sessionStore.loggedIn;
   const socialLoginError = sessionStore.socialLoginError;
   const isProcessing = sessionStore.isProcessing;
+  const errors = sessionStore.errors;
   
   const [state, setState] = useState(initial_state);
   const [nodes, setNodes] = useState({});
@@ -369,11 +370,11 @@ const Signup = (props) => {
     const { history } = props;
     setState({ ...state, signupProcessing: true });
 
-    const res = await userStore.createUserRequest(user);
+    await userStore.createUserRequest(user);
 
     setState({ ...state, signupProcessing: false });
-
-    if (!res.errors) {
+    // return;
+    if (!errors) {
       history.push("verify_email");
     }
   };

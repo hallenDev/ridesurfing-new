@@ -696,10 +696,10 @@ const Dashboard = (props) => {
 
           <div>
             <Pagination
-              current_page={props.pagination.current_page}
-              per_page={props.pagination.per_page}
-              total_pages={props.pagination.total_pages}
-              total_count={props.pagination.total_count}
+              current_page={pagination.current_page}
+              per_page={pagination.per_page}
+              total_pages={pagination.total_pages}
+              total_count={pagination.total_count}
               onPageNumClick={onPageNumClick}
             />
           </div>

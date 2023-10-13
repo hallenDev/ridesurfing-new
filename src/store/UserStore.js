@@ -22,23 +22,21 @@ const useUserStore = create((set) => ({
     isProcessing: false,
 
     createUserRequest: async (user) => {
-        callApi(`signup`, "post", { user }).then((res) => {
-            if (res.errors) {
-                set({
-                    errors: res.errors || {},
-                    isProcessing: false,
-                })
-            } else {
-                set({
-                    user: res.data,
-                    isSaved: true,
-                    errors: [],
-                    isProcessing: false,
-                })
-                // dispatch(loginUser(res));
-            }
-            return res;
-        });
+        const res = callApi(`signup`, "post", { user });
+        if (res.errors) {
+            set({
+                errors: res.errors || {},
+                isProcessing: false,
+            })
+        } else {
+            set({
+                user: res.data,
+                isSaved: true,
+                errors: [],
+                isProcessing: false,
+            })
+        }
+        return res;
     },
     getUserRequest: (userId) => {
         callApi(`users/${userId}`).then((res) => {
