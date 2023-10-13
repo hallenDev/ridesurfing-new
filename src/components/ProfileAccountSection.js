@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 
 import DatePicker from "react-datepicker";
@@ -33,41 +33,49 @@ const ProfileAccountSection = (props) => {
 
   const currentUser = sessionStore.currentUser;
   const currentUserErrors = sessionStore.userErrors;
-  // const userUpdated = sessionStore.userUpdated;
-  // const passwordUpdated = sessionStore.passwordUpdated;
-  // const isProcessing = sessionStore.isProcessing;
+  const userUpdated = sessionStore.userUpdated;
+  const passwordUpdated = sessionStore.passwordUpdated;
+  const isProcessing = sessionStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentDidMount() {
-  //   const { getCurrentUserRequest } = this.props.actions;
-  //   getCurrentUserRequest();
-  // }
+  useEffect(() => {
+    sessionStore.getCurrentUserRequest()
+  }, [])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   const { resetCurrentUserFlagsRequest } = this.props.actions;
-  //   const { user } = this.state;
+  useEffect(() => {
+    if(currentUser) {
+      setState({ 
+        ...state, 
+        user: currentUser.attributes
+      });
+    }
+    
+  }, [currentUser])
 
-  //   if (nextProps.currentUser) {
-  //     this.setState({ user: nextProps.currentUser.attributes });
-  //   }
+  useEffect(() => {
+   if (userUpdated || passwordUpdated) {
 
-  //   if (nextProps.userUpdated || nextProps.passwordUpdated) {
-  //     resetCurrentUserFlagsRequest();
-  //     user["current_password"] = "";
-  //     user["password"] = "";
-  //     this.setState({ user });
-  //   }
+      sessionStore.resetCurrentUserFlagsRequest();
+      const { user } = state;
+      user["current_password"] = "";
+      user["password"] = "";
+      setState({ 
+        ...state,
+        user 
+      });
+    }
+  }, [userUpdated, passwordUpdated])
 
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({
-  //       accountProcessing: nextProps.isProcessing,
-  //       passwordProcessing: nextProps.isProcessing,
-  //     });
-  //   }
-  // }
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({
+        ...state,
+        accountProcessing: isProcessing,
+        passwordProcessing: isProcessing,
+      });
+    }
+  }, [isProcessing])
 
   const onFieldChange = (fieldName, event) => {
     const { user } = state;
@@ -113,8 +121,6 @@ const ProfileAccountSection = (props) => {
   }
 
   const { user, accountProcessing, passwordProcessing } = state;
-
-  console.log("user gender", user.gender);
 
   return (
     <div className="profile-account-section">

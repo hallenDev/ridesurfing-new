@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Tabs, Tab, TabPanel, TabList } from 'react-web-tabs'
 import { Link } from 'react-router-dom'
 import StarRatingComponent from 'react-star-rating-component'
@@ -35,26 +35,31 @@ const ProfileDetails = (props) => {
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentWillMount () {
-  //   const { getUserRequest } = this.props.actions
-  //   const { userId } = this.state
-  //   if (userId) {
-  //     getUserRequest(userId)
-  //   }
-  // }
+  useEffect(() => {
+    if(currentUser) {
+      setState({
+        ...state,
+        userId: currentUser.id
+      })
+    }
+  }, [currentUser])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { history } = this.props
-  //   const { resetUserFlagsRequest } = this.props.actions
+  useEffect(() => {    
+    if (state.userId) {
+      userStore.getUserRequest(userId)
+    }
+  }, [state])
 
-  //   if (nextProps.userErrors && nextProps.userErrors.length > 0) {
-  //     resetUserFlagsRequest()
-  //     notify.show(nextProps.userErrors, 'error')
-  //     history.push('/')
-  //   }
-  // }
+  useEffect(() => {
+    if (userErrors && userErrors.length > 0) {
+      const { history } = props
+      userStore.resetUserFlagsRequest()
+      notify.show(userErrors, 'error')
+      history.push('/')
+    }
+    
+  }, [userErrors])
+
 
   const displayImage = (user) => {
     const { profile } = user.relationships
@@ -76,8 +81,6 @@ const ProfileDetails = (props) => {
   }
 
   const { userId } = state
-  // to-do
-  // const user = userId ? user : currentUser
   const { profile } = user.relationships
 
   return (
@@ -124,7 +127,7 @@ const ProfileDetails = (props) => {
                 </TabPanel>
                 <TabPanel tabId="two">
                   <div className="mt20">
-                    <ProfileImageSection profile={profile} user={user} />
+                    {/* <ProfileImageSection profile={profile} user={user} /> */}
                   </div>
                 </TabPanel>
                 <TabPanel tabId="three">
@@ -132,24 +135,26 @@ const ProfileDetails = (props) => {
                     <ProfileCarSection profile={profile} user={user} />
                   </div>
                 </TabPanel>
-                {(!userId || (user.id === currentUser.id)) &&
-                <TabPanel tabId="four">
-                  <div className="mt20">
-                    <ProfileAccountSection/>
-                  </div>
-                </TabPanel>}
-                {(!userId || (user.id === currentUser.id)) &&
-                <TabPanel tabId="five">
-                  <div className="mt20">
-                    <ProfilePayoutSection/>
-                  </div>
-                </TabPanel>}
-                {(!userId || (user.id === currentUser.id)) &&
-                <TabPanel tabId="six">
-                  <div className="mt20">
-                    <ProfileCardSection/>
-                  </div>
-                </TabPanel>}
+                {
+                  (!userId || (user.id === currentUser.id)) &&
+                  <TabPanel tabId="four">
+                    <div className="mt20">
+                      <ProfileAccountSection/>
+                    </div>
+                  </TabPanel>}
+                  {(!userId || (user.id === currentUser.id)) &&
+                  <TabPanel tabId="five">
+                    <div className="mt20">
+                      <ProfilePayoutSection/>
+                    </div>
+                  </TabPanel>}
+                  {(!userId || (user.id === currentUser.id)) &&
+                  <TabPanel tabId="six">
+                    <div className="mt20">
+                      <ProfileCardSection/>
+                    </div>
+                  </TabPanel>
+                }
               </Tabs>
             </div>
           </div>

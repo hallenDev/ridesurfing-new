@@ -370,11 +370,11 @@ const Signup = (props) => {
     const { history } = props;
     setState({ ...state, signupProcessing: true });
 
-    await userStore.createUserRequest(user);
+    const res = await userStore.createUserRequest(user);
 
     setState({ ...state, signupProcessing: false });
-    // return;
-    if (!errors) {
+
+    if (!res.errors) {
       history.push("verify_email");
     }
   };

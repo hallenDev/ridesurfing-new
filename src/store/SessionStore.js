@@ -91,6 +91,7 @@ const useSessionStore = create((set) => ({
         });
     },
     updateUserRequest: (userId, user) => {
+        set({isProcessing: true})
         callApi(`users/${userId}`, "put", { user }).then((res) => {
             if (res.errors) {
               set({
@@ -105,25 +106,30 @@ const useSessionStore = create((set) => ({
                 set({
                     currentUser: res.data,
                     userUpdated: true,
+                    isProcessing: false
                 })
             }
         });
     },
     changeUserPasswordRequest: (params) => {
-        callApi(`sessions/update_password`, "post", params).then((res) => {
-            if (res.errors) {
-              set({
-                userErrors: res.errors,
-                userUpdated: false,
-                isProcessing: false,
-                isCarImageProcessing: false,
-                isPayoutProcessing: false,
-              })
-            } else {
-              notify.show("Your password has been updated", "success");
-              set({ passwordUpdated: true })
-            }
-        });
+      set({isProcessing: true})
+      callApi(`sessions/update_password`, "post", params).then((res) => {
+          if (res.errors) {
+            set({
+              userErrors: res.errors,
+              userUpdated: false,
+              isProcessing: false,
+              isCarImageProcessing: false,
+              isPayoutProcessing: false,
+            })
+          } else {
+            notify.show("Your password has been updated", "success");
+            set({ 
+              isProcessing: false,
+              passwordUpdated: true 
+            })
+          }
+      });
     },
     resetCurrentUserFlagsRequest: () => {
         set({

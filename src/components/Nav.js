@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { withRouter, Link } from 'react-router-dom'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -41,22 +41,16 @@ const Nav = (props) => {
 
 
   const [state, setState] = useState(initial_state);
+  const [notiAnchorEl, setNotiAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  // to-do
-  // componentWillMount () {
-  //   const { getCurrentUserRequest, getNotificationsRequest } = this.props.actions
-  //   if (localStorage.accessToken) {
-  //     getCurrentUserRequest()
-  //     getNotificationsRequest()
-  //   }
-  // }
-
-  // to-do
-  // componentDidMount () {
-  //   if (localStorage.accessToken) {
-  //     this.subscribeChannel()
-  //   }
-  // }
+  useEffect(() => {
+    if (localStorage.accessToken) {
+      sessionStore.getCurrentUserRequest()
+      notificationStore.getNotificationsRequest()
+      subscribeChannel()
+    }
+  }, [])
 
   const subscribeChannel = () => {
     if (props.cable) {
@@ -92,7 +86,7 @@ const Nav = (props) => {
   }
 
   const handleClose = event => {
-    if (this.anchorEl.contains(event.target)) { return }
+    if (anchorEl.contains(event.target)) { return }
     setState({ 
       ...state,
       open: false 
@@ -100,7 +94,7 @@ const Nav = (props) => {
   }
 
   const handleNotiClose = event => {
-    if (this.notiAnchorEl.contains(event.target)) { return }
+    if (notiAnchorEl.contains(event.target)) { return }
     setState({ 
       ...state,
       notificationDropdown: false 
@@ -214,7 +208,7 @@ const Nav = (props) => {
               </Link>
               <div style={{position: 'inherite'}}>
                 <IconButton
-                  buttonRef={notiNode => { this.notiAnchorEl = notiNode }}
+                  ref={notiNode => { setNotiAnchorEl(notiNode) }}
                   aria-owns={notificationDropdown ? 'notification-list' : undefined}
                   aria-haspopup="true"
                   onClick={handleNotificationToggle}
@@ -227,7 +221,7 @@ const Nav = (props) => {
                 </IconButton>
                 <Popper
                   open={notificationDropdown}
-                  anchorEl={this.notiAnchorEl}
+                  anchorEl={notiAnchorEl}
                   transition disablePortal
                   placement={'bottom-end'}
                 >
@@ -256,7 +250,7 @@ const Nav = (props) => {
               </Link>
               {/* eslint-disable-next-line */}
               <IconButton
-                buttonRef={node => { this.anchorEl = node }}
+                ref={node => { setAnchorEl(node) }}
                 aria-owns={open ? 'menu-list-grow' : undefined}
                 aria-haspopup="true"
                 onClick={handleToggle}
@@ -266,7 +260,7 @@ const Nav = (props) => {
                   {currentUser.attributes.name}
                 </Typography>
               </IconButton>
-              <Popper open={open} anchorEl={this.anchorEl} transition disablePortal>
+              <Popper open={open} anchorEl={anchorEl} transition disablePortal>
                 {({ TransitionProps, placement }) => (
                   <Grow
                     {...TransitionProps}

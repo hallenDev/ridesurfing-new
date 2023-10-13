@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component } from 'react'
+import React from 'react'
 import StarRatingComponent from 'react-star-rating-component'
 import Carousel from 'nuka-carousel'
 
@@ -14,11 +14,6 @@ const ProfileMainSection = (props) => {
 
   const sessionStore = useSessionStore();
   const currentUser = sessionStore.currentUser;
-
-  const goToProfile = (user) =>  {
-    const { history } = props
-    history.push(`/profile/${user.attributes.slug || user.id}`)
-  }
 
   const renderTestimonials = (user) => {
     const { reviews } = user.relationships
@@ -129,4 +124,4 @@ const ProfileMainSection = (props) => {
   )
 }
 
-export default (ProfileMainSection)
+export default ProfileMainSection

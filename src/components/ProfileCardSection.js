@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import TextField from '@material-ui/core/TextField'
 import FormControl from '@material-ui/core/FormControl'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -31,59 +31,73 @@ const initial_state = {
   primaryProcessing: false
 }
 
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+
 const ProfileCardSection = (props) => {
 
   const cardStore = useCardStore();
   const card = cardStore.card;
   const cards = cardStore.cards;
   const cardErrors = cardStore.errors;
-  // const cardSaved = cardStore.isSaved;
-  // const cardDeleted = cardStore.isDeleted;
-  // const cardPrimary = cardStore.isPrimary;
-  // const isProcessing = cardStore.isProcessing;
+  const cardSaved = cardStore.isSaved;
+  const cardDeleted = cardStore.isDeleted;
+  const cardPrimary = cardStore.isPrimary;
+  const isProcessing = cardStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentWillMount () {
-  //   const { getCardsRequest } = this.props.actions
-  //   getCardsRequest()
-  // }
+  useEffect(() => {
+    cardStore.getCardsRequest()
+  }, [])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { resetCardsFlagRequest, getCardsRequest } = this.props.actions
+  useEffect(() => {
+    if (cardSaved) {
+      cardStore.resetCardsFlagRequest()
+      cardStore.getCardsRequest()
+      setState({ ...state, card: {} })
+    }
+  }, [cardSaved])
 
-  //   if (nextProps.cardSaved) {
-  //     resetCardsFlagRequest()
-  //     getCardsRequest()
-  //     this.setState({ card: {} })
-  //   }
+  useEffect(() => {
+    if (cardDeleted) {
+      cardStore.resetCardsFlagRequest()
+      cardStore.getCardsRequest()
+      setState({ ...state, card: {} })
+    }
+  }, [cardDeleted])
 
-  //   if (nextProps.cardDeleted) {
-  //     resetCardsFlagRequest()
-  //     getCardsRequest()
-  //     this.setState({ card: {} })
-  //   }
+  useEffect(() => {
+    if (cardPrimary) {
+      cardStore.resetCardsFlagRequest()
+      cardStore.getCardsRequest()
+      setState({ ...state, card: {} })
+    }
+  }, [cardPrimary])
 
-  //   if (nextProps.cardPrimary) {
-  //     resetCardsFlagRequest()
-  //     getCardsRequest()
-  //     this.setState({ card: {} })
-  //   }
+  let prevProps = usePrevious(props);
+  useEffect(() => {
+    if (!!props.submitCardForm && props.submitCardForm !== prevProps.submitCardForm) {
+      handleCardSave()
+    }
+  }, [props])
 
-  //   if (!!nextProps.submitCardForm && nextProps.submitCardForm !== this.props.submitCardForm) {
-  //     this.handleCardSave()
-  //   }
-
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing })
-  //   }
-
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ cardProcessing: nextProps.isProcessing, primaryProcessing: nextProps.isProcessing })
-  //   }
-  // }
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ 
+        ...state, 
+        isProcessing: isProcessing, 
+        cardProcessing: isProcessing, 
+        primaryProcessing: isProcessing 
+      })
+    }
+  }, [isProcessing])
 
   const handleChange = prop => event => {
     setState({ 

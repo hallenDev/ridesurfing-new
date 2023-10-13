@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import TextField from '@material-ui/core/TextField'
 
 import { PrimaryButton } from '../components/Buttons'
@@ -25,6 +25,14 @@ const initial_state = {
   isProcessing: false
 }
 
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 const ProfilePayoutSection = (props) => {
 
   const sessionStore = useSessionStore();
@@ -32,26 +40,37 @@ const ProfilePayoutSection = (props) => {
   const profileErrors = sessionStore.profileErrors;
   const profileSaved = sessionStore.profileSaved;
   const currentUser = sessionStore.currentUser;
+  const isProcessing = sessionStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { resetProfileFlagsRequest } = this.props.actions
+  let prevProps = usePrevious(props);
 
-  //   if (nextProps.profileSaved) {
-  //     resetProfileFlagsRequest()
-  //     this.setState({ account: {}, address: {} })
-  //   }
+  useEffect(() => {
+    if (profileSaved) {
+      sessionStore.resetProfileFlagsRequest()
+      setState({ 
+        ...state,
+        account: {}, 
+        address: {} 
+      })
+    }
+  }, [profileSaved])
 
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing })
-  //   }
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ 
+        ...state,
+        isProcessing: isProcessing 
+      })
+    }
+  }, [isProcessing])
 
-  //   if (!!nextProps.submitAccountForm && nextProps.submitAccountForm !== this.props.submitAccountForm) {
-  //     this.handleAccountSave()
-  //   }
-  // }
+  useEffect(() => {
+    if (!!props.submitAccountForm && props.submitAccountForm !== prevProps.submitAccountForm) {
+      handleAccountSave()
+    }
+  }, [props])
 
   const onFieldChange = (field, fieldName, event) => {
     const bank = state[field]
@@ -68,7 +87,7 @@ const ProfilePayoutSection = (props) => {
 
   const handleAccountSave = () => {
     const { account, address, ip } = state
-    setState({ isProcessing: true })
+    setState({ ...state, isProcessing: true })
 
     if (allFieldsPresent()) {
       sessionStore.setAccountProcessingRequest('payout')
@@ -115,7 +134,7 @@ const ProfilePayoutSection = (props) => {
     if (profileErrors && profileErrors[fieldName])
       return profileErrors[fieldName]
   }
-  const { account, address, accountErrors, addressErrors, isProcessing } = state
+  const { account, address, accountErrors, addressErrors } = state
   const { ignoreButton } = props
   
   return (
@@ -232,9 +251,9 @@ const ProfilePayoutSection = (props) => {
           {!ignoreButton && <div className="mt20 mb20">
             <PrimaryButton
               color='primary'
-              buttonName={isProcessing ? "Please Wait..." : "Save Account"}
+              buttonName={state.isProcessing ? "Please Wait..." : "Save Account"}
               className="lg-primary"
-              disabled={!!isProcessing}
+              disabled={!!state.isProcessing}
               handleButtonClick={() => handleAccountSave()}
             />
           </div>}

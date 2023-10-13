@@ -146,6 +146,7 @@ const useTripStore = create((set) => ({
         });
     },
     createTripRequest: (params) => {
+        set({ isProcessing: true })
         callApi(`trips`, "post", params).then((res) => {
             if (res.errors) {
                 set({
@@ -164,6 +165,7 @@ const useTripStore = create((set) => ({
         });
     },
     updateTripRequest: (tripId, params) => {
+        set({ isProcessing: true })
         callApi(`trips/${tripId}.json`, "put", params).then((res) => {
             if (res.errors) {
                 set({

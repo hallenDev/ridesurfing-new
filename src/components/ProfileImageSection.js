@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Dropzone from 'react-dropzone'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
@@ -21,21 +21,24 @@ const ProfileImageSection = (props) => {
   const sessionStore = useSessionStore();
 
   const currentUser = sessionStore.currentUser;
+  const isProcessing = sessionStore.isProcessing;
   // const profileErrors = sessionStore.profileErrors;
   // const profileSaved = sessionStore.profileSaved;
   // const imageDeleted = sessionStore.imageDeleted;
-  // const isProcessing = sessionStore.isProcessing;
+
   
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing })
-  //   }
-  // }
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ 
+        ...state,
+        isProcessing: isProcessing 
+      })
+    }
+  }, [isProcessing])
 
-  const onDrop= (files) => {
+  const onDrop = (files) => {
     setState({
       ...state,
       files: files.map(file => ({
@@ -74,7 +77,7 @@ const ProfileImageSection = (props) => {
   }
 
   const profileImages = () => {
-    const { profile } = currentUser.relationships;
+    const { profile } = props;
     if (profile && profile.relationships) {
       const { images } = profile.relationships
 
@@ -113,9 +116,9 @@ const ProfileImageSection = (props) => {
   }
 
   const renderProfileThumbs = () => {
-    const { user } = currentUser.relationships.profile;
-    const profileImages = profileImages()
-    return _.map(profileImages, (img, index) => {
+    const { user } = props;
+    const profile_images = profileImages()
+    return _.map(profile_images, (img, index) => {
 
       return <div className="imgWrapper" key={`photo${index}`}>
         <img
@@ -128,13 +131,13 @@ const ProfileImageSection = (props) => {
           })}
         />
         {/* eslint-disable-next-line */}
-        {user.id === currentUser.id && img.attributes.image_type !== 'display' && <a href="javascript:void(0)" className="removeImg" onClick={() => deleteImage(img.id)} ><img src={close} alt="" className="close-icon" /></a>}
+        {user?.id == currentUser?.id && img.attributes.image_type !== 'display' && <a href="javascript:void(0)" className="removeImg" onClick={() => deleteImage(img?.id)} ><img src={close} alt="" className="close-icon" /></a>}
       </div>
     })
   }
 
-  const { user } = currentUser.relationships.profile;
-  const { lbOpen, photoIndex, isProcessing } = state
+  const { user } = props;
+  const { lbOpen, photoIndex } = state
 
   return (
     <div className="profile-photo-section">
@@ -142,15 +145,18 @@ const ProfileImageSection = (props) => {
         {renderProfileThumbs()}
       </div>
       <div className='bubble-container'>
-        {!!isProcessing && <ReactLoading type='bubbles' color='#3399ff' height='12%' width='12%' />}
+        {!!state.isProcessing && <ReactLoading type='bubbles' color='#3399ff' height='12%' width='12%' />}
       </div>
-      {currentUser.id === user.id && <div className="image image-dash mt40">
+      {currentUser?.id == user?.id && <div className="image image-dash mt40">
         <Dropzone
           onDrop={(files) => uploadImage(files, 'profile')}
           onFileDialogCancel={() => onCancel()}
           className="dropzone"
         >
-          <div>Try dropping image here, or click to select image to upload.</div>
+          {() => (
+            <div>Try dropping image here, or click to select image to upload.</div>
+          )}
+          
         </Dropzone>
       </div>}
       {lbOpen && (

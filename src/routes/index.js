@@ -60,18 +60,19 @@ export default (
       <Route exact path="/reset_password" component={ResetPassword} />
       <Route exact path="/verify_email" component={VerifyEmail} />
       <Route exact path="/search" render={(props) => <Dashboard {...props} cable={cable} />} />
-      {/* <Route exact path="/my_profile" component={ProfileDetails} />
+      <Route exact path="/chatList" render={(props) => <ChatList {...props} cable={cable} />} />
+      <Route exact path="/my_profile" component={ProfileDetails} />
+      <Route path="/my_rides" component={MyTrips} />
+      <Route exact path="/new_ride" component={NewRide} />
+      <Route exact path="/requests" component={Requests} />
+      <Route path="/reviews" component={Reviews} />
+      {/* 
       <Route exact path="/profile/:userId" component={ProfileDetails} />
       <Route exact path="/complete_profile" component={ProfileChecklist} />
       <Route exact path="/profile_details" component={RiderChecklist} />
       <Route exact path="/edit_profile" component={EditProfile} />
-      <Route path="/my_rides" component={MyTrips} />
-      <Route exact path="/requests" component={Requests} />
-      <Route exact path="/chatList" render={(props) => <ChatList {...props} cable={cable} />} />
       <Route exact path="/chat" render={(props) => <Chat {...props} cable={cable} />} />
-      <Route exact path="/new_ride" component={NewRide} />
       <Route path="/reviews/:reviewId" component={ReviewForm} />
-      <Route path="/reviews" component={Reviews} />
       <Route path="/ride/:rideId/edit" component={EditRide} />
       <Route path="/ride/:rideId" component={TripDetails} /> */}
       <Route component={NoScreen} />
