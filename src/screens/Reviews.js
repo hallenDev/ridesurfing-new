@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import StarRatingComponent from 'react-star-rating-component'
 import _ from 'underscore'
 import ReactLoading from 'react-loading'
@@ -22,9 +22,9 @@ const Review = (props) => {
 
   const reviews = reviewStore.reviews;
   const currentUser = sessionStore.currentUser;
-  // const review = reviewStore.review;
-  // const reviewUpdated = reviewStore.isUpdated;
-  // const dataLoaded = reviewStore.dataLoaded;
+  const review = reviewStore.review;
+  const reviewUpdated = reviewStore.isUpdated;
+  const dataLoaded = reviewStore.dataLoaded;
   
   const initial_state = {
     review: {},
@@ -33,26 +33,20 @@ const Review = (props) => {
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentWillMount () {
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/reviews`)
-  //     return window.location.href = `/login`
-  //   }
-  // }
+  useEffect(() => {
+    reviewStore.getReviewsRequest()
+  }, [])
 
-  // to-do
-  // componentDidMount() {
-  //   const { getReviewsRequest } = this.props.actions
-  //   getReviewsRequest()
-  // }
+  useEffect(() => {
+   if (dataLoaded || dataLoaded === false) {
+      setState({ ...state, dataLoaded: dataLoaded })
+    }
+  }, [dataLoaded])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-  //     this.setState({ dataLoaded: nextProps.dataLoaded })
-  //   }
-  // }
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/reviews`)
+    return window.location.href = `/login`
+  }
 
   const errorMessageFor = (fieldName) => {
     const { tripErrors } = props
@@ -443,8 +437,6 @@ const Review = (props) => {
       })
   }
 
-  const { dataLoaded } = state
-
   if (reviews.length > 0) {
     return (
       <div className="my-trips">
@@ -463,8 +455,8 @@ const Review = (props) => {
       <hr className="mb30"/>
       <div className="review-page">
         <div className="trips-container">
-          {dataLoaded ? <h4 className="center-align">No Pending Reviews!</h4> : <div className="loading">
-            {!dataLoaded && <ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' />}
+          {state.dataLoaded ? <h4 className="center-align">No Pending Reviews!</h4> : <div className="loading">
+            {!state.dataLoaded && <ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' />}
             </div>
           }
         </div>

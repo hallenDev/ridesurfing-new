@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import TextField from '@material-ui/core/TextField'
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl'
@@ -57,54 +57,58 @@ const EditProfile = (props) => {
   const profileErrors = sessionStore.profileErrors;
   const profileSaved = sessionStore.profileSaved;
   const carMakeList = sessionStore.carMakeList;
-  // const isProcessing = sessionStore.isProcessing;
+  const isProcessing = sessionStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentDidMount() {
-  //   const {carMakeListRequest} = this.props.actions
-  //   carMakeListRequest()
-  // }
+  useEffect(() => {
+    sessionStore.carMakeListRequest()
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { history } = this.props
-  //   const { resetProfileFlagsRequest } = this.props.actions
+    return () => {
+      const {files} = state
+      if (files.length > 0) {
+        for (let i = files.length; i >= 0; i--) {
+          const file = files[0];
+          URL.revokeObjectURL(file.preview);
+        }
+      }
+    }
+  }, [])
 
-  //   if (nextProps.currentUser) {
-  //     const profile = nextProps.currentUser.relationships.profile.attributes
-  //     this.setState({ profile })
-  //   }
+  useEffect(() => {
+  if (currentUser) {
+      const profile = currentUser.relationships.profile.attributes
+      setState({ 
+        ...state, 
+        profile 
+      })
+    }
+  }, [currentUser])
 
-  //   if (nextProps.profileSaved) {
-  //     resetProfileFlagsRequest()
-  //     history.push('/my_profile')
-  //   }
+  useEffect(() => {
+    const { history } = props;
+    sessionStore.resetProfileFlagsRequest()
+    history.push('/my_profile')
+  }, [profileSaved])
 
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing })
-  //   }
+  useEffect(() => {
+    if (profileErrors) {
+      setState({ ...state, profileErrors: profileErrors })
+    }
+  }, [profileErrors])
 
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ imageProcessing: nextProps.isProcessing, isProcessing: nextProps.isProcessing })
-  //   }
+  useEffect(() => {
+   if (isProcessing || isProcessing === false) {
+      setState({ ...state, isProcessing: isProcessing })
+    }
 
-  //   if (nextProps.profileErrors) {
-  //     this.setState({ profileErrors: nextProps.profileErrors })
-  //   }
-  // }
-
-  // to-do
-  // componentWillUnmount() {
-  //   const {files} = this.state
-  //   if (files.length > 0) {
-  //     for (let i = files.length; i >= 0; i--) {
-  //       const file = files[0];
-  //       URL.revokeObjectURL(file.preview);
-  //     }
-  //   }
-  // }
+    if (isProcessing || isProcessing === false) {
+      setState({ 
+        ...state, 
+        imageProcessing: isProcessing, isProcessing: isProcessing 
+      })
+    }
+  }, [isProcessing])
 
   const displayImage = () => {
 
@@ -271,7 +275,7 @@ const EditProfile = (props) => {
     }
   }
 
-  const { profile, isProcessing, imageProcessing } =  state
+  const { profile, imageProcessing } =  state
 
   return (
     <div className="edit-profile-page">
@@ -585,9 +589,9 @@ const EditProfile = (props) => {
                 color='primary'
                 className='update-btn'
                 onClick={() => handleProfileSave()}
-                disabled={!!isProcessing}
+                disabled={!!state.isProcessing}
               >
-                {isProcessing ? "Please Wait..." : "Update Profile"}
+                {state.isProcessing ? "Please Wait..." : "Update Profile"}
               </Button>
             </div>
           </div>

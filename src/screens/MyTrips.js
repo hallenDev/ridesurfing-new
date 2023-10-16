@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 import _ from 'underscore'
-import React, { useState} from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -30,54 +31,54 @@ const MyTrips = (props) => {
   const sessionStore = useSessionStore();
   const tripRequestStore = useTripRequestStore();
 
-  // const dataLoaded = tripStore.dataLoaded;
+  const dataLoaded = tripStore.dataLoaded;
   const trips = tripStore.trips;
-  const tripRequest = tripRequestStore.tripRequest;
   const currentUser = sessionStore.currentUser;
   const tripErrors = tripStore.errors;
   const tripCancelled = tripStore.isCancelled;
   const tripRequestCancelled = tripRequestStore.isCancelled;
   const pagination = tripStore.pagination;
+  // const tripRequest = tripRequestStore.tripRequest;
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentWillMount () {
-  //   const { getTripsRequest, getCurrentUserRequest } = this.props.actions
-  //   this.setState({trip: {}, tripErrors:{}, dataLoaded: false})
-  //   getTripsRequest()
-  //   //getCurrentUserRequest()
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/my_rides`)
-  //     return window.location.href = `/login`
-  //   }
-  // }
+  useEffect(() => {
+    if (dataLoaded || dataLoaded === false) {
+      setState({ ...state, dataLoaded: dataLoaded })
+      var elems = document.querySelectorAll(".clicked-page");
+      [].forEach.call(elems, function(el) {
+        el.classList.remove("clicked-page");
+      });
+    }
+  }, [dataLoaded])
 
-  // to-d0
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { getTripsRequest, resetTripFlagRequest, resetTripRequestsFlagRequest } = this.props.actions
-  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-  //     this.setState({ dataLoaded: nextProps.dataLoaded })
-  //   }
-  //   if (nextProps.tripCancelled) {
-  //     resetTripFlagRequest()
-  //     getTripsRequest()
-  //   }
-  //   if (nextProps.tripRequestCancelled) {
-  //     resetTripRequestsFlagRequest()
-  //     getTripsRequest()
-  //   }
-  //   if (nextProps.dataLoaded) {
-  //     var elems = document.querySelectorAll(".clicked-page");
-  //     [].forEach.call(elems, function(el) {
-  //       el.classList.remove("clicked-page");
-  //     });
-  //   }
-  // }
+  useEffect(() => {
+    if (tripRequestCancelled) {
+      tripRequestStore.resetTripRequestsFlagRequest()
+      tripStore.getTripsRequest()
+    }
+  }, [tripRequestCancelled])
+
+  useEffect(() => {
+    if (tripCancelled) {
+      tripStore.resetTripFlagRequest()
+      tripStore.getTripsRequest()
+    }
+  }, [tripCancelled])
+    
+  setState({ 
+    ...state, 
+    trip: {}, tripErrors:{}, dataLoaded: false
+  });
+  tripStore.getTripsRequest()
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/my_rides`)
+    return window.location.href = `/login`
+  }
 
   const errorMessageFor = (fieldName) => {
     if (tripErrors && tripErrors[fieldName])
-      return tripErrors[fieldName]
+    return tripErrors[fieldName]
   }
 
   const handleClick = (index, event) => {
@@ -148,8 +149,6 @@ const MyTrips = (props) => {
     return "You have no trips yet. Consider listing your next ride or tagging along with someone :)";
   }
 
-  const { dataLoaded } = state
-
   return (
     <div className="my-trips">
         <h4>My Rides</h4>
@@ -164,8 +163,8 @@ const MyTrips = (props) => {
           </div>
         <hr className="mb20"/>
         <div className="trips-container">
-          {dataLoaded ? renderTrips() : <div className="loading">
-            {!dataLoaded && <ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' />}
+          {state.dataLoaded ? renderTrips() : <div className="loading">
+            {!state.dataLoaded && <ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' />}
             </div>
           }
       </div>

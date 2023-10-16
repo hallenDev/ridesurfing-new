@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -26,7 +26,7 @@ const EditRide = (props) => {
   const tripStore = useTripStore();
   const sessionStore = useSessionStore();
   const currentUser = sessionStore.currentUser;
-  // const trip = tripStore.trip;
+  const trip = tripStore.trip;
   const tripErrors = tripStore.errors;
   const tripSaved = tripStore.isSaved;
   const tripCompleted = tripStore.isCompleted;
@@ -52,44 +52,35 @@ const EditRide = (props) => {
   const [state, setState] = useState(initial_state);
   const [node, setNode] =useState(null);
 
-  // to-do
-  // componentWillMount () {
+  useEffect(() => {
+    setCurrentPosition()
+  }, [])
 
-  //   if (!localStorage.accessToken) {
-  //     return window.location.href = `/login`
-  //   }
+  useEffect(() => {
+    if (trip && trip.attributes) {
 
-  //   const { tripId } = this.state
-  //   const { getTripRequest } = this.props.actions
-  //   getTripRequest(tripId)
-  // }
+      if (currentUser.id !== trip.attributes.driver_id) {
+        return window.location.href = `/search`
+      }
 
-  // to-do
-  // componentDidMount () {
-  //   this.setCurrentPosition()
-  // }
+      setState({ ...state, trip: trip.attributes })
+      getPriceEstimate(trip.attributes)
+    }
+  }, [trip])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { resetTripFlagRequest } = this.props.actions
-  //   const { history, currentUser } = this.props
+  useEffect(() => {
+    if (tripCompleted) {
+      const { history } = props;
+      tripStore.resetTripFlagRequest()
+      history.push({ pathname: this.navigationUrl(trip), state: { drive_created: true, price: trip.attributes.price } })
+    }
+  }, [tripCompleted])
 
-  //   if (nextProps.trip && nextProps.trip.attributes) {
+  if (!localStorage.accessToken) {
+    return window.location.href = `/login`
+  }
 
-  //     if (currentUser.id !== nextProps.trip.attributes.driver_id) {
-  //       return window.location.href = `/search`
-  //     }
-
-  //     this.setState({ trip: nextProps.trip.attributes })
-  //     this.getPriceEstimate(nextProps.trip.attributes)
-  //   }
-
-  //   if (nextProps.tripCompleted) {
-  //     resetTripFlagRequest()
-  //     history.push({ pathname: this.navigationUrl(nextProps.trip), state: { drive_created: true, price: nextProps.trip.attributes.price } })
-  //   }
-
-  // }
+  tripStore.getTripRequest(state.tripId)
 
   const navigationUrl = (trip) => {
     const { has_payout_details, has_completed_profile, has_car_image } = currentUser.attributes
@@ -249,7 +240,7 @@ const EditRide = (props) => {
     }
   }
 
-  const { trip, priceTip, miles, latitude, longitude } = state
+  const { priceTip, miles, latitude, longitude } = state
   return (
     <div className="new-ride-container">
       <div className="formSection">
@@ -269,7 +260,7 @@ const EditRide = (props) => {
                   aria-label="Gender"
                   name="gender1"
                   className="formContainer"
-                  value={trip.drive_type || ''}
+                  value={state.trip.drive_type || ''}
                   onChange={(event) => onFieldChange('drive_type', event)}
                 >
                   <FormControlLabel
@@ -294,7 +285,7 @@ const EditRide = (props) => {
               <div className="label">Origin*</div>
               <SearchField
                 placeholder='What city are you in?'
-                value={trip.start_location || ''}
+                value={state.trip.start_location || ''}
                 setAddress={(address, geometry) => setAddress(address, geometry, 'start_location')}
                 inputId='start_location'
               />
@@ -304,7 +295,7 @@ const EditRide = (props) => {
               <div className="label">Destination*</div>
               <SearchField
                 placeholder='What city are you going to?'
-                value={trip.destination || ''}
+                value={state.trip.destination || ''}
                 setAddress={(address, geometry) => setAddress(address, geometry, 'destination')}
                 inputId='destination'
               />
@@ -314,12 +305,12 @@ const EditRide = (props) => {
           <div style={{position: 'relative'}} ref={node => { setNode(node) }}>
             <div className="row">
               <div className="col l6 m6 s12">
-                <div className="label">Leaving{trip.drive_type === 'commute' ? '*' : ''}</div>
+                <div className="label">Leaving{state.trip.drive_type === 'commute' ? '*' : ''}</div>
                 <DatePicker
-                  selected={trip.start_date ? new Date(trip.start_date) : ''}
+                  selected={state.trip.start_date ? new Date(state.trip.start_date) : ''}
                   onChange={(date) => updateDateFilters('start_date', date)}
                   minDate={new Date()}
-                  maxDate={trip.finish_date ? new Date(trip.finish_date) : ''}
+                  maxDate={state.trip.finish_date ? new Date(state.trip.finish_date) : ''}
                   placeholderText="MM/DD/YYYY"
                   className='text-field'
                   id='start_date'
@@ -329,9 +320,9 @@ const EditRide = (props) => {
               <div className="col l6 m6 s12">
                 <div className="label">Arrival*</div>
                 <DatePicker
-                  selected={trip.finish_date ? new Date(trip.finish_date) : ''}
+                  selected={state.trip.finish_date ? new Date(state.trip.finish_date) : ''}
                   onChange={(date) => updateDateFilters('finish_date', date)}
-                  minDate={trip.start_date ? new Date(trip.start_date) : new Date()}
+                  minDate={state.trip.start_date ? new Date(state.trip.start_date) : new Date()}
                   placeholderText="MM/DD/YYYY"
                   className='text-field'
                   id='finish_date'
@@ -356,7 +347,7 @@ const EditRide = (props) => {
               <FormControl className="selectField">
                 <InputLabel htmlFor="select-multiple"></InputLabel>
                 <Select
-                  value={trip.event_name || ''}
+                  value={state.trip.event_name || ''}
                   onChange={(event) => onFieldChange('event_name', event)}
                   input={<Input id="select-multiple" />}
                   MenuProps={MenuProps}
@@ -383,7 +374,7 @@ const EditRide = (props) => {
               <FormControl className="selectField">
                 <InputLabel htmlFor="select-multiple"></InputLabel>
                 <Select
-                  value={trip.seats || ''}
+                  value={state.trip.seats || ''}
                   onChange={(event) => onFieldChange('seats', event)}
                   input={<Input id="select-multiple" />}
                   MenuProps={MenuProps}
@@ -410,7 +401,7 @@ const EditRide = (props) => {
               <FormControl className="selectField">
                 <InputLabel htmlFor="select-multiple"></InputLabel>
                 <Select
-                  value={parseFloat(trip.price).toString() || ''}
+                  value={parseFloat(state.trip.price).toString() || ''}
                   onChange={(event) => onFieldChange('price', event)}
                   input={<Input id="select-multiple" />}
                   MenuProps={MenuProps}
@@ -438,7 +429,7 @@ const EditRide = (props) => {
                 placeholder="Ex: 'My weekend trip to Phoenix'"
                 className="text-field"
                 margin="normal"
-                value={trip.name || ''}
+                value={state.trip.name || ''}
                 onChange={(event) => onFieldChange('name', event)}
               />
               <span className='error'>{errorMessageFor('name')}</span>
@@ -456,12 +447,12 @@ const EditRide = (props) => {
       </div>
       <div className="mapSection">
         <Gmap
-          start_location={trip.start_location}
-          start_location_latitude={trip.start_location_latitude}
-          start_location_longitude={trip.start_location_longitude}
-          destination={trip.destination}
-          destination_latitude={trip.destination_latitude}
-          destination_longitude={trip.destination_longitude}
+          start_location={state.trip.start_location}
+          start_location_latitude={state.trip.start_location_latitude}
+          start_location_longitude={state.trip.start_location_longitude}
+          destination={state.trip.destination}
+          destination_latitude={state.trip.destination_latitude}
+          destination_longitude={state.trip.destination_longitude}
           defaultLat={latitude}
           defaultLng={longitude}
           showTrip={true}

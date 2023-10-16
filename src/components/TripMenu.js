@@ -1,5 +1,5 @@
 import _ from "underscore";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -50,15 +50,13 @@ const TripMenu = (props) => {
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentWillMount() {
-  //   const { getCurrentUserRequest } = this.props.actions;
-  //   getCurrentUserRequest();
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem("prevUrl", `/my_rides`);
-  //     return (window.location.href = `/login`);
-  //   }
-  // }
+  useEffect(() => {
+    sessionStore.getCurrentUserRequest();
+    if (!localStorage.accessToken) {
+      localStorage.setItem("prevUrl", `/my_rides`);
+      return (window.location.href = `/login`);
+    }
+  }, [])
 
   const handleClick = (event) => {
     setState({ 

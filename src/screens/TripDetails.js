@@ -1,5 +1,5 @@
 import _ from "underscore";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, Tab, TabPanel, TabList } from "react-web-tabs";
 import Button from "@material-ui/core/Button";
 import { confirmAlert } from "react-confirm-alert";
@@ -30,10 +30,10 @@ const TripDetails = (props) => {
 
   const currentUser = sessionStore.currentUser;
   const trip = tripStore.trip;
-  // const tripError = tripStore.error;
+  const tripError = tripStore.error;
   const tripErrors = tripStore.errors;
-  // const tripBooked = tripStore.isBooked;
-  // const isProcessing = tripStore.isProcessing;
+  const tripBooked = tripStore.isBooked;
+  const isProcessing = tripStore.isProcessing;
 
   const initial_state = {
     seats: 1,
@@ -54,46 +54,45 @@ const TripDetails = (props) => {
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentWillMount() {
-  //   const { rideId } = this.state;
-  //   const { getTripInfoRequest, resetTripFlagRequest } = this.props.actions;
-  //   resetTripFlagRequest();
-  //   getTripInfoRequest(rideId);
-  // }
+  tripStore.resetTripFlagRequest();
+  tripStore.getTripInfoRequest(state.rideId);
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   const { history } = this.props;
-  //   const { resetTripFlagRequest } = this.props.actions;
+  useEffect(() => {
+    if (trip && trip.id) {
+      setState({ ...state, profile: trip.relationships.profile });
+    }
+  }, [trip])
 
-  //   if (nextProps.trip && nextProps.trip.id) {
-  //     this.setState({ profile: nextProps.trip.relationships.profile });
-  //   }
+  useEffect(() => {
+    const { history } = props;
+    if (tripError) {
+      tripStore.resetTripFlagRequest();
+      notify.show(tripError, "error");
+      history.push("/");
+    }
+  }, [tripError])
 
-  //   if (nextProps.tripError) {
-  //     resetTripFlagRequest();
-  //     notify.show(nextProps.tripError, "error");
-  //     history.push("/");
-  //   }
+  useEffect(() => {
+    if (tripErrors) {
+      setState({ ...state, tripErrors: tripErrors });
+    }
+  }, [tripErrors])
 
-  //   if (nextProps.tripErrors) {
-  //     this.setState({ tripErrors: nextProps.tripErrors });
-  //   }
+  useEffect(() => {
+    if (tripBooked) {
+      const { rideId } = state;
+      tripStore.resetTripFlagRequest();
+      tripStore.getTripRequest(rideId);
+      navigateToUrl(trip);
+    }
+  }, [tripBooked])
 
-  //   if (nextProps.tripBooked) {
-  //     const { rideId } = this.state;
-  //     const { resetTripFlagRequest, getTripRequest } = this.props.actions;
-  //     resetTripFlagRequest();
-  //     getTripRequest(rideId);
-  //     this.navigateToUrl(nextProps.trip);
-  //   }
-
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing });
-  //   }
-  // }
-
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ ...state, isProcessing: isProcessing });
+    }
+  }, [isProcessing])
+  
   const navigateToUrl = (trip) => {
     const { history } = props;
     const { has_cards } = currentUser.attributes;
@@ -297,7 +296,7 @@ const TripDetails = (props) => {
   }
 
   const { has_cards, has_completed_rider_profile } = currentUser.attributes;
-  const { profile, seats, isProcessing } = state;
+  const { profile, seats } = state;
   const { user } = profile;
   var settings = {
     dots: true,
@@ -546,11 +545,11 @@ const TripDetails = (props) => {
                               className="book-btn"
                               color="primary"
                               disabled={
-                                !!isProcessing || !!trip.attributes.is_expired
+                                !!state.isProcessing || !!trip.attributes.is_expired
                               }
                               onClick={() => sendBookTripRequest()}
                             >
-                              {isProcessing
+                              {state.isProcessing
                                 ? "Please Wait..."
                                 : "Request Now"}
                             </Button>

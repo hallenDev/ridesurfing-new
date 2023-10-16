@@ -33,7 +33,7 @@ import NoScreen from "../screens/NoScreen";
 
 const accessToken = localStorage.getItem("accessToken");
 const cable = ActionCable.createConsumer(
-  process.env.REACT_APP_ACTION_CABLE_LINK + accessToken
+  process.env.REACT_APP_ACTION_CABLE_LINK + accessToken? accessToken: ''
 );
 
 export default (

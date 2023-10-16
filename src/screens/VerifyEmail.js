@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TextField from '@material-ui/core/TextField'
 import Card from '@material-ui/core/Card'
 
@@ -12,8 +12,8 @@ const VerifyEmail = (props) => {
   const userStore = useUserStore();
 
   const userErrors = userStore.errors;
-  // const emailVerified = userStore.emailVerified;
-  // const isProcessing = userStore.isProcessing;
+  const emailVerified = userStore.emailVerified;
+  const isProcessing = userStore.isProcessing;
 
   const initial_state = {
     identity: '',
@@ -24,23 +24,25 @@ const VerifyEmail = (props) => {
   
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { resetUserFlagsRequest } = this.props.actions
-  //   const { history } = this.props
+  useEffect(() => {
+    const { history } = props;
+    if (emailVerified) {
+      userStore.resetUserFlagsRequest()
+      history.push('/login')
+    }
+  }, [emailVerified])
 
-  //   if (nextProps.emailVerified) {
-  //     resetUserFlagsRequest()
-  //     history.push('/login')
-  //   }
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ ...state, isProcessing: isProcessing })
+    }
+  }, [isProcessing])
 
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing })
-  //   }
-
-  //   if (nextProps.userErrors)
-  //     this.setState({userErrors: nextProps.userErrors})
-  // }
+  useEffect(() => {
+  if (userErrors) {
+      setState({ ...state, userErrors: userErrors })
+  }
+  }, [userErrors])
 
   const onFieldChange = (fieldName, event) => {
     setState({ 
@@ -63,7 +65,7 @@ const VerifyEmail = (props) => {
     }
   }
 
-  const { otpError, isProcessing } = state
+  const { otpError } = state
   return (
     <div className="login-container">
       <div className="container">
@@ -91,8 +93,8 @@ const VerifyEmail = (props) => {
             <div className="mt40">
               <PrimaryButton
                 color='primary'
-                buttonName={isProcessing ? "Please Wait..." : "Verify Email"}
-                disabled={!!isProcessing}
+                buttonName={state.isProcessing ? "Please Wait..." : "Verify Email"}
+                disabled={!!state.isProcessing}
                 className="leftIcon-btn pswrd-btn"
                 handleButtonClick={() => handleVerifyEmail()}
               />

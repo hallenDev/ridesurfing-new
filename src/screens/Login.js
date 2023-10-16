@@ -62,88 +62,27 @@ const Login = (props) => {
   const userStore = useUserStore();
   const sessionStore = useSessionStore();
 
-  const isUserSaved = userStore.isSaved;
-  const loggedIn = sessionStore.loggedIn;
-  // const error = sessionStore.errors;
-  const socialLoginError = sessionStore.socialLoginError;
   const resendEmailVerification = sessionStore.resendEmailVerification;
-  const isProcessing = sessionStore.isProcessing;
-  const userErrors = userStore.errors;
+  // const isUserSaved = userStore.isSaved;
+  // const loggedIn = sessionStore.loggedIn;
+  // const error = sessionStore.errors;
+  // const socialLoginError = sessionStore.socialLoginError;
+  // const isProcessing = sessionStore.isProcessing;
+  // const userErrors = userStore.errors;
 
   const [state, setState] = useState(initial_state);
 
   useEffect(() => {
-    // setSocialLoginProfile();
+    setSocialLoginProfile();
   }, []);
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   // const {
-  //   //   createUserRequest,
-  //   //   getCurrentUserRequest,
-  //   //   resetCurrentUserFlagsRequest,
-  //   //   resetUserFlagsRequest,
-  //   //   resetProcessingRequest,
-  //   // } = this.props.actions;
-  //   // const { loginCheck } = this.state;
-  //   // const { loggedIn, error } = nextProps;
-  //   const { history } = this.props;
+  useEffect(() => {
+    const { history } = props;
+    if (resendEmailVerification) {
+      return history.push("/verify_email");
+    }
+  }, [resendEmailVerification])
 
-  //   // if (loginCheck && error)
-  //   //   this.setState({
-  //   //     error: error || "Invalid credentials",
-  //   //     loginCheck: false,
-  //   //     loginProcessing: false,
-  //   //   });
-
-  //   // if (loggedIn) {
-  //   //   const prevUrl = localStorage.prevUrl;
-
-  //   //   localStorage.removeItem("socialLoginProfile");
-  //   //   localStorage.removeItem("socialLoginProvider");
-  //   //   localStorage.removeItem("prevUrl");
-  //   //   this.setState({
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //     loginProcessing: false,
-  //   //   });
-
-  //   //   return (window.location.href = prevUrl || `/search`);
-  //   // }
-
-  //   // if (nextProps.socialLoginError) {
-  //   //   resetCurrentUserFlagsRequest();
-  //   //   const user = this.setSocialLoginProfile();
-
-  //   //   this.setState({
-  //   //     loginProcessing: false,
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //   });
-  //   //   createUserRequest(user);
-  //   // }
-
-  //   // if (nextProps.isUserSaved) {
-  //   //   localStorage.removeItem("socialLoginProfile");
-  //   //   localStorage.removeItem("socialLoginProvider");
-
-  //   //   resetUserFlagsRequest();
-  //   //   resetCurrentUserFlagsRequest();
-  //   //   getCurrentUserRequest();
-  //   //   this.setState({
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //     loginProcessing: false,
-  //   //   });
-  //   // }
-
-  //   // if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //   //   this.setState({ loginProcessing: nextProps.isProcessing });
-  //   //   resetProcessingRequest();
-  //   // }
-
-  //   if (nextProps.resendEmailVerification) return history.push("/verify_email");
-  // }
 
   const setSocialLoginProfile = () => {
     const { user } = state;
@@ -202,9 +141,9 @@ const Login = (props) => {
     console.error(err);
 
     // to-do
-    // this.setState({ rerender: true }, () => {
-    //   this.setState({ rerender: false });
-    // });
+    setState({ ...state, rerender: true }, () => {
+      setState({ ...state, rerender: false });
+    });
   };
 
   const handleFbSocialLogin = async (res) => {
@@ -436,9 +375,9 @@ const Login = (props) => {
     });
 
     // to-do
-    // this.setState({ rerender: true }, () => {
-    //   this.setState({ rerender: false });
-    // });
+    setState({ ...state, rerender: true }, () => {
+      setState({ ...state, rerender: false });
+    });
   };
 
   const {
@@ -450,8 +389,7 @@ const Login = (props) => {
     loginProcessing,
     modalOpen,
     googleUser,
-    rerender,
-    error
+    rerender
   } = state;
   return (
     <div className="login-container">
@@ -520,8 +458,8 @@ const Login = (props) => {
             onChange={(event) => onFieldChange("password", event)}
             onKeyPress={(event) => onKeyPressEnter(event)}
           />
-          {!!error && <span className="error">{error}</span>}
-          {!!error && (
+          {!!state.error && <span className="error">{state.error}</span>}
+          {!!state.error && (
             <div className="terms-n-policy">
               If you have not verified your email yet,{" "}
               <a

@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import FormControl from '@material-ui/core/FormControl'
 import MenuItem from '@material-ui/core/MenuItem'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -26,12 +26,12 @@ const ProfileChecklist = (props) => {
   const currentUser = sessionStore.currentUser;
   const profileErrors = sessionStore.profileErrors;
   const carMakeList = sessionStore.carMakeList;
-  // const profileSaved = sessionStore.profileSaved;
-  // const isProcessing = sessionStore.isProcessing;
-  // const isCarImageProcessing = sessionStore.isCarImageProcessing;
-  // const isPayoutProcessing = sessionStore.isPayoutProcessing;
-  // const imageUploaded = sessionStore.imageUploaded;
-  // const accountUpdated = sessionStore.accountUpdated;
+  const profileSaved = sessionStore.profileSaved;
+  const isProcessing = sessionStore.isProcessing;
+  const isCarImageProcessing = sessionStore.isCarImageProcessing;
+  const isPayoutProcessing = sessionStore.isPayoutProcessing;
+  const imageUploaded = sessionStore.imageUploaded;
+  const accountUpdated = sessionStore.accountUpdated;
   
   const initial_state = {
     submitAccountForm: false,
@@ -47,69 +47,76 @@ const ProfileChecklist = (props) => {
   }
 
   const [state, setState] = useState(initial_state);
+  const [has_payout_details, setHasProfileDetails] = useState(null);
+
+  useEffect(() => {
+    if(currentUser) setHasProfileDetails(currentUser.attributes)
+  }, [currentUser])
   
-  // to-do
-  // componentWillMount () {
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/complete_profile`)
-  //     return window.location.href = `/login`
-  //   }
-  // }
+  useEffect(() => {
+    sessionStore.carMakeListRequest()
+  }, [])
 
-  // to-do
-  // componentDidMount() {
-  //   const {carMakeListRequest} = this.props.actions
-  //   carMakeListRequest()
-  // }
+  useEffect(() => {
+    if (currentUser && !imageUploaded && !accountUpdated) {
+      const profile = currentUser.relationships.profile.attributes
+      profile['is_driver'] = true
+      setState({ ...state, profile })
+    }
+  }, [currentUser, imageUploaded, accountUpdated])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { history } = this.props
-  //   const { resetProfileFlagsRequest } = this.props.actions
+  useEffect(() => {
+    if (profileSaved && Object.keys(profileErrors).length === 0) {
+      sessionStore.resetProfileFlagsRequest()
+      setState({ ...state, submitAccountForm: false })
+    }
+  }, [profileSaved, profileErrors])
 
-  //   if (nextProps.currentUser && !nextProps.imageUploaded && !nextProps.accountUpdated) {
-  //     const profile = nextProps.currentUser.relationships.profile.attributes
-  //     profile['is_driver'] = true
-  //     this.setState({ profile })
-  //   }
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({
+        ...state,
+        imageProcessing: isProcessing,
+        carImageProcessing: isCarImageProcessing,
+        payoutProcessing: isPayoutProcessing,
+        profileProcessing: isProcessing || isCarImageProcessing || isPayoutProcessing
+      })
+    }
+  }, [isProcessing, isCarImageProcessing, isPayoutProcessing, isCarImageProcessing])
 
-  //   if (nextProps.profileSaved && Object.keys(nextProps.profileErrors).length === 0) {
-  //     resetProfileFlagsRequest()
-  //     this.setState({ submitAccountForm: false })
-  //   }
+  useEffect(() => {
+    if (profileErrors) {
+      setState({ 
+        ...state, 
+        profileErrors: profileErrors, submitAccountForm: false 
+      })
+    }
+  }, [profileErrors])
 
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({
-  //       imageProcessing: nextProps.isProcessing,
-  //       carImageProcessing: nextProps.isCarImageProcessing,
-  //       payoutProcessing: nextProps.isPayoutProcessing,
-  //       profileProcessing: nextProps.isProcessing || nextProps.isCarImageProcessing || nextProps.isPayoutProcessing
-  //     })
-  //   }
+  useEffect(() => {
+    if (imageUploaded) {
+      setState({ ...state, carImageProcessing: false })
+    }
+  }, [imageUploaded])
 
-  //   if (nextProps.profileErrors) {
-  //     this.setState({ profileErrors: nextProps.profileErrors, submitAccountForm: false })
-  //   }
-
-  //   const { has_payout_details } = nextProps.currentUser ? nextProps.currentUser.attributes : this.props.currentUser.attributes
-  //   const { price } = this.state
-
-  //   if (nextProps.imageUploaded) {
-  //     this.setState({ carImageProcessing: false })
-  //   }
-
-  //   // eslint-disable-next-line
-  //   if (this.hasCarInfo() && this.hasDisplayImage() && (price == 0 || (!!has_payout_details && price > 0))) {
-  //     history.push('/my_rides')
-  //   }
-  // }
-
+  useEffect(() => {
+    const { history } = props;
+    if (hasCarInfo() && hasDisplayImage() && (price == 0 || (!!has_payout_details && price > 0))) {
+      history.push('/my_rides')
+    }
+  }, [state, has_payout_details])
+    
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/complete_profile`)
+    return window.location.href = `/login`
+  }
+      
   const displayImage = (imageType) => {
-
+  
     const { profile } = currentUser.relationships
     if (profile && profile.relationships) {
       const { images } = profile.relationships
-
+            
       const img = _.find(images, (img) => { return img.attributes.image_type === imageType})
       return img ? img.attributes.url : missingImg
     }
@@ -295,7 +302,6 @@ const ProfileChecklist = (props) => {
   }
 
   const { profile, submitAccountForm, drive_created, imageProcessing, profileProcessing, price, carImageProcessing } =  state
-  const { has_payout_details } = currentUser.attributes
 
   return (
     <div className="edit-profile-page">

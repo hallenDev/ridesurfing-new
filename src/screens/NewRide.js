@@ -48,8 +48,8 @@ const NewRide = (props) => {
   const trip = tripStore.trip;
   const tripErrors = tripStore.errors;
   const tripSaved = tripStore.isSaved;
-  const tripCompleted = tripStore.isCompleted;
   const isProcessing = tripStore.isProcessing;
+  // const tripCompleted = tripStore.isCompleted;
 
   
 

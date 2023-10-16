@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import TextField from '@material-ui/core/TextField'
 import Card from '@material-ui/core/Card'
 import { Link } from 'react-router-dom'
@@ -20,27 +20,29 @@ const ForgotPassword = (props) => {
 
   const userErrors = userStore.errors;
   const codeSent = userStore.codeSent;
-  // const isProcessing = userStore.isProcessing;
+  const isProcessing = userStore.isProcessing;
 
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { resetUserFlagsRequest } = this.props.actions
-  //   const { history } = this.props
+  useEffect(() => {
+    const { history } = props;
+    if (codeSent) {
+      userStore.resetUserFlagsRequest()
+      history.push('/reset_password')
+    }
+  }, [codeSent])
 
-  //   if (nextProps.codeSent) {
-  //     resetUserFlagsRequest()
-  //     history.push('/reset_password')
-  //   }
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ ...state, isProcessing: isProcessing })
+    }
+  }, [isProcessing])
 
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing })
-  //   }
-
-  //   if (nextProps.userErrors)
-  //     this.setState({userErrors: nextProps.userErrors})
-  // }
+  useEffect(() => {
+    if (userErrors) {
+      setState({...state, userErrors: userErrors})
+    }
+  }, [userErrors])
 
   const onFieldChange = (fieldName, event) => {
     setState({ 
@@ -69,8 +71,6 @@ const ForgotPassword = (props) => {
       return userErrors[fieldName]
     }
   }
-
-  const { isProcessing } = state
   return (
     <div className="login-container">
       <div className="container">
@@ -94,9 +94,9 @@ const ForgotPassword = (props) => {
             <div className="mt40">
               <PrimaryButton
                 color='primary'
-                buttonName={isProcessing ? "Please Wait" : "Request Password Reset Link"}
+                buttonName={state.isProcessing ? "Please Wait" : "Request Password Reset Link"}
                 className="leftIcon-btn pswrd-btn"
-                disabled={!!isProcessing}
+                disabled={!!state.isProcessing}
                 handleButtonClick={() => handleForgotPassword()}
               />
             </div>

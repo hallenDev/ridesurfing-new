@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Dropzone from 'react-dropzone'
 import Button from '@material-ui/core/Button'
 import Switch from "react-switch"
@@ -14,15 +14,15 @@ import missingImg from '../images/missing.png'
 const RiderChecklist = (props) => {
 
   const sessionStore = useSessionStore();
-  // const cardStore = useCardStore();
+  const cardStore = useCardStore();
 
   const currentUser = sessionStore.currentUser;
   const profileErrors = sessionStore.profileErrors;
-  // const profileSaved = sessionStore.profileSaved;
-  // const cardErrors = cardStore.errors;
-  // const cardSaved = cardStore.isSaved;
-  // const isProcessing = sessionStore.isProcessing;
-  // const isCardProcessing = cardStore.isCardProcessing;
+  const profileSaved = sessionStore.profileSaved;
+  const cardErrors = cardStore.errors;
+  const cardSaved = cardStore.isSaved;
+  const isProcessing = sessionStore.isProcessing;
+  const isCardProcessing = cardStore.isCardProcessing;
 
   const initial_state = {
     submitCardForm: false,
@@ -38,61 +38,66 @@ const RiderChecklist = (props) => {
 
   const [state, setState] = useState(initial_state)
 
-  // to-do
-  // componentWillMount () {
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/profile_details`)
-  //     return window.location.href = `/login`
-  //   }
-  // }
+  useEffect(() => {
+    if (profileSaved && Object.keys(profileErrors).length === 0) {
+      sessionStore.resetProfileFlagsRequest()
+    }
+  }, [profileSaved, profileErrors])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { history } = this.props
-  //   const { resetProfileFlagsRequest, resetCardsFlagRequest } = this.props.actions
+  useEffect(() => {
+    if (cardSaved && Object.keys(cardErrors).length === 0) {
+      cardStore.resetCardsFlagRequest()
+      setState({ ...state, submitCardForm: false })
 
-  //   if (nextProps.profileSaved && Object.keys(nextProps.profileErrors).length === 0) {
-  //     resetProfileFlagsRequest()
-  //   }
+      const prevUrl = localStorage.prevUrl
+      localStorage.removeItem('prevUrl')
 
-  //   if (nextProps.cardSaved && Object.keys(nextProps.cardErrors).length === 0) {
-  //     resetCardsFlagRequest()
-  //     this.setState({ submitCardForm: false })
+      if (prevUrl && prevUrl.includes('/ride/')) {
+        return window.location.href = prevUrl
+      }
+    }
+  }, [cardSaved, cardErrors])
 
-  //     const prevUrl = localStorage.prevUrl
-  //     localStorage.removeItem('prevUrl')
+  useEffect(() => {
+    if (profileErrors) {
+      setState({ ...state, profileErrors: profileErrors, submitCardForm: false })
+    }
+  }, [profileErrors])
 
-  //     if (prevUrl && prevUrl.includes('/ride/')) {
-  //       return window.location.href = prevUrl
-  //     }
-  //   }
+  useEffect(() => {
+    if (cardErrors) {
+      setState({ ...state, cardErrors: cardErrors, submitCardForm: false })
+    }
+  }, [cardErrors])
 
-  //   if (nextProps.profileErrors) {
-  //     this.setState({ profileErrors: nextProps.profileErrors, submitCardForm: false })
-  //   }
+  useEffect(() => {
+    const { history } = props;
+   if (currentUser) {
+      const { has_cards, has_completed_rider_profile } = currentUser.attributes
+      const profile = currentUser.relationships.profile.attributes
+      profile['is_rider'] = true
+      setState({ ...state, profile })
 
-  //   if (nextProps.cardErrors) {
-  //     this.setState({ cardErrors: nextProps.cardErrors, submitCardForm: false })
-  //   }
+      if (!!has_cards && !!has_completed_rider_profile)
+        history.push('/requests')
+    }
+  }, [currentUser])
 
-  //   if (nextProps.currentUser) {
-  //     const { has_cards, has_completed_rider_profile } = nextProps.currentUser.attributes
-  //     const profile = nextProps.currentUser.relationships.profile.attributes
-  //     profile['is_rider'] = true
-  //     this.setState({ profile })
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ 
+        ...state,
+        imageProcessing: isProcessing,
+        cardProcessing: isCardProcessing,
+        profileProcessing: isProcessing || isCardProcessing
+      })
+    }
+  }, [isProcessing, isCardProcessing])
 
-  //     if (!!has_cards && !!has_completed_rider_profile)
-  //       history.push('/requests')
-  //   }
-
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ 
-  //       imageProcessing: nextProps.isProcessing,
-  //       cardProcessing: nextProps.isCardProcessing,
-  //       profileProcessing: nextProps.isProcessing || nextProps.isCardProcessing
-  //     })
-  //   }
-  // }
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/profile_details`)
+    return window.location.href = `/login`
+  }
 
   const displayImage = () => {
 

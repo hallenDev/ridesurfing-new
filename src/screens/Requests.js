@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Tabs, Tab, TabPanel, TabList } from 'react-web-tabs'
 import { Link } from 'react-router-dom'
 import Menu from '@material-ui/core/Menu'
@@ -21,11 +21,11 @@ const Requests = (props) => {
   const sessionStore = useSessionStore();
   const tripRequestStore = useTripRequestStore();
 
-  const currentUser = sessionStore
   const receivedTripRequests = tripRequestStore.receivedTripRequests;
   const sentTripRequests = tripRequestStore.tripRequests;
   const tripErrors = tripRequestStore.errors;
-  // const dataLoaded = tripRequestStore.dataLoaded;
+  const currentUser = sessionStore
+  const dataLoaded = tripRequestStore.dataLoaded;
 
   const initial_state = {
     anchorEl: null,
@@ -39,27 +39,24 @@ const Requests = (props) => {
   
   const [state, setState] = useState(initial_state);
 
-  // to-do
-  // componentDidMount () {
-  //   const { getTripRequestsRequest, getReceivedTripRequestsRequest } = this.props.actions
-  //   getReceivedTripRequestsRequest()
-  //   getTripRequestsRequest()
-  // }
+  useEffect(() => {
+    tripRequestStore.getReceivedTripRequestsRequest()
+    tripRequestStore.getTripRequestsRequest()
+  }, [])
 
-  // to-do
-  // componentWillMount () {
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/requests`)
-  //     return window.location.href = `/login`
-  //   }
-  // }
+  useEffect(() => {
+    if (dataLoaded || dataLoaded === false) {
+      setState({ 
+        ...state, 
+        dataLoaded: dataLoaded 
+      })
+    }
+  }, [dataLoaded])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   if (nextProps.dataLoaded || nextProps.dataLoaded === false) {
-  //     this.setState({ dataLoaded: nextProps.dataLoaded })
-  //   }
-  // }
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/requests`)
+    return window.location.href = `/login`
+  }
 
   const handleClick = (index, itemType, event) => {
     if (itemType === 'received') {
@@ -790,8 +787,6 @@ const Requests = (props) => {
     }
   }
 
-  const { dataLoaded } = state
-
   return <div className="my-requests">
     <div className="container">
       <div className="my-tablist">
@@ -803,16 +798,16 @@ const Requests = (props) => {
           <TabPanel tabId="one">
             <div className="mt20 ml5 mr5">
               <div className="trips-container">
-                {!!dataLoaded && renderReceivedRequests()}
-                {!dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
+                {!!state.dataLoaded && renderReceivedRequests()}
+                {!state.dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
               </div>
             </div>
           </TabPanel>
           <TabPanel tabId="two">
             <div className="mt20 ml5 mr5">
               <div className="trips-container">
-                {!!dataLoaded && renderSentRequests()}
-                {!dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
+                {!!state.dataLoaded && renderSentRequests()}
+                {!state.dataLoaded && <div className="loading"><ReactLoading type='bubbles' color='#3399ff' height='10%' width='10%' /></div>}
               </div>
             </div>
           </TabPanel>

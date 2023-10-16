@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import React, { Component, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import StarRatingComponent from 'react-star-rating-component'
 import TextField from '@material-ui/core/TextField'
@@ -24,7 +24,7 @@ const ReviewForm = (props) => {
   const review = reviewStore.review;
   const currentUser = sessionStore.currentUser;
   const reviewUpdated = reviewStore.isUpdated;
-  // const isProcessing = reviewStore.isProcessing;
+  const isProcessing = reviewStore.isProcessing;
 
   
   const initial_state = {
@@ -36,42 +36,38 @@ const ReviewForm = (props) => {
   };
 
   const [state, setState] = useState(initial_state);
-  
 
-  // to-do
-  // componentWillMount () {
-  //   if (!localStorage.accessToken) {
-  //     localStorage.setItem('prevUrl', `/reviews/${this.props.match.params.reviewId}`)
-  //     return window.location.href = `/login`
-  //   }
+  useEffect(() => {
+    const { history } = props;
+    if (reviewErrors && reviewErrors.review) {
+      alert('Invalid URL')
+      reviewStore.resetReviewFlagRequest()
+      reviewStore.getReviewsRequest()
+      history.push('/reviews')
+    }
+  }, [reviewErrors])
 
-  //   const { reviewId } = this.state
-  //   const { getReviewRequest } = this.props.actions
-  //   getReviewRequest(reviewId)
-  // }
+  useEffect(() => {
+    const { history } = props;
+    if (reviewUpdated) {
+      reviewStore.resetReviewFlagRequest()
+      reviewStore.getReviewsRequest()
+      history.push('/reviews')
+    }
+  }, [reviewUpdated])
 
-  // to-do
-  // UNSAFE_componentWillReceiveProps (nextProps) {
-  //   const { resetReviewFlagRequest, getReviewsRequest } = this.props.actions
-  //   const { history } = this.props
+  useEffect(() => {
+    if (isProcessing || isProcessing === false) {
+      setState({ ...state, isProcessing: isProcessing })
+    }
+  }, [isProcessing])
+    
+  if (!localStorage.accessToken) {
+    localStorage.setItem('prevUrl', `/reviews/${this.props.match.params.reviewId}`)
+    return window.location.href = `/login`
+  }
 
-  //   if (nextProps.reviewErrors && nextProps.reviewErrors.review) {
-  //     alert('Invalid URL')
-  //     resetReviewFlagRequest()
-  //     getReviewsRequest()
-  //     history.push('/reviews')
-  //   }
-
-  //   if (nextProps.reviewUpdated) {
-  //     resetReviewFlagRequest()
-  //     getReviewsRequest()
-  //     history.push('/reviews')
-  //   }
-
-  //   if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //     this.setState({ isProcessing: nextProps.isProcessing })
-  //   }
-  // }
+  reviewStore.getReviewRequest(state.reviewId)
 
   const getImage = (user) => {
     return user.attributes.display_image ? user.attributes.display_image : missingImg
@@ -125,7 +121,7 @@ const ReviewForm = (props) => {
     reviewStore.updateReviewRequest(review.id, reviewData)
   }
 
-  const { reviewData, isProcessing } = state
+  const { reviewData } = state
   const { trip, user } = review.relationships
   return (
     <div className="review-form-page">
@@ -374,10 +370,10 @@ const ReviewForm = (props) => {
                   variant="contained"
                   color='primary'
                   className='sub-btn'
-                  disabled={!!isProcessing}
+                  disabled={!!state.isProcessing}
                   onClick={() => sendReviewRequest(review)}
                 >
-                  {isProcessing ? "Please Wait": "Submit"}
+                  {state.isProcessing ? "Please Wait": "Submit"}
                 </Button>
               </div>
             </div>

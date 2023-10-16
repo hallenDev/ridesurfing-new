@@ -66,60 +66,6 @@ const Signup = (props) => {
   const [state, setState] = useState(initial_state);
   const [nodes, setNodes] = useState({});
 
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   const {
-  //     createUserRequest,
-  //     getCurrentUserRequest,
-  //     resetCurrentUserFlagsRequest,
-  //   } = this.props.actions;
-  //   const { history } = this.props;
-  //   const { loggedIn } = nextProps;
-
-  //   // if (nextProps.socialLoginError) {
-  //   //   resetCurrentUserFlagsRequest();
-  //   //   const user = this.setSocialLoginProfile();
-
-  //   //   this.setState({
-  //   //     isProcessing: false,
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //   });
-  //   //   createUserRequest(user);
-  //   // }
-
-  //   // if (nextProps.isUserSaved) {
-  //   //   localStorage.removeItem("socialLoginProfile");
-  //   //   localStorage.removeItem("socialLoginProvider");
-
-  //   //   resetCurrentUserFlagsRequest();
-  //   //   getCurrentUserRequest();
-
-  //   //   this.setState({
-  //   //     isProcessing: false,
-  //   //     googleProcessing: false,
-  //   //     fbProcessing: false,
-  //   //   });
-  //   //   history.push(localStorage.accessToken ? "search" : "verify_email");
-  //   // }
-
-  //   // if (nextProps.userErrors)
-  //   //   this.setState({ userErrors: nextProps.userErrors });
-
-  //   // if (loggedIn) {
-  //   //   const prevUrl = localStorage.prevUrl;
-  //   //   localStorage.removeItem("prevUrl");
-
-  //   //   getCurrentUserRequest();
-  //   //   this.setState({ googleProcessing: false, fbProcessing: false });
-
-  //   //   return (window.location.href = prevUrl || `/search`);
-  //   // }
-
-  //   // if (nextProps.isProcessing || nextProps.isProcessing === false) {
-  //   //   this.setState({ signupProcessing: nextProps.isProcessing });
-  //   // }
-  // }
-
   const composeUserFromGoogleProfile = (provider, profile) => {
     const user = {
       first_name: profile.firstName,
@@ -214,9 +160,9 @@ const Signup = (props) => {
     console.log(err.message);
 
     // to-do
-    // this.setState({ rerender: true }, () => {
-    //   this.setState({ rerender: false });
-    // });
+    setState({ ...state, rerender: true }, () => {
+      setState({ ...state, rerender: false });
+    });
   };
 
   const handleFbSocialLogin = async (res) => {
