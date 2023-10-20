@@ -65,16 +65,16 @@ const MyTrips = (props) => {
       tripStore.getTripsRequest()
     }
   }, [tripCancelled])
-    
-  setState({ 
-    ...state, 
-    trip: {}, tripErrors:{}, dataLoaded: false
-  });
-  tripStore.getTripsRequest()
-  if (!localStorage.accessToken) {
-    localStorage.setItem('prevUrl', `/my_rides`)
-    return window.location.href = `/login`
-  }
+
+  useEffect(() => {
+    if (!localStorage.accessToken) {
+      localStorage.setItem('prevUrl', `/my_rides`)
+      return window.location.href = `/login`
+    } else {
+      tripStore.getTripsRequest()
+    }
+  }, [])
+  
 
   const errorMessageFor = (fieldName) => {
     if (tripErrors && tripErrors[fieldName])

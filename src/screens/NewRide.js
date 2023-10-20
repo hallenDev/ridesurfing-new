@@ -57,6 +57,10 @@ const NewRide = (props) => {
   const [node, setNode] = useState(null);
 
   useEffect(() => {
+    console.log(state);
+  }, [state])
+
+  useEffect(() => {
     setCurrentPosition();
   }, [])
 
