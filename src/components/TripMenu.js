@@ -51,10 +51,11 @@ const TripMenu = (props) => {
   const [state, setState] = useState(initial_state);
 
   useEffect(() => {
-    sessionStore.getCurrentUserRequest();
     if (!localStorage.accessToken) {
       localStorage.setItem("prevUrl", `/my_rides`);
       return (window.location.href = `/login`);
+    } else {
+      sessionStore.getCurrentUserRequest();
     }
   }, [])
 

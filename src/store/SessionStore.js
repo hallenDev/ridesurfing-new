@@ -71,7 +71,7 @@ const useSessionStore = create((set) => ({
     },
     getCurrentUserRequest: () => {
         callApi(`users/current`).then((res) => {
-            if (res.errors) {
+            if (!res || res.errors) {
               set({
                 accessToken: null,
                 loggedIn: false,

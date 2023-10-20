@@ -40,7 +40,9 @@ const ProfileAccountSection = (props) => {
   const [state, setState] = useState(initial_state);
 
   useEffect(() => {
-    sessionStore.getCurrentUserRequest()
+    if(localStorage.accessToken) {
+      sessionStore.getCurrentUserRequest()
+    }
   }, [])
 
   useEffect(() => {

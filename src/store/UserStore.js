@@ -88,9 +88,9 @@ const useUserStore = create((set) => ({
     },
     verifyOtpRequest: (params) => {
         callApi(`users/verify_otp.json`, "post", params).then((res) => {
-            if (res.errors) {
+            if (!res || res.errors) {
                 set({
-                    errors: res.errors || {},
+                    errors: res?.errors || {},
                     isProcessing: false,
                 })
             } else {

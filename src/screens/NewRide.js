@@ -10,7 +10,7 @@ import Input from '@material-ui/core/Input'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import DatePicker from 'react-datepicker'
-import geolib from 'geolib'
+import * as geolib from 'geolib'
 
 import SearchField from '../components/SearchField'
 import { PrimaryButton } from '../components/Buttons'
@@ -64,7 +64,7 @@ const NewRide = (props) => {
     const { history } = props
     if (tripSaved) {
       tripStore.resetTripFlagRequest()
-      history.push({ pathname: this.navigationUrl(trip), state: { drive_created: true, price: trip.attributes.price } })
+      history.push({ pathname: navigationUrl(trip), state: { drive_created: true, price: trip.attributes.price } })
     }
   }, [tripSaved])
 
@@ -184,7 +184,8 @@ const NewRide = (props) => {
         { latitude: slat, longitude: slng },
         { latitude: dlat, longitude: dlng }
       )
-      return geolib.convertUnit('mi', distance, 2)
+      // return geolib.convertUnit('mi', distance, 2)
+      return geolib.convertDistance(distance, 'mi');
     }
   }
 

@@ -129,9 +129,11 @@ const Dashboard = (props) => {
     }
   }, [waypoints])
 
-  if (localStorage.accessToken) {
-    sessionStore.getCurrentUserRequest();
-  }
+  useEffect(() => {
+      if (localStorage.accessToken) {
+        sessionStore.getCurrentUserRequest();
+      }
+  }, [])
     
   const setCurrentPosition = () => {
     const { filters } = state;
