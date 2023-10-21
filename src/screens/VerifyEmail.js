@@ -22,7 +22,7 @@ const VerifyEmail = (props) => {
     isProcessing: false
   }
   
-  const [state, setState] = useState(initial_state);
+  const [state, updateState] = useState(initial_state);
 
   useEffect(() => {
     const { history } = props;
@@ -33,30 +33,29 @@ const VerifyEmail = (props) => {
   }, [emailVerified])
 
   useEffect(() => {
-    if (isProcessing || isProcessing === false) {
-      setState({ ...state, isProcessing: isProcessing })
-    }
-  }, [isProcessing])
-
-  useEffect(() => {
   if (userErrors) {
-      setState({ ...state, userErrors: userErrors })
+      updateState({ 
+        ...state, 
+        userErrors: userErrors,
+        isProcessing: false
+      })
   }
   }, [userErrors])
 
   const onFieldChange = (fieldName, event) => {
-    setState({ 
+    updateState({ 
       ...state, 
       [fieldName]: event.target.value, [`${fieldName}userErrors`]: null })
   }
 
   const handleVerifyEmail = () => {
     const { otp } = state
-    userStore.verifyOtpRequest({otp: otp})
-    setState({ 
+    updateState({ 
       ...state,
       isProcessing: true 
     })
+    userStore.verifyOtpRequest({otp: otp})
+    
   }
 
   const errorMessageFor = (fieldName) => {

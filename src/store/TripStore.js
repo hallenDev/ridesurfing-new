@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import callApi from "../util/apiCaller";
+import { notify } from 'react-notify-toast'
 
 const useTripStore = create((set) => ({
     allTrips: [], 
@@ -95,22 +96,31 @@ const useTripStore = create((set) => ({
     searchTripIdsRequest: (query = {}, page = 1, waypoints = true) => {
         const no_waypoints = waypoints ? "" : "&no_waypoints=1";
         callApi(`trips/search?page=${page}${no_waypoints}`, "post", query).then((res) => {
-            if (res && (res.error || res.errors)) {
+            if(!res) {
+                notify.show('internet connection error.', 'error');
                 set({
-                    errors: res.errors,
-                    error: res.error,
                     isProcessing: false
                 })
             } else {
-                set({
-                    searchedTrips: res.data,
-                    similarTrips: res.similar,
-                    allTrips: res.all_trips,
-                    pagination: res.pagination,
-                    waypoints: res.waypoints,
-                    dataLoaded: true,
-                    isProcessing: false})
+                if (res.error || res.errors) {
+                    set({
+                        errors: res.errors,
+                        error: res.error,
+                        isProcessing: false
+                    })
+                } else {
+                    set({
+                        searchedTrips: res.data,
+                        similarTrips: res.similar,
+                        allTrips: res.all_trips,
+                        pagination: res.pagination,
+                        waypoints: res.waypoints,
+                        dataLoaded: true,
+                        isProcessing: false
+                    })
                 }
+            }
+            
         });
     },
     getTripRequest: (tripId) => {
@@ -131,17 +141,21 @@ const useTripStore = create((set) => ({
     },
     getTripInfoRequest: (tripId) => {
         callApi(`trips/trip/${tripId}`, "get").then((res) => {
-            if (res && !res.error && !res.errors) {
-                set({
-                    trip: res.data,
-                    isProcessing: false
-                })
+            if(!res) {
+
             } else {
-                set({
-                    errors: res.errors,
-                    error: "Trip not found",
-                    isProcessing: false
-                })
+                if (res && !res.error && !res.errors) {
+                    set({
+                        trip: res.data,
+                        isProcessing: false
+                    })
+                } else {
+                    set({
+                        errors: res.errors,
+                        error: "Trip not found",
+                        isProcessing: false
+                    })
+                }
             }
         });
     },

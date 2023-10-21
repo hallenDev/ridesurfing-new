@@ -212,7 +212,14 @@ const RiderChecklist = (props) => {
                 onFileDialogCancel={onCancel}
                 className="dropzone"
               >
-                <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                {({getRootProps, getInputProps}) => (
+                  <section>
+                    <div {...getRootProps()}>
+                      <input {...getInputProps()} />
+                      <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                    </div>
+                  </section>
+                )}
               </Dropzone>
             </div>
             <div className="row mt20 user-preference">

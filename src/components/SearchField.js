@@ -50,7 +50,7 @@ const SearchField = (props) => {
           />
           <div className="autocomplete-dropdown-container">
             <div className="autocomplete-dropdown">
-              {suggestions.map(suggestion => {
+              {suggestions.map((suggestion, index) => {
                 const className = suggestion.active
                   ? 'suggestion-item--active'
                   : 'suggestion-item';
@@ -59,6 +59,7 @@ const SearchField = (props) => {
                     {...getSuggestionItemProps(suggestion, {
                       className,
                     })}
+                    key={index}
                   >
                     <span>
                       <i className="fa fa-map-marker map-icon"/>

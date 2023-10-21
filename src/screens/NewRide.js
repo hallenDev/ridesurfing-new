@@ -57,10 +57,6 @@ const NewRide = (props) => {
   const [node, setNode] = useState(null);
 
   useEffect(() => {
-    console.log(state);
-  }, [state])
-
-  useEffect(() => {
     setCurrentPosition();
   }, [])
 
@@ -89,7 +85,7 @@ const NewRide = (props) => {
   const navigationUrl = (trip) => {
     const { has_payout_details, has_completed_profile, has_car_image } = currentUser.attributes
 
-    return ((parseFloat(trip.attributes.price) === 0 || (parseFloat(trip.attributes.price) > 0 && !!has_payout_details)) && !!has_completed_profile && !!has_car_image) ? `/ride/${trip.attributes.slug || trip.id}` : '/complete_profile'
+    return ((parseFloat(trip.attributes.price) === 0 || (parseFloat(trip.attributes.price) > 0 && !!has_payout_details)) && !!has_completed_profile && !!has_car_image) ? `/ride/${trip.id}` : '/complete_profile'
   }
 
   const setCurrentPosition = () => {
@@ -195,12 +191,13 @@ const NewRide = (props) => {
   const setPriceEstimate = (trip, total_distance) => {
     var price = 0
     price = Math.ceil((-0.00002177 * total_distance * total_distance) + (0.13 * total_distance) + 6.19)
-
     if (!isNaN(price) && price >= 0) {
       trip.total_distance = total_distance
       setState({ 
         ...state, 
-        priceTip: price.toString(), miles: `(${total_distance} miles)`, trip 
+        priceTip: price.toString(), 
+        miles: `(${total_distance} miles)`, 
+        trip: trip 
       })
       return true
     }

@@ -33,14 +33,17 @@ const ResetPassword = (props) => {
   }, [resetPassword])
 
   useEffect(() => {
-    if (isProcessing || isProcessing === false) {
-      setState({ ...state, isProcessing: isProcessing })
+    if (isProcessing == false) {
+      setState({ ...state, isProcessing: false })
     }
   }, [isProcessing])
 
   useEffect(() => {
     if (userErrors){
-        setState({ ...state, userErrors: userErrors })
+        setState({ 
+          ...state, 
+          userErrors: userErrors, isProcessing: false 
+        })
     }
   }, [userErrors])
 
@@ -65,11 +68,12 @@ const ResetPassword = (props) => {
 
   const handleResetPassword = () => {
     const { otp, password } = state
-    userStore.resetPasswordRequest(otp, password)
     setState({ 
       ...state, 
       isProcessing: true 
     })
+    userStore.resetPasswordRequest(otp, password)
+    
   }
 
   return (

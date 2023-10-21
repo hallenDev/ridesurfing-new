@@ -140,7 +140,7 @@ const MyTrips = (props) => {
 
 
   const renderCard = (trip, trip_idx) => {
-    return  <TripCard trip={JSON.parse(JSON.stringify(trip))} render_status={true} render_menu={true} />
+    return  <TripCard trip={JSON.parse(JSON.stringify(trip))} render_status={true} render_menu={true} key={trip_idx} />
   }
 
   const renderTrips = () => {

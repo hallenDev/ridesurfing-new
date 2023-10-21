@@ -35,14 +35,14 @@ const ProfileDetails = (props) => {
 
   const [state, setState] = useState(initial_state);
 
-  useEffect(() => {
-    if(currentUser) {
-      setState({
-        ...state,
-        userId: currentUser.id
-      })
-    }
-  }, [currentUser])
+  // useEffect(() => {
+  //   if(currentUser) {
+  //     setState({
+  //       ...state,
+  //       userId: currentUser.id
+  //     })
+  //   }
+  // }, [currentUser])
 
   useEffect(() => {    
     if (state.userId) {

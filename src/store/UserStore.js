@@ -55,6 +55,7 @@ const useUserStore = create((set) => ({
         });
     },
     forgotPasswordRequest: (identity) => {
+        set({isProcessing: true});
         callApi(`users/resend_otp`, "post", { identity }).then((res) => {
             if (res.errors) {
                 set({
@@ -71,6 +72,7 @@ const useUserStore = create((set) => ({
         });
     },
     resetPasswordRequest: (otp, password) => {
+        set({isProcessing: true})
         callApi(`users/reset_password`, "put", { otp, password }).then((res) => {
                 if (res.errors) {
                     set({
@@ -87,6 +89,7 @@ const useUserStore = create((set) => ({
         });
     },
     verifyOtpRequest: (params) => {
+        set({isProcessing: true})
         callApi(`users/verify_otp.json`, "post", params).then((res) => {
             if (!res || res.errors) {
                 set({

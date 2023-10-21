@@ -54,8 +54,10 @@ const TripDetails = (props) => {
 
   const [state, setState] = useState(initial_state);
 
-  tripStore.resetTripFlagRequest();
-  tripStore.getTripInfoRequest(state.rideId);
+  useEffect(() => {
+    tripStore.resetTripFlagRequest();
+    tripStore.getTripInfoRequest(state.rideId);
+  }, [])
 
   useEffect(() => {
     if (trip && trip.id) {

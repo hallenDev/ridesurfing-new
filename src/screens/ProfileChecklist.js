@@ -323,7 +323,14 @@ const ProfileChecklist = (props) => {
                 onFileDialogCancel={onCancel}
                 className="dropzone"
               >
-                <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                {({getRootProps, getInputProps}) => (
+                  <section>
+                    <div {...getRootProps()}>
+                      <input {...getInputProps()} />
+                      <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                    </div>
+                  </section>
+                )}
               </Dropzone>
             </div>
             <div className="row mt20 user-preference">
@@ -399,7 +406,14 @@ const ProfileChecklist = (props) => {
                   onFileDialogCancel={onCancel}
                   className="dropzone"
                 >
-                  <div>Try dropping car image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                  {({getRootProps, getInputProps}) => (
+                    <section>
+                      <div {...getRootProps()}>
+                        <input {...getInputProps()} />
+                        <div>Try dropping car image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                      </div>
+                    </section>
+                  )}
                 </Dropzone>}
                 <span className='error'>{errorMessageFor('has_car_image')}</span>
               </div>
@@ -481,9 +495,9 @@ const ProfileChecklist = (props) => {
                         MenuProps={MenuProps}
                         className="selected-menu-field"
                       >
-                        {carColor.map(color => (
+                        {carColor.map((color, index) => (
                           <MenuItem
-                            key={color}
+                            key={index}
                             value={color}
                           >
                             {color}

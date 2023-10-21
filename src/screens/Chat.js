@@ -28,23 +28,20 @@ const Chat = (props) => {
 
 
   useEffect(() => {
+    if (!localStorage.accessToken) {
+      localStorage.setItem('prevUrl', `/chat`)
+      return window.location.href = `/login`
+    }
+    chatStore.getChatUsersRequest();
+    if (localStorage.directChatUserId) {
+      chatStore.getDirectChatUserRequest(localStorage.directChatUserId, true)
+    }
     subscribeChannel();
     return() => {
       var cable = props.cable;
       cable.subscriptions.remove(chatSubscription);
     }
   }, [])
-
-  /******* component will mount **********/
-  if (!localStorage.accessToken) {
-    localStorage.setItem('prevUrl', `/chat`)
-    return window.location.href = `/login`
-  }
-  chatStore.getChatUsersRequest();
-  if (localStorage.directChatUserId) {
-    chatStore.getDirectChatUserRequest(localStorage.directChatUserId, true)
-  }
-  /*----------------------------------*/
 
   const subscribeChannel = () => {
     var cable = props.cable

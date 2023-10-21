@@ -12,7 +12,7 @@ const useNotificationStore = create((set) =>({
     getNotificationsRequest: () => {
         callApi(`notifications.json`).then((res) => {
             if (!res || res.error || res.errors) {
-                set ({errors: res.errors || {}})
+                set ({errors: res?.errors || {}})
             } else {
                 set({
                     notifications: res.data,

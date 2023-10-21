@@ -1,12 +1,12 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { withRouter } from 'react-router-dom'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { MuiThemeProvider, createTheme } from '@material-ui/core/styles'
 import Notifications from 'react-notify-toast'
 
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 
-const theme = createMuiTheme({
+const theme = createTheme ({
   palette: {
     primary: {
       light: '#000',

@@ -137,21 +137,21 @@ const Dashboard = (props) => {
     
   const setCurrentPosition = () => {
     const { filters } = state;
-    
+    let tmp = JSON.parse(JSON.stringify(filters));
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
     .done(function(location) {
-        filters["latitude"] = location.latitude;
-        filters["longitude"] = location.longitude;
+      tmp["latitude"] = location.latitude;
+      tmp["longitude"] = location.longitude;
         setState({
           ...state,
           latitude: location.latitude,
           longitude: location.longitude,
           locationAvailable: true,
-          filters,
+          filters: tmp,
         });
 
         tripStore.resetDataLoadedRequest();
-        tripStore.searchTripIdsRequest(filters);
+        tripStore.searchTripIdsRequest(tmp);
       })
       .fail(function(error) {
         setState({ 
@@ -191,40 +191,40 @@ const Dashboard = (props) => {
 
   const updateDateFilters = (fieldName, date) => {
     const { filters } = state;
-
+    let tmp = JSON.parse(JSON.stringify(filters));
     if (!date) {
-      filters[fieldName] = date;
+      tmp[fieldName] = date;
     } else {
       try {
         if (date < new Date()) {
           date = new Date();
         }
-        filters[fieldName] =
+        tmp[fieldName] =
           date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
       } catch {
-        filters[fieldName] = date;
+        tmp[fieldName] = date;
       }
     }
     setState({ 
       ...state, 
-      filters 
+      filters: tmp
     });
 
     tripStore.resetDataLoadedRequest();
-    tripStore.searchTripIdsRequest(filters);
+    tripStore.searchTripIdsRequest(tmp);
   };
 
   const updateFilters = (fieldName, event) => {
     const { filters } = state;
-
-    filters[fieldName] = event.target.value;
+    let tmp = JSON.parse(JSON.stringify(filters));
+    tmp[fieldName] = event.target.value;
     setState({ 
       ...state, 
-      filters 
+      filters: tmp 
     });
 
     tripStore.resetDataLoadedRequest();
-    tripStore.searchTripIdsRequest(filters);
+    tripStore.searchTripIdsRequest(tmp);
   };
 
   const onMarkerClick = (trip) => {
@@ -250,20 +250,20 @@ const Dashboard = (props) => {
 
   const updateSlider = (fieldName, value) => {
     const { filters } = state;
-
+    let tmp = JSON.parse(JSON.stringify(filters));
     if (value === 351) {
-      delete filters[fieldName];
+      delete tmp[fieldName];
     } else {
-      filters[fieldName] = value;
+      tmp[fieldName] = value;
     }
 
     setState({ 
       ...state, 
-      filters 
+      filters: tmp
     });
 
     tripStore.resetDataLoadedRequest();
-    tripStore.searchTripIdsRequest(filters);
+    tripStore.searchTripIdsRequest(tmp);
   };
 
   const changePrice = (valArray) => {
@@ -311,7 +311,7 @@ const Dashboard = (props) => {
   }
 
   const handleExpandClick = () => {
-    setState((state) => ({ expanded: !state.expanded }));
+    setState((state) => ({ ...state, expanded: !state.expanded }));
   };
 
   const createCard = (trip, trip_idx) => {
@@ -459,8 +459,8 @@ const Dashboard = (props) => {
                   displayEmpty
                   className="selected-menu-field"
                 >
-                  {gender.map((data) => (
-                    <MenuItem key={data[0]} value={data[0]}>
+                  {gender.map((data, index) => (
+                    <MenuItem key={index} value={data[0]}>
                       {data[1]}
                     </MenuItem>
                   ))}
@@ -577,7 +577,7 @@ const Dashboard = (props) => {
                 <FormControl className="selectField">
                   <InputLabel htmlFor="select-multiple"></InputLabel>
                   <Select
-                    value={filters.kid_friendly}
+                    value={filters.kid_friendly?  filters.kid_friendly : ""}
                     onChange={(event) =>
                       updateFilters("kid_friendly", event)
                     }
@@ -586,7 +586,7 @@ const Dashboard = (props) => {
                     displayEmpty
                     className="selected-menu-field"
                   >
-                    <MenuItem value={filters.kid_friendly} disabled>
+                    <MenuItem value={filters.kid_friendly? filters.kid_friendly: ""} disabled>
                       Select
                     </MenuItem>
                     {basicFilters.map((data) => (
@@ -602,14 +602,14 @@ const Dashboard = (props) => {
                 <FormControl className="selectField">
                   <InputLabel htmlFor="select-multiple"></InputLabel>
                   <Select
-                    value={filters.pets}
+                    value={filters.pets ?? ""}
                     onChange={(event) => updateFilters("pets", event)}
                     input={<Input id="select-multiple" />}
                     MenuProps={MenuProps}
                     displayEmpty
                     className="selected-menu-field"
                   >
-                    <MenuItem value={filters.pets} disabled>
+                    <MenuItem value={filters.pets?? ""} disabled>
                       Select
                     </MenuItem>
                     {basicFilters.map((data) => (
@@ -625,14 +625,14 @@ const Dashboard = (props) => {
                 <FormControl className="selectField">
                   <InputLabel htmlFor="select-multiple"></InputLabel>
                   <Select
-                    value={filters.smoking}
+                    value={filters.smoking ?? ""}
                     onChange={(event) => updateFilters("smoking", event)}
                     input={<Input id="select-multiple" />}
                     MenuProps={MenuProps}
                     displayEmpty
                     className="selected-menu-field"
                   >
-                    <MenuItem value={filters.smoking} disabled>
+                    <MenuItem value={filters.smoking ?? ""} disabled>
                       Select
                     </MenuItem>
                     {basicFilters.map((data) => (
@@ -650,14 +650,14 @@ const Dashboard = (props) => {
                 <FormControl className="selectField">
                   <InputLabel htmlFor="select-multiple"></InputLabel>
                   <Select
-                    value={filters.car_ac}
+                    value={filters.car_ac ?? ""}
                     onChange={(event) => updateFilters("car_ac", event)}
                     input={<Input id="select-multiple" />}
                     MenuProps={MenuProps}
                     displayEmpty
                     className="selected-menu-field"
                   >
-                    <MenuItem value={filters.car_ac} disabled>
+                    <MenuItem value={filters.car_ac ?? ""} disabled>
                       Select
                     </MenuItem>
                     {basicFilters.map((data) => (
@@ -673,7 +673,7 @@ const Dashboard = (props) => {
                 <FormControl className="selectField">
                   <InputLabel htmlFor="select-multiple"></InputLabel>
                   <Select
-                    value={filters.drive_type}
+                    value={filters.drive_type?? ""}
                     onChange={(event) =>
                       updateFilters("drive_type", event)
                     }
@@ -682,7 +682,7 @@ const Dashboard = (props) => {
                     displayEmpty
                     className="selected-menu-field"
                   >
-                    <MenuItem value={filters.drive_type} disabled>
+                    <MenuItem value={filters.drive_type ?? ""} disabled>
                       Select
                     </MenuItem>
                     {driveType.map((data) => (
@@ -706,7 +706,7 @@ const Dashboard = (props) => {
             />
           </div>
 
-          {!!dataLoaded ? (
+          {!!state.dataLoaded ? (
             <div>
               <div className="my-trips">
                 <div className="trips-container">{renderTrips()}</div>

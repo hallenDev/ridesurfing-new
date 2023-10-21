@@ -24,6 +24,14 @@ const ChatList = (props) => {
   }
   
   const [state, setState] = useState(initial_state);
+
+  useEffect(() => {
+    chatStore.getChatUsersRequest()
+    if (!localStorage.accessToken) {
+      localStorage.setItem('prevUrl', `/chatList`)
+      return window.location.href = `/login`
+    }
+  }, [])
   
   useEffect(() => {
     if (dataLoaded || dataLoaded === false) {
@@ -33,14 +41,6 @@ const ChatList = (props) => {
       })
     }
   }, [dataLoaded])
-  
-  /*********** component will mount ***************/
-  chatStore.getChatUsersRequest()
-  if (!localStorage.accessToken) {
-    localStorage.setItem('prevUrl', `/chatList`)
-    return window.location.href = `/login`
-  }
-  /**************************************/
 
 
   const loadChat = (userId) => {

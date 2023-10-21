@@ -33,12 +33,6 @@ const ForgotPassword = (props) => {
   }, [codeSent])
 
   useEffect(() => {
-    if (isProcessing || isProcessing === false) {
-      setState({ ...state, isProcessing: isProcessing })
-    }
-  }, [isProcessing])
-
-  useEffect(() => {
     if (userErrors) {
       setState({...state, userErrors: userErrors})
     }
@@ -53,17 +47,21 @@ const ForgotPassword = (props) => {
 
   const handleForgotPassword = () => {
     const { identity } = state
-    userStore.forgotPasswordRequest(identity)
     setState({ 
       ...state, 
       isProcessing: true 
     })
-
-    if (!identity)
+    
+    if (identity == '') {
       setState({ 
         ...state, 
-        identityError: 'Please provide a valid registered email.' 
+        identityError: 'Please provide a valid registered email.',
+        isProcessing: false
       })
+    } else {
+      userStore.forgotPasswordRequest(identity)
+    }
+      
   }
 
   const errorMessageFor = (fieldName) => {
@@ -94,9 +92,9 @@ const ForgotPassword = (props) => {
             <div className="mt40">
               <PrimaryButton
                 color='primary'
-                buttonName={state.isProcessing ? "Please Wait" : "Request Password Reset Link"}
+                buttonName={isProcessing ? "Please Wait" : "Request Password Reset Link"}
                 className="leftIcon-btn pswrd-btn"
-                disabled={!!state.isProcessing}
+                disabled={!!isProcessing}
                 handleButtonClick={() => handleForgotPassword()}
               />
             </div>
