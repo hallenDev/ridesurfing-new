@@ -164,26 +164,28 @@ const ProfileChecklist = (props) => {
 
   const onFieldChange = (fieldName, event) => {
     const { profile } = state
-    profile[fieldName] = event.target.value
+    let tmp = JSON.parse(JSON.stringify(profile));
+    tmp[fieldName] = event.target.value
 
     if (fieldName === 'car_make') {
-      profile['car_model'] = null
-      profile['car_year'] = null
-      profile['car_color'] = null
+      tmp['car_model'] = null
+      tmp['car_year'] = null
+      tmp['car_color'] = null
     }
     setState({ 
       ...state, 
-      profile 
+      profile: tmp
     })
   }
 
   const onToggleChange = (fieldName, checked) => {
     const { profile } = state
-    profile[fieldName] = checked
+    let tmp = JSON.parse(JSON.stringify(profile));
+    tmp[fieldName] = checked
 
     setState({ 
       ...state, 
-      profile 
+      profile: tmp
     })
   }
 

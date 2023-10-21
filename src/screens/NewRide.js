@@ -93,37 +93,34 @@ const NewRide = (props) => {
   }
 
   const setCurrentPosition = () => {
-    const { latitude, longitude } = state
-
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
       .done(function(location) {
         setState({ 
           ...state, 
-          latitude: location.latitude, longitude: location.longitude 
+          latitude: location.latitude, 
+          longitude: location.longitude 
         })
       })
       .fail(function(error) {
-        setState({ ...state, 
-          latitude, longitude 
-        })
       });
   }
 
   const onFieldChange = (fieldName, event) => {
     const { trip } = state
-    trip[fieldName] = event.target.value
+    let tmp = JSON.parse(JSON.stringify(trip));
+    tmp[fieldName] = event.target.value
     setState({ ...state, 
-      trip 
+      trip: tmp
     })
   }
 
   const updateDateFilters = (fieldName, date) => {
     const { trip } = state
-
-    trip[fieldName] = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear()
+    let tmp = JSON.parse(JSON.stringify(trip));
+    tmp[fieldName] = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear()
     setState({ 
       ...state, 
-      trip 
+      trip: tmp
     })
     if (fieldName === 'start_date') {
       $('#finish_date').focus()
@@ -132,10 +129,11 @@ const NewRide = (props) => {
 
   const onTimeChange = (fieldName, time) => {
     const { trip } = state
-    trip[fieldName] = time
+    let tmp = JSON.parse(JSON.stringify(trip));
+    tmp[fieldName] = time
     setState({ 
       ...state, 
-      trip 
+      trip: tmp
     })
   }
 
@@ -155,30 +153,31 @@ const NewRide = (props) => {
 
   const setAddress = (address, geometry, fieldName) => {
     const { trip } = state
+    let tmp = JSON.parse(JSON.stringify(trip));
     if (geometry) {
       const { lat, lng } = geometry.location
 
-      trip[fieldName] = address
-      trip[`${fieldName}_latitude`] = lat()
-      trip[`${fieldName}_longitude`] = lng()
+      tmp[fieldName] = address
+      tmp[`${fieldName}_latitude`] = lat()
+      tmp[`${fieldName}_longitude`] = lng()
 
       if (fieldName === 'destination') {
-        const total_distance = getDistance(trip.start_location_latitude, trip.start_location_longitude, lat(), lng())
-        setPriceEstimate(trip, total_distance)
+        const total_distance = getDistance(tmp.start_location_latitude, tmp.start_location_longitude, lat(), lng())
+        setPriceEstimate(tmp, total_distance)
         $('#start_date').focus()
       } else {
-        if (trip.destination) {
-          const total_distance = getDistance(lat(), lng(), trip.destination_latitude, trip.destination_longitude)
-          setPriceEstimate(trip, total_distance)
+        if (tmp.destination) {
+          const total_distance = getDistance(lat(), lng(), tmp.destination_latitude, tmp.destination_longitude)
+          setPriceEstimate(tmp, total_distance)
         }
         $('#destination').focus()
       }
     } else {
-      trip[fieldName] = address
+      tmp[fieldName] = address
     }
     setState({ 
       ...state, 
-      trip 
+      trip : tmp
     })
   }
 

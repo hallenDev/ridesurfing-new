@@ -89,7 +89,6 @@ const EditRide = (props) => {
   }
 
   const setCurrentPosition = () => {
-    const { latitude, longitude } = state
 
     $.getJSON('https://geoip-db.com/json/')
       .done(function(location) {
@@ -99,19 +98,16 @@ const EditRide = (props) => {
         })
       })
       .fail(function(error) {
-        setState({ 
-          ...state, 
-          latitude, longitude 
-        })
       });
   }
 
   const onFieldChange = (fieldName, event) => {
     const { trip } = state
-    trip[fieldName] = event.target.value
+    let tmp = JSON.parse(JSON.stringify(trip));
+    tmp[fieldName] = event.target.value
     setState({ 
       ...state, 
-      trip 
+      trip: tmp
     })
   }
 
@@ -130,10 +126,11 @@ const EditRide = (props) => {
 
   const onTimeChange = (fieldName, time) => {
     const { trip } = state
-    trip[fieldName] = time
+    let tmp = JSON.parse(JSON.stringify(trip));
+    tmp[fieldName] = time
     setState({ 
       ...state, 
-      trip 
+      trip: tmp
     })
   }
 

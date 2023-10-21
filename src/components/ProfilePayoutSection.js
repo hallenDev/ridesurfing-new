@@ -73,11 +73,11 @@ const ProfilePayoutSection = (props) => {
   }, [props])
 
   const onFieldChange = (field, fieldName, event) => {
-    const bank = state[field]
-    bank[fieldName] = event.target.value
+    let tmp = JSON.parse(JSON.stringify(state[field]));
+    tmp[fieldName] = event.target.value
     setState({
       ...state, 
-      bank
+      bank: tmp
     })
 
     fetch('https://geolocation-db.com/json/')

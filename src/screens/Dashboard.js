@@ -164,18 +164,19 @@ const Dashboard = (props) => {
 
   const setSelectedTrip = (trip) => {
     const { selected } = state;
+    let tmp = JSON.parse(JSON.stringify(selected));
     _.map(["start_location", "destination"], (fieldname) => {
-      selected[fieldname] = trip.attributes[fieldname];
-      selected[`${fieldname}_latitude`] = parseFloat(
+      tmp[fieldname] = trip.attributes[fieldname];
+      tmp[`${fieldname}_latitude`] = parseFloat(
         trip.attributes[`${fieldname}_latitude`]
       );
-      selected[`${fieldname}_longitude`] = parseFloat(
+      tmp[`${fieldname}_longitude`] = parseFloat(
         trip.attributes[`${fieldname}_longitude`]
       );
     });
     setState({ 
       ...state, 
-      selected, 
+      selected: tmp, 
       showTrip: true 
     });
   }
@@ -228,19 +229,20 @@ const Dashboard = (props) => {
 
   const onMarkerClick = (trip) => {
     const { filters } = state;
+    let tmp = JSON.parse(JSON.stringify(filters));
     const {
       start_location_latitude,
       start_location_longitude,
       start_location,
     } = trip;
 
-    filters["start_location"] = start_location;
-    filters["start_location_latitude"] = start_location_latitude;
-    filters["start_location_longitude"] = start_location_longitude;
+    tmp["start_location"] = start_location;
+    tmp["start_location_latitude"] = start_location_latitude;
+    tmp["start_location_longitude"] = start_location_longitude;
 
     setState({ 
       ...state, 
-      filters 
+      filters: tmp
     });
     tripStore.resetDataLoadedRequest();
     tripStore.searchTripIdsRequest(filters);
@@ -266,12 +268,12 @@ const Dashboard = (props) => {
 
   const changePrice = (valArray) => {
     const { filters } = state;
-
-    filters["start_price"] = valArray[0];
-    filters["end_price"] = valArray[1];
+    let tmp = JSON.parse(JSON.stringify(filters));
+    tmp["start_price"] = valArray[0];
+    tmp["end_price"] = valArray[1];
     setState({ 
       ...state, 
-      filters 
+      filters: tmp
     });
 
     tripStore.resetDataLoadedRequest();
@@ -280,26 +282,26 @@ const Dashboard = (props) => {
 
   const setAddress = (address, geometry, fieldName) => {
     const { filters, latitude, longitude, locationAvailable } = state;
-
-    filters[fieldName] = geometry ? address : undefined;
-    filters[`${fieldName}_latitude`] = geometry
+    let tmp = JSON.parse(JSON.stringify(filters));
+    tmp[fieldName] = geometry ? address : undefined;
+    tmp[`${fieldName}_latitude`] = geometry
       ? geometry.location.lat()
       : undefined;
-    filters[`${fieldName}_longitude`] = geometry
+      tmp[`${fieldName}_longitude`] = geometry
       ? geometry.location.lng()
       : undefined;
 
     if (locationAvailable) {
-      filters.latitude = latitude;
-      filters.longitude = longitude;
+      tmp.latitude = latitude;
+      tmp.longitude = longitude;
     } else {
-      filters.latitude = null;
-      filters.longitude = null;
+      tmp.latitude = null;
+      tmp.longitude = null;
     }
 
     setState({ 
       ...state, 
-      filters 
+      filters: tmp
     });
 
     if (geometry || address === "") {

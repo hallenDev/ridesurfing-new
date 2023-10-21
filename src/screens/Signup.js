@@ -83,53 +83,55 @@ const Signup = (props) => {
 
   const setSocialLoginProfile = () => {
     const { user } = state;
+    let tmp = JSON.parse(JSON.stringify(user));
     const socialLoginProvider = localStorage.getItem("socialLoginProvider");
 
     if (localStorage.socialLoginProfile) {
       const socialLoginProfile = JSON.parse(localStorage.socialLoginProfile);
 
-      user.first_name = socialLoginProfile.firstName;
-      user.last_name = socialLoginProfile.lastName;
-      user.email = socialLoginProfile.email;
+      tmp.first_name = socialLoginProfile.firstName;
+      tmp.last_name = socialLoginProfile.lastName;
+      tmp.email = socialLoginProfile.email;
 
       if (socialLoginProfile.gender) {
-        user.gender =
+        tmp.gender =
           socialLoginProfile.gender.charAt(0).toUpperCase() +
           socialLoginProfile.gender.substr(1);
       }
 
       if (socialLoginProfile.birthday) {
-        user.birthday = socialLoginProfile.birthday;
+        tmp.birthday = socialLoginProfile.birthday;
       }
 
       if (socialLoginProfile.profilePicURL) {
-        user.profile_image_url = socialLoginProfile.profilePicURL.replace(
+        tmp.profile_image_url = socialLoginProfile.profilePicURL.replace(
           "s96-c",
           "s500-c"
         );
       }
 
       if (socialLoginProfile.link) {
-        user.profile_link = socialLoginProfile.link;
+        tmp.profile_link = socialLoginProfile.link;
       }
 
-      user.token = socialLoginProfile.id;
-      user.provider = socialLoginProvider;
+      tmp.token = socialLoginProfile.id;
+      tmp.provider = socialLoginProvider;
 
       setState({ 
         ...state, 
-        user 
+        user: tmp 
       });
     }
-    return user;
+    return tmp;
   }
 
   const onFieldChange = (fieldName, event) => {
     const { user } = state;
-    user[fieldName] = event.target.value;
+    let tmp = JSON.parse(JSON.stringify(user));
+    tmp[fieldName] = event.target.value;
     setState({ 
       ...state, 
-      user 
+      user: tmp
     });
   };
 
@@ -141,11 +143,12 @@ const Signup = (props) => {
 
   const onDateChange = (fieldName, date) => {
     const { user } = state;
-    user[fieldName] =
+    let tmp = JSON.parse(JSON.stringify(user));
+    tmp[fieldName] =
       date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
     setState({ 
       ...state,
-      user 
+      user: tmp 
     });
   };
 

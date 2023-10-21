@@ -75,28 +75,31 @@ const ReviewForm = (props) => {
 
   const onFieldChange = (fieldName, value) => {
     const { reviewData } = state
-    reviewData[fieldName] = value
+    let tmp = JSON.parse(JSON.stringify(reviewData));
+    tmp[fieldName] = value
     setState({ 
       ...state, 
-      reviewData 
+      reviewData: tmp
     })
   }
 
   const onValueChange = (fieldName, event) => {
     const { reviewData } = state
-    reviewData[fieldName] = event.target.value
+    let tmp = JSON.parse(JSON.stringify(reviewData));
+    tmp[fieldName] = event.target.value
     setState({ 
       ...state, 
-      reviewData 
+      reviewData: tmp
     })
   }
 
   const setRadioValue = (fieldName, event) => {
     const { reviewData } = state
-    reviewData[fieldName] = event.target.value
+    let tmp = JSON.parse(JSON.stringify(reviewData));
+    tmp[fieldName] = event.target.value
     setState({ 
       ...state, 
-      reviewData 
+      reviewData: tmp
     })
   }
 
