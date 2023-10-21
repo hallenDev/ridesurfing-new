@@ -90,7 +90,6 @@ const ProfileCardSection = (props) => {
 
   useEffect(() => {
     if (isProcessing || isProcessing === false) {
-      console.log('okay');
       setState({ 
         ...state, 
         isProcessing: isProcessing, 

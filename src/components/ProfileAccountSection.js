@@ -60,11 +60,12 @@ const ProfileAccountSection = (props) => {
 
       sessionStore.resetCurrentUserFlagsRequest();
       const { user } = state;
-      user["current_password"] = "";
-      user["password"] = "";
+      let tmp = JSON.parse(JSON.stringify(user));
+      tmp["current_password"] = "";
+      tmp["password"] = "";
       setState({ 
         ...state,
-        user 
+        user: tmp
       });
     }
   }, [userUpdated, passwordUpdated])
@@ -81,20 +82,22 @@ const ProfileAccountSection = (props) => {
 
   const onFieldChange = (fieldName, event) => {
     const { user } = state;
-    user[fieldName] = event.target.value;
+    let tmp = JSON.parse(JSON.stringify(user));
+    tmp[fieldName] = event.target.value;
     setState({ 
       ...state,
-      user 
+      user: tmp
     });
   };
 
   const onDateChange = (fieldName, date) => {
     const { user } = state;
-    user[fieldName] =
+    let tmp = JSON.parse(JSON.stringify(user));
+    tmp[fieldName] =
       date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
     setState({ 
       ...state,
-      user 
+      user: tmp
     });
   };
 
