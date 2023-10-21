@@ -158,8 +158,10 @@ const Login = (props) => {
         first_name: res.first_name,
         last_name: res.last_name,
         email: res.email,
-        gender: res.gender.charAt(0).toUpperCase() + res.gender.substr(1),
-        birthday: res.birthday,
+        // gender: res.gender.charAt(0).toUpperCase() + res.gender.substr(1),
+        // birthday: res.birthday,
+        gender: 'Male',
+        birthday: '05/31/1996',
         profile_image_url:
           res.picture && res.picture.data && res.picture.data.url
             ? res.picture &&

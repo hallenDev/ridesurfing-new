@@ -224,7 +224,7 @@ const Review = (props) => {
                       className="trip-dropdown"
                     >
                       <MenuItem onClick={() => handleDialogOpen(index)}><Icon className="menu-icon">list</Icon>View Riders</MenuItem>
-                      {!!trip.attributes.can_edit && <MenuItem onClick={() => handleMenuClick(`/ride/${trip.attributes.slug || trip.id}/edit`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
+                      {!!trip.attributes.can_edit && <MenuItem onClick={() => handleMenuClick(`/edit_ride/${trip.attributes.slug || trip.id}`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
                       {!!trip.attributes.can_cancel && <MenuItem onClick={() => sendCancelTripRequest(trip.id, index)}><Icon className="menu-icon">delete</Icon>Cancel Ride</MenuItem>}
                       {!trip.attributes.is_expired && trip.attributes.driver_id !== currentUser.id &&  <MenuItem onClick={() => sendCancelRiderTripRequest(trip, index)}><Icon className="menu-icon">delete</Icon>Opt Out</MenuItem>}
                     </Menu>
@@ -366,7 +366,7 @@ const Review = (props) => {
                     className="trip-dropdown"
                   >
                     <MenuItem onClick={() => handleDialogOpen(index)}><Icon className="menu-icon">list</Icon>View Riders</MenuItem>
-                    {!!trip.attributes.can_edit && <MenuItem onClick={() => handleMenuClick(`/ride/${trip.attributes.slug || trip.id}/edit`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
+                    {!!trip.attributes.can_edit && <MenuItem onClick={() => handleMenuClick(`/edit_ride/${trip.attributes.slug || trip.id}`)}><Icon className="menu-icon">edit</Icon>Edit Ride</MenuItem>}
                     {!!trip.attributes.can_cancel && <MenuItem onClick={() => sendCancelTripRequest(trip.id, index)}><Icon className="menu-icon">delete</Icon>Cancel Ride</MenuItem>}
                     {!trip.attributes.is_expired && trip.attributes.driver_id !== currentUser.id && <MenuItem onClick={() => sendCancelRiderTripRequest(trip, index)}><Icon className="menu-icon">delete</Icon> Opt Out</MenuItem>}
                   </Menu>

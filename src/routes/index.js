@@ -61,14 +61,14 @@ export default (
       <Route exact path="/edit_profile" component={EditProfile} />
       <Route exact path="/chat" render={(props) => <Chat {...props} cable={cable} />} />
       <Route exact path="/new_ride" component={NewRide} />
-      <Route path="/my_rides" component={MyTrips} />
+      <Route exact path="/my_rides" component={MyTrips} />
       <Route path="/ride/:rideId" component={TripDetails} />
       <Route exact path="/requests" component={Requests} />
       <Route path="/reviews" component={Reviews} />
       <Route exact path="/profile/:userId" component={ProfileDetails} />
       <Route exact path="/complete_profile" component={ProfileChecklist} />
       <Route exact path="/profile_details" component={RiderChecklist} />
-      <Route path="/ride/:rideId/edit" component={EditRide} />
+      <Route exact path="/edit_ride/:rideId/" component={EditRide} />
 
       <Route exact path="/login" component={Login} />
       <Route exact path="/signup" component={Signup} />

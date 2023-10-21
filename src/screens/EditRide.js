@@ -53,6 +53,12 @@ const EditRide = (props) => {
   const [node, setNode] =useState(null);
 
   useEffect(() => {
+    if (!localStorage.accessToken) {
+      return window.location.href = `/login`
+    }
+  
+    tripStore.getTripRequest(state.tripId);
+    console.log(props.match.params.rideId);
     setCurrentPosition()
   }, [])
 
@@ -72,15 +78,9 @@ const EditRide = (props) => {
     if (tripCompleted) {
       const { history } = props;
       tripStore.resetTripFlagRequest()
-      history.push({ pathname: this.navigationUrl(trip), state: { drive_created: true, price: trip.attributes.price } })
+      history.push({ pathname: navigationUrl(trip), state: { drive_created: true, price: trip.attributes.price } })
     }
   }, [tripCompleted])
-
-  if (!localStorage.accessToken) {
-    return window.location.href = `/login`
-  }
-
-  tripStore.getTripRequest(state.tripId)
 
   const navigationUrl = (trip) => {
     const { has_payout_details, has_completed_profile, has_car_image } = currentUser.attributes

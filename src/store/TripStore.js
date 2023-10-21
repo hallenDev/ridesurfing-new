@@ -124,19 +124,25 @@ const useTripStore = create((set) => ({
         });
     },
     getTripRequest: (tripId) => {
+        set({isProcessing: true})
         callApi(`trips/${tripId}`).then((res) => {
-            if (res && !res.error && !res.errors) {
-                set({
-                    trip: res.data,
-                    isProcessing: false
-                })
+            if(!res) {
+                set({isProcessing: false})
             } else {
-                set({
-                    errors: res.errors,
-                    error: "Trip not found",
-                    isProcessing: false
-                })
+                if (!res.error && !res.errors) {
+                    set({
+                        trip: res.data,
+                        isProcessing: false
+                    })
+                } else {
+                    set({
+                        errors: res.errors,
+                        error: "Trip not found",
+                        isProcessing: false
+                    })
+                }
             }
+            
         });
     },
     getTripInfoRequest: (tripId) => {

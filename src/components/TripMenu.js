@@ -18,8 +18,8 @@ const TripMenu = (props) => {
   const sessionStore = useSessionStore();
 
   const index = tripStore.trips?.trip?.id;
-  const trip_link = `/ride/${tripStore.trips.trip?.attributes?.slug ||
-    tripStore.trips?.trip?.id}/edit`;
+  const trip_link = `/edit_ride/${tripStore.trips.trip?.attributes?.slug ||
+    tripStore.trips?.trip?.id}`;
   const current_user = sessionStore.currentUser;
   //   driver: state.trips.trip.driver_details,
   //   requests: state.trips.trip.attributes.requests,
@@ -225,7 +225,7 @@ const TripMenu = (props) => {
         {can_edit && !state.trip_cancelled && (
           <Link
             style={{ textDecoration: "none", color: "#4a4a4a" }}
-            to={`/ride/${props.trip.id}/edit`}
+            to={`/edit_ride/${props.trip.id}`}
           >
             <MenuItem>
               <Icon className="menu-icon">edit</Icon>Edit Ride
