@@ -218,6 +218,7 @@ const useSessionStore = create((set) => ({
                 profileSaved: true,
                 isPayoutProcessing: false,
                 accountUpdated: true,
+                isProcessing: false
               })
             }
         });
@@ -298,7 +299,7 @@ const useSessionStore = create((set) => ({
     },
     setProcessingRequest: (processType = null) => {
         set({
-            isProcessing: processType === "display" ? true : false,
+            isProcessing: true,
             isCarImageProcessing: processType === "car" ? true : false,
             isPayoutProcessing: processType === "payout" ? true : false,
         })

@@ -43,7 +43,7 @@ function usePrevious(value) {
 const ProfileCardSection = (props) => {
 
   const cardStore = useCardStore();
-  const card = cardStore.card;
+  // const card = cardStore.card;
   const cards = cardStore.cards;
   const cardErrors = cardStore.errors;
   const cardSaved = cardStore.isSaved;
@@ -90,6 +90,7 @@ const ProfileCardSection = (props) => {
 
   useEffect(() => {
     if (isProcessing || isProcessing === false) {
+      console.log('okay');
       setState({ 
         ...state, 
         isProcessing: isProcessing, 
@@ -107,11 +108,12 @@ const ProfileCardSection = (props) => {
   }
 
   const onFieldChange = (fieldName, event) => {
-    const { card } = state
-    card[fieldName] = event.target.value
+    const { card } = state;
+    let tmp = JSON.parse(JSON.stringify(card));
+    tmp[fieldName] = event.target.value
     setState({
       ...state,
-      card
+      card: tmp
     })
   }
 
@@ -166,7 +168,7 @@ const ProfileCardSection = (props) => {
     })
   }
 
-  const { cardProcessing, primaryProcessing } = state
+  const { cardProcessing, primaryProcessing, card } = state
   const { ignoreButton } = props
 
   return (

@@ -86,9 +86,11 @@ const EditProfile = (props) => {
   }, [currentUser])
 
   useEffect(() => {
-    const { history } = props;
-    sessionStore.resetProfileFlagsRequest()
-    history.push('/my_profile')
+    if(profileSaved) {
+      const { history } = props;
+      sessionStore.resetProfileFlagsRequest()
+      history.push('/my_profile')
+    }
   }, [profileSaved])
 
   useEffect(() => {
@@ -219,7 +221,7 @@ const EditProfile = (props) => {
       ...state, 
       imageProcessing: true 
     })
-    sessionStore.setProcessingRequest()
+    sessionStore.setProcessingRequest('display');
 
     let img
     if (fileObj) {
@@ -294,7 +296,15 @@ const EditProfile = (props) => {
                 onFileDialogCancel={onCancel}
                 className="dropzone"
               >
-                <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                {({getRootProps, getInputProps}) => (
+                  <section>
+                    <div {...getRootProps()}>
+                      <input {...getInputProps()} />
+                      <div>Try dropping image here, or click to select image to upload. Size should be less than 3 MB.</div>
+                    </div>
+                  </section>
+                )}
+                
               </Dropzone>
             </div>
             <div className="row mt20 user-preference">

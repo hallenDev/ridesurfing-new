@@ -182,8 +182,13 @@ const ProfileCarSection = (props) => {
           onFileDialogCancel={() => onCancel()}
           className="dropzone"
         >
-          {() => (
-            <div>Try dropping image here, or click to select image to upload.</div>
+          {({getRootProps, getInputProps}) => (
+            <section>
+              <div {...getRootProps()}>
+                <input {...getInputProps()} />
+                <div>Try dropping image here, or click to select image to upload.</div>
+              </div>
+            </section>
           )}
         </Dropzone>
       </div>}

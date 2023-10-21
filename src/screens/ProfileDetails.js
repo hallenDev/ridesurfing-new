@@ -127,7 +127,7 @@ const ProfileDetails = (props) => {
                 </TabPanel>
                 <TabPanel tabId="two">
                   <div className="mt20">
-                    {/* <ProfileImageSection profile={profile} user={user} /> */}
+                    <ProfileImageSection profile={profile} user={user} />
                   </div>
                 </TabPanel>
                 <TabPanel tabId="three">

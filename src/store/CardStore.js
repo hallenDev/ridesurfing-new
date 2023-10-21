@@ -47,6 +47,7 @@ const useCardStore = create((set) => ({
         })
     },
     createCardRequest: async(params) => {
+        set({isProcessing: true});
         callApi(`cards`, "post", params).then((res) => {
             if (res.errors) {
                 set({
@@ -67,6 +68,7 @@ const useCardStore = create((set) => ({
         });
     },
     updateCardRequest: async(cardId, params) => {
+        set({isProcessing: true});
         callApi(`cards/${cardId}`, "put", params).then((res) => {
             if (res.errors) {
                 set({

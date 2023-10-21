@@ -66,7 +66,6 @@ export default (
       <Route exact path="/new_ride" component={NewRide} />
       <Route exact path="/requests" component={Requests} />
       <Route path="/reviews" component={Reviews} />
-      {/* 
       <Route exact path="/profile/:userId" component={ProfileDetails} />
       <Route exact path="/complete_profile" component={ProfileChecklist} />
       <Route exact path="/profile_details" component={RiderChecklist} />
@@ -74,7 +73,8 @@ export default (
       <Route exact path="/chat" render={(props) => <Chat {...props} cable={cable} />} />
       <Route path="/reviews/:reviewId" component={ReviewForm} />
       <Route path="/ride/:rideId/edit" component={EditRide} />
-      <Route path="/ride/:rideId" component={TripDetails} /> */}
+      <Route path="/ride/:rideId" component={TripDetails} />
+      
       <Route component={NoScreen} />
     </Switch>
   </Container>

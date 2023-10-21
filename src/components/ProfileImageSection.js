@@ -28,15 +28,21 @@ const ProfileImageSection = (props) => {
 
   
   const [state, setState] = useState(initial_state);
+  const [profileImagesArr, setProfileImageArr] = useState([]);
 
   useEffect(() => {
     if (isProcessing || isProcessing === false) {
+      updateProfileImageState();
       setState({ 
         ...state,
         isProcessing: isProcessing 
       })
     }
   }, [isProcessing])
+
+  useEffect(() => {
+    updateProfileImageState()
+  }, [props])
 
   const onDrop = (files) => {
     setState({
@@ -92,10 +98,15 @@ const ProfileImageSection = (props) => {
     }
   }
 
-  const profileImagesArr = () => {
+  const updateProfileImageState = () => {
     const arr = profileImages()
-    return _.pluck(_.pluck(arr, 'attributes'), 'url')
+    setProfileImageArr(_.pluck(_.pluck(arr, 'attributes'), 'url')); 
   }
+
+  // const profileImagesArr = () => {
+  //   const arr = profileImages()
+  //   return _.pluck(_.pluck(arr, 'attributes'), 'url')
+  // }
 
   const deleteImage = (imageId) => {
 
@@ -153,10 +164,14 @@ const ProfileImageSection = (props) => {
           onFileDialogCancel={() => onCancel()}
           className="dropzone"
         >
-          {() => (
-            <div>Try dropping image here, or click to select image to upload.</div>
+          {({getRootProps, getInputProps}) => (
+            <section>
+              <div {...getRootProps()}>
+                <input {...getInputProps()} />
+                <div>Try dropping image here, or click to select image to upload.</div>
+              </div>
+            </section>
           )}
-          
         </Dropzone>
       </div>}
       {lbOpen && (
