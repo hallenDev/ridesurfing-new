@@ -181,33 +181,42 @@ const Login = (props) => {
       );
       console.log(result);
 
-      if (result.errors && result.errors === "Record not found") {
-        console.log("error happened");
-        const createUserResult = await userStore.createUserRequest(user);
 
-        console.log(createUserResult, "createUserResult");
-
+      if(!result) {
         setState({
           ...state,
           fbProcessing: false,
         });
-
-        if (!createUserResult.errors) {
-          history.push("search");
-        }
-      } else if (result.data) {
-        setState({
-          ...state,
-          fbProcessing: false,
-        });
-
-        history.push("search");
       } else {
-        setState({
-          ...state,
-          fbProcessing: false,
-        });
+        if (result.errors && result.errors === "Record not found") {
+          console.log("error happened");
+          const createUserResult = await userStore.createUserRequest(user);
+  
+          console.log(createUserResult, "createUserResult");
+  
+          setState({
+            ...state,
+            fbProcessing: false,
+          });
+  
+          if (!createUserResult.errors) {
+            history.push("search");
+          }
+        } else if (result.data) {
+          setState({
+            ...state,
+            fbProcessing: false,
+          });
+  
+          history.push("search");
+        } else {
+          setState({
+            ...state,
+            fbProcessing: false,
+          });
+        }
       }
+      
     }
   };
 
