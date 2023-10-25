@@ -140,7 +140,7 @@ const ProfileCarSection = (props) => {
   }
 
   const { user, profile } = props
-  const userInfo = profile.attributes
+  const userInfo = profile? profile.attributes : null
   const { lbOpen, photoIndex } = state
 
   return (
@@ -152,19 +152,19 @@ const ProfileCarSection = (props) => {
             <tbody>
               <tr>
                 <td className="info-label"><b>Make</b></td>
-                <td className="info-val">{userInfo.car_make}</td>
+                <td className="info-val">{userInfo?.car_make}</td>
               </tr>
               <tr>
                 <td className="info-label"><b>Model</b></td>
-                <td className="info-val">{userInfo.car_model}</td>
+                <td className="info-val">{userInfo?.car_model}</td>
               </tr>
               <tr>
                 <td className="info-label"><b>Color</b></td>
-                <td className="info-val">{userInfo.car_color}</td>
+                <td className="info-val">{userInfo?.car_color}</td>
               </tr>
               <tr>
                 <td className="info-label"><b>Year</b></td>
-                <td className="info-val">{userInfo.car_year}</td>
+                <td className="info-val">{userInfo?.car_year}</td>
               </tr>
             </tbody>
           </table>

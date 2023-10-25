@@ -46,7 +46,7 @@ const ProfileMainSection = (props) => {
   }
 
   const { profile, user } = props
-  const userInfo = profile.attributes
+  const userInfo = profile? profile.attributes : null
 
   return (
     <div className="profile-main-section">

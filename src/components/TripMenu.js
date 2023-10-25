@@ -117,7 +117,7 @@ const TripMenu = (props) => {
   };
 
   const sendCancelRiderTripRequest = () => {
-    const request = props.trip.relationships.trip_requests.requests.find(
+    const request = props.trip.relationships.trip_requests.find(
       (x) => {
         return x.requested_by === current_user.id;
       }

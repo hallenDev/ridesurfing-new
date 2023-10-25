@@ -63,7 +63,7 @@ const ReviewForm = (props) => {
   }, [isProcessing])
     
   if (!localStorage.accessToken) {
-    localStorage.setItem('prevUrl', `/reviews/${this.props.match.params.reviewId}`)
+    localStorage.setItem('prevUrl', `/review/${this.props.match.params.reviewId}`)
     return window.location.href = `/login`
   }
 

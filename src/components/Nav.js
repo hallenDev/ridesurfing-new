@@ -124,7 +124,7 @@ const Nav = (props) => {
             history.push(`/profile/${review_rated_to}`)
           }
         } else {
-          history.push(`/reviews/${subject_id}`)
+          history.push(`/review/${subject_id}`)
         }
       }
     }

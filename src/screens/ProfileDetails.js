@@ -37,7 +37,7 @@ const ProfileDetails = (props) => {
   const [state, setState] = useState(initial_state);
 
   useEffect(() => {
-    if(currentUser) {
+    if(currentUser && !userId) {
       setState({
         ...state,
         userId: currentUser.id

@@ -72,7 +72,7 @@ export default (
 
       <Route exact path="/login" component={Login} />
       <Route exact path="/signup" component={Signup} />
-      <Route path="/reviews/:reviewId" component={ReviewForm} />
+      <Route path="/review/:reviewId" component={ReviewForm} />
 
       <Route component={NoScreen} />
     </Switch>

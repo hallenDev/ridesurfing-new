@@ -314,7 +314,8 @@ const TripDetails = (props) => {
 
   const { has_cards, has_completed_rider_profile } = currentUser.attributes;
   const { profile, seats } = state;
-  const { user } = profile;
+  // const { user } = profile ? ;
+  const user = profile? profile.user : null;
   var settings = {
     dots: true,
     infinite: false,
@@ -377,7 +378,7 @@ const TripDetails = (props) => {
                   </p>
                   <div className="center-align">
                     <span className="label">By </span>
-                    <span className="user-val"> {user.attributes.name} </span>
+                    <span className="user-val"> {user? user.attributes.name: "Deleted User"} </span>
                     <span className="label">
                       <i className="fa fa-circle"></i>{" "}
                       <span className="label">Event: </span>
@@ -409,12 +410,12 @@ const TripDetails = (props) => {
                         <StarRatingComponent
                           name="average_rating"
                           starCount={5}
-                          value={user.attributes.average_rating || 0}
+                          value={ user?.attributes?.average_rating || 0}
                           editing={false}
                         />
-                        {!!user.attributes.rating_count &&
-                          user.attributes.rating_count !== 0 && (
-                            <span>{`(${user.attributes.rating_count})`}</span>
+                        {!!user?.attributes?.rating_count &&
+                          user?.attributes?.rating_count !== 0 && (
+                            <span>{`(${user?.attributes?.rating_count})`}</span>
                           )}
                       </div>
                     </div>
@@ -605,17 +606,17 @@ const TripDetails = (props) => {
                 <StarRatingComponent
                   name="average_rating"
                   starCount={5}
-                  value={user.attributes.average_rating || 0}
+                  value={user?.attributes.average_rating || 0}
                   editing={false}
                 />{" "}
-                {!!user.attributes.rating_count &&
-                  user.attributes.rating_count !== 0 && (
-                    <span>{`(${user.attributes.rating_count})`}</span>
+                {!!user?.attributes?.rating_count &&
+                  user?.attributes?.rating_count !== 0 && (
+                    <span>{`(${user?.attributes?.rating_count})`}</span>
                   )}
               </div>
-              <h5 className="mb20">{user.attributes.name}</h5>
+              <h5 className="mb20">{user?.attributes?.name ?? "Deleted User"}</h5>
               {/* eslint-disable-next-line */}
-              {user.id !== currentUser.id && (
+              {(user && user.id !== currentUser.id) && (
                 <a
                   href="javascript:void(0)"
                   className="chatLink"
@@ -630,7 +631,7 @@ const TripDetails = (props) => {
                 <div className="panel-item">
                   {" "}
                   Email{" "}
-                  {user.attributes.is_email_verified ? (
+                  {user?.attributes?.is_email_verified ? (
                     <i className="fa fa-check success"></i>
                   ) : (
                     <i className="fa fa-times danger"></i>
@@ -639,7 +640,7 @@ const TripDetails = (props) => {
                 <div className="panel-item">
                   {" "}
                   Facebook{" "}
-                  {user.attributes.facebook ? (
+                  {user?.attributes?.facebook ? (
                     <i className="fa fa-check success"></i>
                   ) : (
                     <i className="fa fa-times danger"></i>
@@ -648,7 +649,7 @@ const TripDetails = (props) => {
                 <div className="panel-item">
                   {" "}
                   Google{" "}
-                  {user.attributes.google ? (
+                  {user?.attributes?.google ? (
                     <i className="fa fa-check success"></i>
                   ) : (
                     <i className="fa fa-times danger"></i>
@@ -663,13 +664,13 @@ const TripDetails = (props) => {
                     <Tab tabFor="one">Main</Tab>
                     <Tab tabFor="two">Photos</Tab>
                     <Tab tabFor="three">Car</Tab>
-                    {profile.user.id === currentUser.id && (
+                    {(profile && profile?.user?.id === currentUser.id) && (
                       <Tab tabFor="four">Account</Tab>
                     )}
-                    {profile.user.id === currentUser.id && (
+                    {(profile && profile?.user.id === currentUser.id) && (
                       <Tab tabFor="five">Payout Details</Tab>
                     )}
-                    {profile.user.id === currentUser.id && (
+                    {(profile && profile?.user.id === currentUser.id) && (
                       <Tab tabFor="six">Cards List</Tab>
                     )}
                   </TabList>
@@ -677,7 +678,7 @@ const TripDetails = (props) => {
                     <div className="mt20">
                       <ProfileMainSection
                         profile={profile}
-                        user={profile.user}
+                        user={profile?.user}
                       />
                     </div>
                   </TabPanel>
@@ -685,7 +686,7 @@ const TripDetails = (props) => {
                     <div className="mt20">
                       <ProfileImageSection
                         profile={profile}
-                        user={profile.user}
+                        user={profile?.user}
                       />
                     </div>
                   </TabPanel>
@@ -693,7 +694,7 @@ const TripDetails = (props) => {
                     <div className="mt20">
                       <ProfileCarSection
                         profile={profile}
-                        user={profile.user}
+                        user={profile?.user}
                       />
                     </div>
                   </TabPanel>

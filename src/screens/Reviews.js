@@ -12,6 +12,8 @@ import Dialog from '@material-ui/core/Dialog'
 
 import useReviewStore from '../store/ReviewStore';
 import useSessionStore from '../store/SessionStore';
+import useTripStore from '../store/TripStore';
+import useTripRequestStore from '../store/TripRequestStore';
 
 import missingImg from '../images/missing.png'
 
@@ -19,6 +21,8 @@ const Review = (props) => {
 
   const reviewStore = useReviewStore();
   const sessionStore = useSessionStore();
+  const tripStore = useTripStore();
+  const tripRequestStore = useTripRequestStore();
 
   const reviews = reviewStore.reviews;
   const currentUser = sessionStore.currentUser;
@@ -34,6 +38,10 @@ const Review = (props) => {
   const [state, setState] = useState(initial_state);
 
   useEffect(() => {
+    if (!localStorage.accessToken) {
+      localStorage.setItem('prevUrl', `/reviews`)
+      return window.location.href = `/login`
+    }
     reviewStore.getReviewsRequest()
   }, [])
 
@@ -42,11 +50,6 @@ const Review = (props) => {
       setState({ ...state, dataLoaded: dataLoaded })
     }
   }, [dataLoaded])
-
-  if (!localStorage.accessToken) {
-    localStorage.setItem('prevUrl', `/reviews`)
-    return window.location.href = `/login`
-  }
 
   const errorMessageFor = (fieldName) => {
     const { tripErrors } = props
@@ -122,11 +125,11 @@ const Review = (props) => {
   }
 
   const goToProfile = (user) => {
-    return user.id === currentUser.id ? `/my_profile` : `/profile/${user.attributes.slug || user.id}`
+    return user?.id === currentUser?.id ? `/my_profile` : `/profile/${user?.attributes.slug || user?.id}`
   }
 
   const goToReview = (review) => {
-    return `/reviews/${review.id}`
+    return `/review/${review.id}`
   }
 
   const renderDriver = (trip) => {
@@ -134,12 +137,12 @@ const Review = (props) => {
     const { user } = profile
 
     return <div className="rider-list">
-      <Link to={goToProfile(user)}>
+      <Link to={goToProfile(user)} onClick={event => {if(!user || !user.attributes.name) event.preventDefault()}}>
         <div className="rider-img-container">
           <img className="responsive-img circle user-img" src={getImage(user)} alt="" />
         </div>
         <div className="user-name">
-          <Link to={goToProfile(user)}>{user.attributes.name}</Link>
+          <Link to={goToProfile(user)} onClick={event => {if(!user || !user.attributes.name) event.preventDefault()}}>{user?.attributes?.name ?? 'Deleted User'}</Link>
         </div>
         <div className="user-type">Driver</div>
       </Link>
@@ -147,8 +150,17 @@ const Review = (props) => {
   }
 
   // new-add
-  const sendCancelTripRequest = (tripe_id, index) => {
-
+  const sendCancelTripRequest = (tripId, index) => {
+    tripStore.cancelTripRequest(tripId)
+    setState({ 
+      ...state, 
+      [`anchorEl${index}`]: null 
+    })
+    setState({ 
+      ...state,
+      [`anchorEl${index}`]: null 
+    })
+    tripRequestStore.cancelTripRequestRequest(tripId)
   }
 
   // new-add
@@ -192,9 +204,9 @@ const Review = (props) => {
             <div className="content-flex">
               <div className="main">
                 <div className="left-box pl0">
-                  <Link to={goToProfile(user)}>
+                  <Link to={goToProfile(user)} onClick={event => {if(!user?.name) event.preventDefault()}}>
                     <div className="user-img-container">
-                      <img className="responsive-img user-img" src={getImage(user)} alt="" />
+                      <img className="responsive-img user-img" src={getImage(user)} alt="" onClick={event => {if(!user?.name) event.preventDefault()}}/>
                     </div>
                   </Link>
                 </div>

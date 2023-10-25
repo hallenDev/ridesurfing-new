@@ -54,7 +54,9 @@ const initial_state = {
   googleProcessing: false,
   loginProcessing: false,
   modalOpen: false,
+  modalFbOpen: false,
   googleUser: {},
+  facebookUser: {},
 };
 
 const Login = (props) => {
@@ -160,8 +162,6 @@ const Login = (props) => {
         email: res.email,
         // gender: res.gender.charAt(0).toUpperCase() + res.gender.substr(1),
         // birthday: res.birthday,
-        gender: 'Male',
-        birthday: '05/31/1996',
         profile_image_url:
           res.picture && res.picture.data && res.picture.data.url
             ? res.picture &&
@@ -173,7 +173,7 @@ const Login = (props) => {
         provider: "facebook",
       };
 
-      console.log(user);
+      
       const result = await sessionStore.socialLoginRequest(
         "facebook",
         user.token,
@@ -189,19 +189,12 @@ const Login = (props) => {
         });
       } else {
         if (result.errors && result.errors === "Record not found") {
-          console.log("error happened");
-          const createUserResult = await userStore.createUserRequest(user);
-  
-          console.log(createUserResult, "createUserResult");
-  
           setState({
             ...state,
-            fbProcessing: false,
+            facebookUser: user,
+            modalFbOpen: true,
           });
-  
-          if (!createUserResult.errors) {
-            history.push("search");
-          }
+          return;
         } else if (result.data) {
           setState({
             ...state,
@@ -378,6 +371,29 @@ const Login = (props) => {
     }
   };
 
+  const continueFacebookSignup = async () => {
+    setState({
+      ...state,
+      modalFbOpen: false,
+    });
+
+    const { facebookUser } = state;
+    const { history } = props;
+    console.log("error happened");
+    const createUserResult = await userStore.createUserRequest(facebookUser);
+
+    console.log(createUserResult, "createUserResult");
+
+    setState({
+      ...state,
+      fbProcessing: false,
+    });
+
+    if (!createUserResult.errors) {
+      history.push("search");
+    }
+  };
+
   const handleModalClose = () => {
     setState({
       ...state,
@@ -391,7 +407,7 @@ const Login = (props) => {
     });
   };
 
-  const { email, password, emailError, fbProcessing, googleProcessing, loginProcessing, modalOpen, googleUser, rerender } = state;
+  const { email, password, emailError, fbProcessing, googleProcessing, loginProcessing, modalOpen, googleUser, rerender, modalFbOpen, facebookUser } = state;
   return (
     <div className="login-container">
       <div className="container">
@@ -578,6 +594,81 @@ const Login = (props) => {
               buttonName="Continue"
               className="leftIcon-btn login-btn"
               handleButtonClick={continueGoogleSignup}
+            />
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={modalFbOpen}
+        onClose={handleModalClose}
+      >
+        <div style={style} className="profile-account-section">
+          <div style={modalTitle}>Please fill your birthday and gender.</div>
+          <div>
+            <div className="date-picker-field">
+              <DatePicker
+                selected={
+                  !!facebookUser?.birthday ? new Date(facebookUser.birthday) : ""
+                }
+                onChange={(date) => {
+                  const newFacebookUser = { ...facebookUser };
+                  newFacebookUser.birthday =
+                    date.getMonth() +
+                    1 +
+                    "/" +
+                    date.getDate() +
+                    "/" +
+                    date.getFullYear();
+                  setState({
+                    ...state,
+                    facebookUser: newFacebookUser,
+                  });
+                }}
+                maxDate={MAX_DATE}
+                showYearDropdown
+                dropdownMode="select"
+                placeholderText="MM/DD/YYYY"
+                className="date-field text-field"
+              />
+            </div>
+          </div>
+          <div>
+            <FormControl className="selectField">
+              <InputLabel className="selectLabel" htmlFor="select-multiple">
+                Select Gender
+              </InputLabel>
+              <Select
+                value={facebookUser?.gender}
+                onChange={(event) => {
+                  const newFacebookUser = { ...facebookUser };
+                  newFacebookUser.gender = event.target.value;
+                  setState({
+                    ...state,
+                    facebookUser: newFacebookUser,
+                  });
+                }}
+                input={<Input id="select-multiple" />}
+                MenuProps={MenuProps}
+                className="selected-menu-field"
+              >
+                {gender.map((name) => (
+                  <MenuItem key={name} value={name} className="menu-field">
+                    {name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+
+          <div style={modalActionWrap}>
+            <PrimaryButton
+              disabled={!facebookUser?.birthday || !facebookUser?.gender}
+              color="primary"
+              buttonName="Continue"
+              className="leftIcon-btn login-btn"
+              handleButtonClick={continueFacebookSignup}
             />
           </div>
 
