@@ -317,6 +317,16 @@ const useSessionStore = create((set) => ({
             isCarImageProcessing: false,
             isPayoutProcessing: false,
         })
+    },
+    deleteAccountRequest() {
+      callApi(`delete-account`, 'delete').then((res) => {
+        localStorage.removeItem(`accessToken`);
+        set({
+          loggedIn: false,
+          accessToken: null,
+        })
+        return res;
+      });
     }
 }))
 

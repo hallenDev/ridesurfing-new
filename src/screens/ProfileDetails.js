@@ -10,6 +10,7 @@ import ProfileCarSection from '../components/ProfileCarSection'
 import ProfileAccountSection from '../components/ProfileAccountSection'
 import ProfilePayoutSection from '../components/ProfilePayoutSection'
 import ProfileCardSection from '../components/ProfileCardSection'
+import ProfileDeleteSection from '../components/ProfileDeleteSection'
 
 import { notify } from 'react-notify-toast'
 
@@ -119,6 +120,7 @@ const ProfileDetails = (props) => {
                   {(!userId || (userId === currentUser.id)) && <Tab tabFor="four">Account</Tab>}
                   {(!userId || (userId === currentUser.id)) && <Tab tabFor="five">Payout</Tab>}
                   {(!userId || (userId === currentUser.id)) && <Tab tabFor="six">Payment Method</Tab>}
+                  {(!userId || (userId === currentUser.id)) && <Tab tabFor="seven">Delete Account</Tab>}
                 </TabList>
                 <TabPanel tabId="one">
                   <div className="mt20">
@@ -149,12 +151,19 @@ const ProfileDetails = (props) => {
                     </div>
                   </TabPanel>}
                   {(!userId || (user.id === currentUser.id)) &&
-                  <TabPanel tabId="six">
-                    <div className="mt20">
-                      <ProfileCardSection/>
-                    </div>
-                  </TabPanel>
-                }
+                    <TabPanel tabId="six">
+                      <div className="mt20">
+                        <ProfileCardSection/>
+                      </div>
+                    </TabPanel>
+                  }
+                  {(!userId || (user.id === currentUser.id)) &&
+                    <TabPanel tabId="seven">
+                      <div className="mt20">
+                        <ProfileDeleteSection/>
+                      </div>
+                    </TabPanel>
+                  }
               </Tabs>
             </div>
           </div>

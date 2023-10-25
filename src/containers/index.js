@@ -14,6 +14,12 @@ const theme = createTheme ({
       dark: '#3399ff',
       contrastText: "#fff"
     },
+    danger: {
+      light: '#000',
+      main: 'red',
+      dark: 'red',
+      contrastText: "#fff"
+    },
     secondary: {
       main: '#3b5998',
       contrastText: "#fff",

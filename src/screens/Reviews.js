@@ -118,7 +118,7 @@ const Review = (props) => {
   }
 
   const getImage = (passenger) => {
-    return passenger.attributes.display_image ? passenger.attributes.display_image : missingImg
+    return passenger?.attributes?.display_image ? passenger.attributes.display_image : missingImg
   }
 
   const goToProfile = (user) => {
@@ -163,12 +163,12 @@ const Review = (props) => {
       if (trip_request.status === "Accepted") {
         const { passenger } = trip_request
         return <div className="rider-list" key={`tr_${index}`}>
-          <Link to={goToProfile(passenger)}>
+          <Link to={goToProfile(passenger)} onClick={event => {if(!passenger) event.preventDefault()}}>
             <div className="rider-img-container">
-              <img className="responsive-img circle user-img" src={getImage(passenger)} alt="" />
+              <img className="responsive-img circle user-img" src={getImage(passenger)} alt="" onClick={event => {if(!passenger) event.preventDefault()}}/>
             </div>
             <div className="user-name">
-              <Link to={goToProfile(passenger)}>{passenger.attributes.name}</Link>
+              <Link to={goToProfile(passenger)} onClick={event => {if(!passenger) event.preventDefault()}}>{passenger?.attributes?.name ?? 'Deleted User'}</Link>
             </div>
             <div className="user-type">Passenger</div>
           </Link>

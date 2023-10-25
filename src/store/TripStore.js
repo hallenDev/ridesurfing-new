@@ -94,6 +94,7 @@ const useTripStore = create((set) => ({
         });
     },
     searchTripIdsRequest: (query = {}, page = 1, waypoints = true) => {
+        set({dataLoaded: false})
         const no_waypoints = waypoints ? "" : "&no_waypoints=1";
         callApi(`trips/search?page=${page}${no_waypoints}`, "post", query).then((res) => {
             if(!res) {

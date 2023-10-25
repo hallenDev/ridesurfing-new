@@ -100,12 +100,10 @@ const Dashboard = (props) => {
   }, [])
 
   useEffect(() => {
-    if (dataLoaded || dataLoaded === false) {
-      setState({ 
-        ...state, 
-        dataLoaded: dataLoaded 
-      });
-    }
+    setState(prveState => ({ 
+      ...prveState, 
+      dataLoaded: dataLoaded 
+    }));
     if(dataLoaded) {
       var elems = document.querySelectorAll(".clicked-page");
       [].forEach.call(elems, function(el) {
@@ -321,6 +319,7 @@ const Dashboard = (props) => {
         trip={JSON.parse(JSON.stringify(trip))}
         onMouseEnter={(trip_info) => setSelectedTrip(trip_info)}
         onMouseLeave={() => unselectTrip()}
+        key={trip_idx}
       />
     );
   }
@@ -706,7 +705,7 @@ const Dashboard = (props) => {
             />
           </div>
 
-          {!!state.dataLoaded ? (
+          {!!dataLoaded ? (
             <div>
               <div className="my-trips">
                 <div className="trips-container">{renderTrips()}</div>

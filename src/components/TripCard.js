@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import StarRatingComponent from "react-star-rating-component";
 
@@ -65,7 +65,7 @@ const TripCard = (props) => {
   }
 
   const getImage= (user) => {
-    return user.display_image ? user.display_image : missingImg;
+    return user?.display_image ? user.display_image : missingImg;
   }
 
   const { trip } = props;
@@ -157,10 +157,10 @@ const TripCard = (props) => {
                   <StarRatingComponent
                     name="average_rating"
                     starCount={5}
-                    value={user.average_rating || 0}
+                    value={user?.average_rating || 0}
                     editing={false}
                   />
-                  <span className="rating-count">({user.rating_count})</span>
+                  <span className="rating-count">({user?.rating_count})</span>
                 </div>
 
                 <div className="row">
@@ -225,7 +225,7 @@ const TripCard = (props) => {
               />
             </div>
             <div className="driver-name">
-              <span>{user.name}</span>
+              <span>{user?.name ? user.name: 'Deleted User'}</span>
             </div>
           </div>
           <div className="col s7">

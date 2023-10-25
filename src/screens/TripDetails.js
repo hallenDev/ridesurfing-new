@@ -236,15 +236,15 @@ const TripDetails = (props) => {
   }
 
   const getImage = (passenger) => {
-    return passenger.attributes.display_image
+    return passenger?.attributes?.display_image
       ? passenger.attributes.display_image
       : missingImg;
   }
 
   const goToProfile = (user) => {
-    return user.id === currentUser.id
+    return user?.id === currentUser?.id
       ? `/my_profile`
-      : `/profile/${user.attributes.slug || user.id}`;
+      : `/profile/${user?.attributes?.slug || user?.id}`;
   }
 
   const renderDriver = (trip) => {
@@ -277,18 +277,33 @@ const TripDetails = (props) => {
             to={goToProfile(passenger)}
             className="rider-list"
             key={`tr_${index}`}
+            onClick={
+              event => {
+                if(!passenger) event.preventDefault()
+              }
+            }
           >
             <div className="user-img-block circle">
               <img
                 className="responsive-img user-img"
                 src={getImage(passenger)}
                 alt=""
+                onClick={
+                  event => {
+                    if(!passenger) event.preventDefault()
+                  }
+                }
               />
             </div>
             <div className="user-name">
-              <Link to={goToProfile(passenger)}>
-                {passenger.attributes.name}
-              </Link>
+              {
+                passenger?.attributes?.name ?
+                <Link to={goToProfile(passenger)}>
+                  {passenger?.attributes?.name}
+                </Link> 
+                :
+                <div className="user-type">Deleted User</div>
+              }
             </div>
             <div className="user-type">Passenger</div>
           </Link>
