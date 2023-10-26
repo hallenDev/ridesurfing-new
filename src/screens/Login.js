@@ -17,8 +17,8 @@ import {
   Modal,
   Select,
 } from "@material-ui/core";
-import useUserStore from '../store/UserStore';
-import useSessionStore from '../store/SessionStore';
+import useUserStore from "../store/UserStore";
+import useSessionStore from "../store/SessionStore";
 
 const facebookId = process.env.REACT_APP_FACEBOOK_ID;
 const googleId = process.env.REACT_APP_GOOGLE_ID;
@@ -60,7 +60,6 @@ const initial_state = {
 };
 
 const Login = (props) => {
-
   const userStore = useUserStore();
   const sessionStore = useSessionStore();
 
@@ -83,8 +82,7 @@ const Login = (props) => {
     if (resendEmailVerification) {
       return history.push("/verify_email");
     }
-  }, [resendEmailVerification])
-
+  }, [resendEmailVerification]);
 
   const setSocialLoginProfile = () => {
     const { user } = state;
@@ -125,12 +123,12 @@ const Login = (props) => {
       setState({ ...state, user: tmp });
     }
     return tmp;
-  }
+  };
 
   const onFieldChange = (fieldName, event) => {
-    setState({ 
-      ...state, 
-      [fieldName]: event.target.value 
+    setState({
+      ...state,
+      [fieldName]: event.target.value,
     });
   };
 
@@ -160,8 +158,6 @@ const Login = (props) => {
         first_name: res.first_name,
         last_name: res.last_name,
         email: res.email,
-        // gender: res.gender.charAt(0).toUpperCase() + res.gender.substr(1),
-        // birthday: res.birthday,
         profile_image_url:
           res.picture && res.picture.data && res.picture.data.url
             ? res.picture &&
@@ -173,7 +169,6 @@ const Login = (props) => {
         provider: "facebook",
       };
 
-      
       const result = await sessionStore.socialLoginRequest(
         "facebook",
         user.token,
@@ -181,8 +176,7 @@ const Login = (props) => {
       );
       console.log(result);
 
-
-      if(!result) {
+      if (!result) {
         setState({
           ...state,
           fbProcessing: false,
@@ -200,7 +194,7 @@ const Login = (props) => {
             ...state,
             fbProcessing: false,
           });
-  
+
           history.push("search");
         } else {
           setState({
@@ -209,14 +203,13 @@ const Login = (props) => {
           });
         }
       }
-      
     }
   };
 
   const handleSocialLogin = async (user) => {
-    setState({ 
-      ...state, 
-      googleProcessing: true 
+    setState({
+      ...state,
+      googleProcessing: true,
     });
 
     if (!user._profile.birthday || !user._profile.gender) {
@@ -290,8 +283,6 @@ const Login = (props) => {
     }
   };
 
-  
-
   const handleLogin = async () => {
     const { email, password } = state;
     const { history } = props;
@@ -320,26 +311,26 @@ const Login = (props) => {
 
   const sendVerificationEmail = () => {
     const { email } = state;
-    setState({ 
+    setState({
       ...state,
-      emailError: null 
+      emailError: null,
     });
     if (!email) {
-      setState({ 
-        ...state, 
-        emailError: "Please enter a valid email." 
+      setState({
+        ...state,
+        emailError: "Please enter a valid email.",
       });
     } else {
       sessionStore.resendEmailVerificationRequest({ identity: email });
     }
-  }
+  };
 
   const handleFbReactLoading = () => {
-    setState({ 
-      ...state, 
-      fbProcessing: true 
+    setState({
+      ...state,
+      fbProcessing: true,
     });
-  }
+  };
 
   const composeUserFromGoogleProfile = (provider, profile) => {
     const user = {
@@ -407,7 +398,19 @@ const Login = (props) => {
     });
   };
 
-  const { email, password, emailError, fbProcessing, googleProcessing, loginProcessing, modalOpen, googleUser, rerender, modalFbOpen, facebookUser } = state;
+  const {
+    email,
+    password,
+    emailError,
+    fbProcessing,
+    googleProcessing,
+    loginProcessing,
+    modalOpen,
+    googleUser,
+    rerender,
+    modalFbOpen,
+    facebookUser,
+  } = state;
   return (
     <div className="login-container">
       <div className="container">
@@ -420,7 +423,7 @@ const Login = (props) => {
           <div className="mb10">
             <FacebookLogin
               appId={facebookId}
-              fields="first_name,last_name,email,picture.width(500).height(500),gender,birthday"
+              fields="first_name,last_name,email,picture.width(500).height(500)"
               scope="email,user_birthday,user_gender"
               callback={handleFbSocialLogin}
               textButton={
@@ -442,9 +445,7 @@ const Login = (props) => {
                 onLoginSuccess={handleSocialLogin}
                 onLoginFailure={handleSocialLoginFailure}
                 buttonName={
-                  !!googleProcessing
-                    ? "Please wait..."
-                    : "Sign in with Google"
+                  !!googleProcessing ? "Please wait..." : "Sign in with Google"
                 }
                 icon={<i className="fa fa-google icon mr10" />}
                 className="leftIcon-btn ggl"
@@ -610,7 +611,9 @@ const Login = (props) => {
             <div className="date-picker-field">
               <DatePicker
                 selected={
-                  !!facebookUser?.birthday ? new Date(facebookUser.birthday) : ""
+                  !!facebookUser?.birthday
+                    ? new Date(facebookUser.birthday)
+                    : ""
                 }
                 onChange={(date) => {
                   const newFacebookUser = { ...facebookUser };
@@ -693,7 +696,7 @@ const Login = (props) => {
       </Modal>
     </div>
   );
-}
+};
 
 const style = {
   position: "absolute",
