@@ -79,7 +79,8 @@ const ProfileChecklist = (props) => {
         imageProcessing: isProcessing,
         carImageProcessing: isCarImageProcessing,
         payoutProcessing: isPayoutProcessing,
-        profileProcessing: isProcessing || isCarImageProcessing || isPayoutProcessing
+        // profileProcessing: isProcessing || isCarImageProcessing || isPayoutProcessing
+        profileProcessing: false
       })
     }
   }, [isProcessing, isCarImageProcessing, isPayoutProcessing, isCarImageProcessing])

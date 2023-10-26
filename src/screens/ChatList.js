@@ -59,6 +59,7 @@ const ChatList = (props) => {
   const renderUsersList = () => {
     if (users.length > 0) {
       return _.map(users, (user, index) => {
+        if(!user.attributes) return;
         return <li className="user" onClick={() => loadChat(user.id)} key={`chat-${index}`}>
           <div className={`user-link clearfix ${user.attributes.unread > 0 && 'unread-msg-block'}`}>
             <div className="img-container">
