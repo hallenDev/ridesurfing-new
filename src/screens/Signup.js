@@ -15,8 +15,8 @@ import { PrimaryButton } from "../components/Buttons";
 import SocialButton from "../components/SocialButton";
 import { getGooglePeople } from "../apis/session";
 import { Modal } from "@material-ui/core";
-import useUserStore from '../store/UserStore';
-import useSessionStore from '../store/SessionStore';
+import useUserStore from "../store/UserStore";
+import useSessionStore from "../store/SessionStore";
 
 const gender = ["Male", "Female", "Other"];
 const facebookId = process.env.REACT_APP_FACEBOOK_ID;
@@ -54,7 +54,6 @@ const MAX_DATE = moment()
   .toDate();
 
 const Signup = (props) => {
-
   const userStore = useUserStore();
   const sessionStore = useSessionStore();
 
@@ -64,7 +63,7 @@ const Signup = (props) => {
   const socialLoginError = sessionStore.socialLoginError;
   const isProcessing = sessionStore.isProcessing;
   const errors = sessionStore.errors;
-  
+
   const [state, setState] = useState(initial_state);
   const [nodes, setNodes] = useState({});
 
@@ -119,21 +118,21 @@ const Signup = (props) => {
       tmp.token = socialLoginProfile.id;
       tmp.provider = socialLoginProvider;
 
-      setState({ 
-        ...state, 
-        user: tmp 
+      setState({
+        ...state,
+        user: tmp,
       });
     }
     return tmp;
-  }
+  };
 
   const onFieldChange = (fieldName, event) => {
     const { user } = state;
     let tmp = JSON.parse(JSON.stringify(user));
     tmp[fieldName] = event.target.value;
-    setState({ 
-      ...state, 
-      user: tmp
+    setState({
+      ...state,
+      user: tmp,
     });
   };
 
@@ -148,9 +147,9 @@ const Signup = (props) => {
     let tmp = JSON.parse(JSON.stringify(user));
     tmp[fieldName] =
       date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
-    setState({ 
+    setState({
       ...state,
-      user: tmp 
+      user: tmp,
     });
   };
 
@@ -225,9 +224,9 @@ const Signup = (props) => {
 
   const handleSocialLogin = async (user) => {
     console.log(user);
-    setState({ 
-      ...state, 
-      googleProcessing: true 
+    setState({
+      ...state,
+      googleProcessing: true,
     });
 
     if (!user._profile.birthday || !user._profile.gender) {
@@ -345,15 +344,15 @@ const Signup = (props) => {
 
   const handleFbReactLoading = () => {
     setState({ ...state, fbProcessing: true });
-  }
+  };
 
   const handleGoogleReactLoading = () => {
     setState({ ...state, googleProcessing: true });
-  }
+  };
 
   const handleModalClose = () => {
     setState({
-      ...state, 
+      ...state,
       googleProcessing: false,
       modalOpen: false,
     });
@@ -388,7 +387,7 @@ const Signup = (props) => {
           <div className="mb10">
             <FacebookLogin
               appId={facebookId}
-              fields="first_name,last_name,email,picture.width(500).height(500),gender,birthday"
+              fields="first_name,last_name,email,picture.width(500).height(500)"
               scope="email,user_birthday,user_gender"
               callback={handleFbSocialLogin}
               textButton={
@@ -410,9 +409,7 @@ const Signup = (props) => {
                 onLoginSuccess={handleSocialLogin}
                 onLoginFailure={handleSocialLoginFailure}
                 buttonName={
-                  !!googleProcessing
-                    ? "Please wait..."
-                    : "Sign in with Google"
+                  !!googleProcessing ? "Please wait..." : "Sign in with Google"
                 }
                 icon={<i className="fa fa-google icon mr10" />}
                 className="leftIcon-btn ggl"
@@ -433,9 +430,7 @@ const Signup = (props) => {
                 onChange={(event) => onFieldChange("first_name", event)}
                 onKeyPress={(event) => onKeyPressEnter(event)}
               />
-              <span className="error">
-                {errorMessageFor("first_name")}
-              </span>
+              <span className="error">{errorMessageFor("first_name")}</span>
             </div>
             <div className="col s12 m6">
               <TextField
@@ -449,9 +444,7 @@ const Signup = (props) => {
                 onChange={(event) => onFieldChange("last_name", event)}
                 onKeyPress={(event) => onKeyPressEnter(event)}
               />
-              <span className="error">
-                {errorMessageFor("last_name")}
-              </span>
+              <span className="error">{errorMessageFor("last_name")}</span>
             </div>
           </div>
           <div className="row">
@@ -482,9 +475,7 @@ const Signup = (props) => {
                 onChange={(event) => onFieldChange("password", event)}
                 onKeyPress={(event) => onKeyPressEnter(event)}
               />
-              <span className="error">
-                {errorMessageFor("password")}
-              </span>
+              <span className="error">{errorMessageFor("password")}</span>
             </div>
           </div>
           <div className="row">
@@ -500,9 +491,7 @@ const Signup = (props) => {
                   className="date-field text-field"
                 />
               </div>
-              <span className="error">
-                {errorMessageFor("birthday")}
-              </span>
+              <span className="error">{errorMessageFor("birthday")}</span>
             </div>
             <div className="col s12 m6 mt5 mb10">
               <FormControl className="selectField">
@@ -641,7 +630,9 @@ const Signup = (props) => {
             <div className="date-picker-field">
               <DatePicker
                 selected={
-                  !!facebookUser?.birthday ? new Date(facebookUser.birthday) : ""
+                  !!facebookUser?.birthday
+                    ? new Date(facebookUser.birthday)
+                    : ""
                 }
                 onChange={(date) => {
                   const newFacebookUser = { ...facebookUser };
@@ -724,7 +715,7 @@ const Signup = (props) => {
       </Modal>
     </div>
   );
-}
+};
 
 const style = {
   position: "absolute",
