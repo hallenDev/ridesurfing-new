@@ -118,8 +118,6 @@ const GMap = ({
 
   if (!isLoaded) return null
 
-  console.log('waypoints', waypoints.length)
-
   return (
     <GoogleMap
       mapContainerStyle={{width: '100%', height: '100%'}}
