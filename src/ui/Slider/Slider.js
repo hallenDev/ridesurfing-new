@@ -19,12 +19,17 @@ const Slider = ({min, max, value, defaultValue, onAfterChange}) => {
         <div
           className={styles.track}
           style={{
-            backgroundColor:
-              state.index === 0 || state.index === 2 ? 'lightgray' : '#3399ff',
+            backgroundColor: Array.isArray(defaultValue)
+              ? state.index === 0 || state.index === 2
+                ? 'lightgray'
+                : '#3399ff'
+              : state.index === 0
+              ? '#3399ff'
+              : 'lightgray',
           }}></div>
       </div>
     ),
-    [],
+    [defaultValue],
   )
   return (
     <div className={styles.container}>
