@@ -10,7 +10,7 @@ import Close from '@material-ui/icons/Close'
 import Collapse from '@material-ui/core/Collapse'
 import DatePicker from 'react-datepicker'
 import ReactLoading from 'react-loading'
-import GMap from '../components/Gmap'
+import GMap from '../components/GoogleMap/Gmap'
 import SearchField from '../components/SearchField'
 import TripCard from '../components/TripCard'
 import Pagination from '../components/Pagination'
@@ -52,7 +52,6 @@ const addDays = (date, days) => {
 const MenuProps = {PaperProps: {style: {maxHeight: 300}}}
 
 const Dashboard = props => {
-  console.log('dashboard props', props)
   const sessionStore = useSessionStore()
   const tripStore = useTripStore()
 
@@ -112,10 +111,10 @@ const Dashboard = props => {
 
   useEffect(() => {
     if (waypoints && waypoints.length > 0) {
-      setState({
-        ...state,
+      setState(s => ({
+        ...s,
         waypoints: waypoints,
-      })
+      }))
       markersArr = []
       _.map(waypoints, wp => {
         const lat = wp.start_location_latitude
@@ -133,27 +132,26 @@ const Dashboard = props => {
 
   const setCurrentPosition = () => {
     const {filters} = state
-    let tmp = JSON.parse(JSON.stringify(filters))
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
       .done(function(location) {
-        tmp['latitude'] = location.latitude
-        tmp['longitude'] = location.longitude
-        setState({
-          ...state,
+        filters.latitude = location.latitude
+        filters.longitude = location.longitude
+        setState(s => ({
+          ...s,
           latitude: location.latitude,
           longitude: location.longitude,
           locationAvailable: true,
-          filters: tmp,
-        })
+          filters,
+        }))
 
         tripStore.resetDataLoadedRequest()
-        tripStore.searchTripIdsRequest(tmp)
+        tripStore.searchTripIdsRequest(filters)
       })
       .fail(function(error) {
-        setState({
-          ...state,
+        setState(s => ({
+          ...s,
           locationAvailable: false,
-        })
+        }))
         tripStore.searchTripIdsRequest(filters)
       })
   }
@@ -170,106 +168,103 @@ const Dashboard = props => {
         trip.attributes[`${fieldname}_longitude`],
       )
     })
-    setState({
-      ...state,
+    setState(s => ({
+      ...s,
       selected: tmp,
       showTrip: true,
-    })
+    }))
   }
 
   const unselectTrip = () => {
-    setState({
-      ...state,
+    setState(s => ({
+      ...s,
       selected: {},
       showTrip: false,
-    })
+    }))
   }
 
   const updateDateFilters = (fieldName, date) => {
     const {filters} = state
-    let tmp = JSON.parse(JSON.stringify(filters))
     if (!date) {
-      tmp[fieldName] = date
+      filters[fieldName] = date
     } else {
       try {
         if (date < new Date()) {
           date = new Date()
         }
-        tmp[fieldName] =
+        filters[fieldName] =
           date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
       } catch {
-        tmp[fieldName] = date
+        filters[fieldName] = date
       }
     }
-    setState({
-      ...state,
-      filters: tmp,
-    })
+    setState(s => ({
+      ...s,
+      filters,
+    }))
 
     tripStore.resetDataLoadedRequest()
-    tripStore.searchTripIdsRequest(tmp)
+    tripStore.searchTripIdsRequest(filters)
   }
 
   const updateFilters = (fieldName, event) => {
     const {filters} = state
-    let tmp = JSON.parse(JSON.stringify(filters))
-    tmp[fieldName] = event.target.value
-    setState({
-      ...state,
-      filters: tmp,
-    })
+    filters[fieldName] = event.target.value
+    setState(s => ({
+      ...s,
+      filters,
+    }))
 
     tripStore.resetDataLoadedRequest()
-    tripStore.searchTripIdsRequest(tmp)
+    tripStore.searchTripIdsRequest(filters)
   }
 
   const onMarkerClick = trip => {
     const {filters} = state
-    let tmp = JSON.parse(JSON.stringify(filters))
+
     const {
       start_location_latitude,
       start_location_longitude,
       start_location,
     } = trip
 
-    tmp['start_location'] = start_location
-    tmp['start_location_latitude'] = start_location_latitude
-    tmp['start_location_longitude'] = start_location_longitude
+    filters.start_location = start_location
+    filters.start_location_latitude = start_location_latitude
+    filters.start_location_longitude = start_location_longitude
 
-    setState({
-      ...state,
-      filters: tmp,
-    })
+    setState(s => ({
+      ...s,
+      filters,
+    }))
+
     tripStore.resetDataLoadedRequest()
     tripStore.searchTripIdsRequest(filters)
   }
 
   const updateSlider = (fieldName, value) => {
     const {filters} = state
-    let tmp = JSON.parse(JSON.stringify(filters))
     if (value === 351) {
-      delete tmp[fieldName]
+      delete filters[fieldName]
     } else {
-      tmp[fieldName] = value
+      filters[fieldName] = value
     }
 
-    setState({
-      ...state,
-      filters: tmp,
-    })
+    setState(s => ({
+      ...s,
+      filters,
+    }))
 
     tripStore.resetDataLoadedRequest()
-    tripStore.searchTripIdsRequest(tmp)
+    tripStore.searchTripIdsRequest(filters)
   }
 
   const changePrice = valArray => {
     const {filters} = state
-    let tmp = JSON.parse(JSON.stringify(filters))
-    tmp['start_price'] = valArray[0]
-    tmp['end_price'] = valArray[1]
+    filters.start_price = valArray[0]
+    filters.end_price = valArray[1]
     setState({
       ...state,
-      filters: tmp,
+      filters,
     })
 
     tripStore.resetDataLoadedRequest()
@@ -278,27 +273,27 @@ const Dashboard = props => {
 
   const setAddress = (address, geometry, fieldName) => {
     const {filters, latitude, longitude, locationAvailable} = state
-    let tmp = JSON.parse(JSON.stringify(filters))
-    tmp[fieldName] = geometry ? address : undefined
-    tmp[`${fieldName}_latitude`] = geometry
+
+    filters[fieldName] = geometry ? address : undefined
+    filters[`${fieldName}_latitude`] = geometry
       ? geometry.location.lat()
       : undefined
-    tmp[`${fieldName}_longitude`] = geometry
+    filters[`${fieldName}_longitude`] = geometry
       ? geometry.location.lng()
       : undefined
 
     if (locationAvailable) {
-      tmp.latitude = latitude
-      tmp.longitude = longitude
+      filters.latitude = latitude
+      filters.longitude = longitude
     } else {
-      tmp.latitude = null
-      tmp.longitude = null
+      filters.latitude = null
+      filters.longitude = null
     }
 
-    setState({
-      ...state,
-      filters: tmp,
-    })
+    setState(s => ({
+      ...s,
+      filters,
+    }))
 
     if (geometry || address === '') {
       tripStore.resetDataLoadedRequest()
@@ -307,7 +302,7 @@ const Dashboard = props => {
   }
 
   const handleExpandClick = () => {
-    setState(state => ({...state, expanded: !state.expanded}))
+    setState(s => ({...s, expanded: !state.expanded}))
   }
 
   const createCard = (trip, trip_idx) => {
@@ -719,6 +714,14 @@ const Dashboard = props => {
           defaultLat={latitude}
           defaultLng={longitude}
           waypoints={state.waypoints}
+          showTrip={showTrip}
+          start_location={selected.start_location}
+          start_location_latitude={selected.start_location_latitude}
+          start_location_longitude={selected.start_location_longitude}
+          destination={selected.destination}
+          destination_latitude={selected.destination_latitude}
+          destination_longitude={selected.destination_longitude}
+          onMarkerClick={onMarkerClick}
         />
       </div>
     </div>
