@@ -165,7 +165,7 @@ const ProfileImageSection = (props) => {
           className="dropzone"
         >
           {({getRootProps, getInputProps}) => (
-            <section>
+            <section className="dropzone">
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
                 <div>Try dropping image here, or click to select image to upload.</div>

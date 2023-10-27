@@ -382,7 +382,7 @@ const ProfileChecklist = (props) => {
                 className="dropzone"
               >
                 {({ getRootProps, getInputProps }) => (
-                  <section>
+                  <section className="dropzone">
                     <div {...getRootProps()}>
                       <input {...getInputProps()} />
                       <div>
@@ -495,7 +495,7 @@ const ProfileChecklist = (props) => {
                       className="dropzone"
                     >
                       {({ getRootProps, getInputProps }) => (
-                        <section>
+                        <section className="dropzone">
                           <div {...getRootProps()}>
                             <input {...getInputProps()} />
                             <div>

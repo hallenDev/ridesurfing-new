@@ -1,6 +1,5 @@
 import _ from 'underscore'
 import React, { useState, useEffect } from 'react'
-import Dropzone from 'react-dropzone'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 
