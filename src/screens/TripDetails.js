@@ -85,6 +85,7 @@ const TripDetails = (props) => {
       const { rideId } = state;
       tripStore.resetTripFlagRequest();
       tripStore.getTripRequest(rideId);
+      tripStore.getTripInfoRequest(state.rideId);
       navigateToUrl(trip);
     }
   }, [tripBooked])
