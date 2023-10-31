@@ -1,105 +1,100 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import StarRatingComponent from "react-star-rating-component";
+import React, {useState} from 'react'
+import {Link} from 'react-router-dom'
+import StarRatingComponent from 'react-star-rating-component'
 
-import missingImg from "../images/missing.png";
+import missingImg from '../images/missing.png'
 
-import TripMenu from "../components/TripMenu";
+import TripMenu from '../components/TripMenu'
 
 const TripCard = (props) => {
-
   const initial_state = {
     render_status: props.render_status || false,
     render_menu: props.render_menu || false,
     on_click_active: true,
     trip_cancel_sent: false,
     request_cancel_sent: false,
-  };
+  }
 
-  const [state, setState] = useState(initial_state);
-
+  const [state, setState] = useState(initial_state)
 
   const renderStatus = (trip_status) => {
     const options = {
-      active: { text: "Active", style: "active-label" },
-      expired: { text: "Expired", style: "exp-label" },
-      cancelled: { text: "Cancelled", style: "cancel-label" },
-    };
-    if (
-      !props.render_status ||
-      typeof trip_status === "undefined" ||
-      !(trip_status in options)
-    )
-      return "";
+      active: {text: 'Active', style: 'active-label'},
+      expired: {text: 'Expired', style: 'exp-label'},
+      cancelled: {text: 'Cancelled', style: 'cancel-label'},
+    }
+    // if (!props.render_status || typeof trip_status === 'undefined') return ''
 
-    const stat = state.trip_cancel_sent
-      ? options.cancelled
-      : options[trip_status];
+    let stat = options['active']
+    if (trip_status?.is_expired) stat = options['expired']
+    if (trip_status?.is_cancelled) stat = options['cancelled']
+    // const stat = state.trip_cancel_sent
+    //   ? options.cancelled
+    //   : options[trip_status]
     return (
       <span className="label-status">
         <span className={`label ${stat.style}`}>{`${stat.text}`}</span>
       </span>
-    );
+    )
   }
 
   const renderMenu = () => {
-    if (!state.render_menu) return "";
+    if (!state.render_menu) return ''
 
     return (
       <TripMenu
         trip={props.trip}
         on_menu_open={() => {
-          setState({ ...state, on_click_active: false });
+          setState({...state, on_click_active: false})
         }}
         on_menu_closed={() => {
-          setState({ ...state, on_click_active: true });
+          setState({...state, on_click_active: true})
         }}
         on_trip_cancelled={(id) => {
-          setState({ ...state, trip_cancel_sent: true, trip_rendered: false });
+          setState({...state, trip_cancel_sent: true, trip_rendered: false})
         }}
         on_request_cancelled={(id) => {
-          setState({ ...state, request_cancel_sent: true, trip_rendered: false });
+          setState({...state, request_cancel_sent: true, trip_rendered: false})
         }}
       />
-    );
+    )
   }
 
-  const getImage= (user) => {
-    return user?.display_image ? user.display_image : missingImg;
+  const getImage = (user) => {
+    return user?.display_image ? user.display_image : missingImg
   }
 
-  const { trip } = props;
-  const user = trip.relationships.profile.user.attributes;
+  const {trip} = props
+  const user = trip.relationships.profile.user.attributes
 
-  let mouse_enter_cb = () => {};
-  let mouse_leave_cb = () => {};
+  let mouse_enter_cb = () => {}
+  let mouse_leave_cb = () => {}
 
   if (props.onMouseEnter) {
-    mouse_enter_cb = () => props.onMouseEnter(trip);
+    mouse_enter_cb = () => props.onMouseEnter(trip)
   }
   if (props.onMouseLeave) {
-    mouse_leave_cb = () => props.onMouseLeave();
+    mouse_leave_cb = () => props.onMouseLeave()
   }
 
   const link_to = {
-    pathname: "/ride/" + trip.id,
+    pathname: '/ride/' + trip.id,
     state: {},
-  };
+  }
   const on_click_cb = (e) => {
     if (
       state.on_click_active &&
-      !e.target.className.includes("MuiDialog-container")
+      !e.target.className.includes('MuiDialog-container')
     )
-      window.location = link_to.pathname;
-  };
+      window.location = link_to.pathname
+  }
 
   return (
     <div
       className="trip-box card"
       onMouseEnter={mouse_enter_cb}
       onMouseLeave={mouse_leave_cb}
-      onClick={on_click_cb}
-    >
+      onClick={on_click_cb}>
       <div className="flex-field web">
         <div className="content-flex">
           <div className="main">
@@ -123,27 +118,26 @@ const TripCard = (props) => {
                   <span className="label">event: </span>
                   <span className="user-val">
                     {trip.attributes.event_name}
-                  </span>{" "}
+                  </span>{' '}
                   &nbsp;
                 </span>
-                {renderStatus(trip.attributes.status)}
+                {renderStatus(trip.attributes)}
                 <span className="drive-label-box">
                   <span
                     className="drive-box-text"
                     style={{
                       color:
-                        trip.attributes.drive_type === "commute"
-                          ? "#004085"
-                          : "#856404",
+                        trip.attributes.drive_type === 'commute'
+                          ? '#004085'
+                          : '#856404',
                       background:
-                        trip.attributes.drive_type === "commute"
-                          ? "#cce5ff"
-                          : "#fff3cd",
-                    }}
-                  >
-                    {trip.attributes.drive_type === "commute"
-                      ? "Commute"
-                      : "Adventure"}
+                        trip.attributes.drive_type === 'commute'
+                          ? '#cce5ff'
+                          : '#fff3cd',
+                    }}>
+                    {trip.attributes.drive_type === 'commute'
+                      ? 'Commute'
+                      : 'Adventure'}
                   </span>
                 </span>
               </div>
@@ -190,7 +184,7 @@ const TripCard = (props) => {
             <div className="col s6 l6 sep-section">
               <div className="detailsHeading">DEPARTURE</div>
               <div className="location">
-                <i className="fa fa-map-marker icon" />{" "}
+                <i className="fa fa-map-marker icon" />{' '}
                 {trip.attributes.modified_start_location}
               </div>
               <i className="fa fa-long-arrow-right separator-icon"></i>
@@ -201,7 +195,7 @@ const TripCard = (props) => {
             <div className="col s6 l6 sep-section">
               <div className="detailsHeading">ARRIVAL</div>
               <div className="location">
-                <i className="fa fa-map-marker icon" />{" "}
+                <i className="fa fa-map-marker icon" />{' '}
                 {trip.attributes.destination}
               </div>
               <div className="travel-date">
@@ -225,7 +219,7 @@ const TripCard = (props) => {
               />
             </div>
             <div className="driver-name">
-              <span>{user?.name ? user.name: 'Deleted User'}</span>
+              <span>{user?.name ? user.name : 'Deleted User'}</span>
             </div>
           </div>
           <div className="col s7">
@@ -233,27 +227,26 @@ const TripCard = (props) => {
             {renderMenu()}
             <div className="seatLeft">
               <span className="seats">
-                {" "}
-                {`Seats left: ${trip.attributes.available_seats}`}{" "}
+                {' '}
+                {`Seats left: ${trip.attributes.available_seats}`}{' '}
               </span>
-              {renderStatus(trip.attributes.status)}
+              {renderStatus(trip.attributes)}
               <span className="drive-label-box">
                 <span
                   className="drive-box-text"
                   style={{
                     color:
-                      trip.attributes.drive_type === "commute"
-                        ? "#004085"
-                        : "#856404",
+                      trip.attributes.drive_type === 'commute'
+                        ? '#004085'
+                        : '#856404',
                     background:
-                      trip.attributes.drive_type === "commute"
-                        ? "#cce5ff"
-                        : "#fff3cd",
-                  }}
-                >
-                  {trip.attributes.drive_type === "commute"
-                    ? "Commute"
-                    : "Adventure"}
+                      trip.attributes.drive_type === 'commute'
+                        ? '#cce5ff'
+                        : '#fff3cd',
+                  }}>
+                  {trip.attributes.drive_type === 'commute'
+                    ? 'Commute'
+                    : 'Adventure'}
                 </span>
               </span>
             </div>
@@ -290,7 +283,7 @@ const TripCard = (props) => {
           <div className="row">
             <div className="col s6 sep-section">
               <div className="address">
-                <i className="fa fa-map-marker icon" />{" "}
+                <i className="fa fa-map-marker icon" />{' '}
                 {trip.attributes.modified_start_location}
               </div>
               <div className="time-text">{trip.attributes.start_date}</div>
@@ -298,7 +291,7 @@ const TripCard = (props) => {
             </div>
             <div className="col s6 sep-section">
               <div className="address">
-                <i className="fa fa-map-marker icon" />{" "}
+                <i className="fa fa-map-marker icon" />{' '}
                 {trip.attributes.modified_destination}
               </div>
               <div className="time-text">{trip.attributes.finish_date}</div>
@@ -307,7 +300,7 @@ const TripCard = (props) => {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default TripCard;
+export default TripCard
