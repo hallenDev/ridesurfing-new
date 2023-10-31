@@ -1,8 +1,17 @@
+import {useRef, useEffect} from 'react'
 import styles from './MessageList.module.scss'
 import SendMessageBox from './SendMessageBox'
 import ReceiveMessageBox from './ReceiveMessageBox'
 
 const MessageList = ({messages = []}) => {
+  const msg_box_ref = useRef(null)
+
+  useEffect(() => {
+    msg_box_ref.current.scrollIntoView({
+      behavior: 'auto',
+    })
+  }, [messages])
+
   const messageList = messages.map((message, index, arr) => {
     const prevMessage = arr[index - 1]
     const nextMessage = arr[index + 1]
@@ -27,7 +36,12 @@ const MessageList = ({messages = []}) => {
     )
   })
 
-  return <div className={styles.container}>{messageList}</div>
+  return (
+    <div className={styles.container}>
+      {messageList}
+      <div ref={msg_box_ref} style={{float: 'left', clear: 'both'}}></div>
+    </div>
+  )
 }
 
 export default MessageList
