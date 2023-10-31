@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
-import {Button, Input, MessageList} from 'react-chat-elements'
+import {Button, Input} from 'react-chat-elements'
 import styles from './Chats.module.scss'
+import MessageList from './components/MessageList'
 
 import 'react-chat-elements/dist/main.css'
 import useSessionStore from '../../store/SessionStore'
@@ -11,11 +12,22 @@ const Chats = ({messages = [], onSend}) => {
   const [message, setMessage] = useState('')
 
   const data = messages
-    .map(message => ({
+    .map((message) => ({
       position: message?.user?.id === currentUser?.id ? 'right' : 'left',
-      type: 'text',
       text: message.text,
-      date: new Date(message.createdAt),
+      date: new Date(message.createdAt).toLocaleString('en-us', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }),
+      time: new Date(message.createdAt).toLocaleString('en-us', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+      }),
+      createdAt: message.createdAt,
+      avatar:
+        message?.user?.id !== currentUser?.id ? message?.user?.avatar : '',
     }))
     .reverse()
 
@@ -28,25 +40,28 @@ const Chats = ({messages = [], onSend}) => {
   return (
     <div className={styles.container}>
       <MessageList
-        className={styles.messageList}
-        lockable={true}
-        dataSource={data}
+        // className={styles.messageList}
+        // lockable={true}
+        messages={data}
       />
 
       <Input
-        placeholder="Type here..."
+        placeholder="Type a message..."
         multiline={false}
         value={message}
         rightButtons={
-          <Button
-            color="white"
-            backgroundColor="black"
-            text="Send"
-            onClick={sendMessage}
-          />
+          message !== '' && (
+            <Button
+              // color="white"
+              // backgroundColor="black"
+              text="Send"
+              onClick={sendMessage}
+              className="chat-send-btn"
+            />
+          )
         }
-        onChange={event => setMessage(event.target.value)}
-        onKeyPress={e => {
+        onChange={(event) => setMessage(event.target.value)}
+        onKeyPress={(e) => {
           e.key === 'Enter' && sendMessage()
         }}
       />

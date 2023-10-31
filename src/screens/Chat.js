@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import React, {useState, useEffect, useCallback} from 'react'
 import {Link} from 'react-router-dom'
+import { GiftedChat } from 'react-web-gifted-chat'
 
 import missingImg from '../images/missing.png'
 import noChat from '../images/No-chat.png'
