@@ -65,6 +65,7 @@ const TripCard = (props) => {
   }
 
   const {trip} = props
+  console.log(trip)
   const user = trip.relationships.profile.user.attributes
 
   let mouse_enter_cb = () => {}
@@ -109,6 +110,10 @@ const TripCard = (props) => {
                   />
                 </div>
               </Link>
+              <div style={{justifyContent: 'center', display: 'flex'}}>
+                {`${trip.relationships.profile.user.attributes.first_name}`}'s
+                Ride
+              </div>
             </div>
             <div className="right-box">
               {renderMenu()}
