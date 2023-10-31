@@ -46,7 +46,7 @@ const initial_state = {
   isProcessing: false,
 }
 
-const NewRide = props => {
+const NewRide = (props) => {
   const sessionStore = useSessionStore()
   const tripStore = useTripStore()
 
@@ -89,12 +89,9 @@ const NewRide = props => {
     return (window.location.href = `/login`)
   }
 
-  const navigationUrl = trip => {
-    const {
-      has_payout_details,
-      has_completed_profile,
-      has_car_image,
-    } = currentUser.attributes
+  const navigationUrl = (trip) => {
+    const {has_payout_details, has_completed_profile, has_car_image} =
+      currentUser.attributes
 
     return (parseFloat(trip.attributes.price) === 0 ||
       (parseFloat(trip.attributes.price) > 0 && !!has_payout_details)) &&
@@ -106,14 +103,14 @@ const NewRide = props => {
 
   const setCurrentPosition = () => {
     $.getJSON(process.env.REACT_APP_GEOLOCATION_URL)
-      .done(function(location) {
+      .done(function (location) {
         setState({
           ...state,
           latitude: location.latitude,
           longitude: location.longitude,
         })
       })
-      .fail(function(error) {})
+      .fail(function (error) {})
   }
 
   const onFieldChange = (fieldName, event) => {
@@ -147,7 +144,7 @@ const NewRide = props => {
     })
   }
 
-  const errorMessageFor = fieldName => {
+  const errorMessageFor = (fieldName) => {
     if (tripErrors && tripErrors[fieldName]) return tripErrors[fieldName]
   }
 
@@ -227,7 +224,7 @@ const NewRide = props => {
     )
     if (!isNaN(price) && price >= 0) {
       trip.total_distance = total_distance
-      trip.price = price
+      // trip.price = price
 
       return {
         ...state,
@@ -294,7 +291,7 @@ const NewRide = props => {
                   name="gender1"
                   className="formContainer"
                   value={state.trip.drive_type || ''}
-                  onChange={event => onFieldChange('drive_type', event)}>
+                  onChange={(event) => onFieldChange('drive_type', event)}>
                   <FormControlLabel
                     className="formControl"
                     value="commute"
@@ -348,7 +345,7 @@ const NewRide = props => {
           </div>
           <div
             style={{position: 'relative'}}
-            ref={node => {
+            ref={(node) => {
               setNode(node)
             }}>
             <div className="row">
@@ -360,7 +357,7 @@ const NewRide = props => {
                   selected={
                     state.trip.start_date ? new Date(state.trip.start_date) : ''
                   }
-                  onChange={date => updateDateFilters('start_date', date)}
+                  onChange={(date) => updateDateFilters('start_date', date)}
                   minDate={new Date()}
                   maxDate={
                     state.trip.finish_date
@@ -381,7 +378,7 @@ const NewRide = props => {
                       ? new Date(state.trip.finish_date)
                       : ''
                   }
-                  onChange={date => updateDateFilters('finish_date', date)}
+                  onChange={(date) => updateDateFilters('finish_date', date)}
                   minDate={
                     state.trip.start_date
                       ? new Date(state.trip.start_date)
@@ -412,12 +409,12 @@ const NewRide = props => {
                 <InputLabel htmlFor="select-multiple"></InputLabel>
                 <Select
                   value={state.trip.event_name || ''}
-                  onChange={event => onFieldChange('event_name', event)}
+                  onChange={(event) => onFieldChange('event_name', event)}
                   input={<Input id="select-multiple" />}
                   MenuProps={MenuProps}
                   displayEmpty
                   className="selected-menu-field">
-                  {eventName.map(name => (
+                  {eventName.map((name) => (
                     <MenuItem key={name} value={name}>
                       {name}
                     </MenuItem>
@@ -434,7 +431,7 @@ const NewRide = props => {
                 <InputLabel htmlFor="select-multiple"></InputLabel>
                 <Select
                   value={state.trip.seats || ''}
-                  onChange={event => onFieldChange('seats', event)}
+                  onChange={(event) => onFieldChange('seats', event)}
                   input={<Input id="select-multiple" />}
                   MenuProps={MenuProps}
                   displayEmpty
@@ -442,7 +439,7 @@ const NewRide = props => {
                   <MenuItem value="" disabled>
                     Select
                   </MenuItem>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(val => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((val) => (
                     <MenuItem key={val} value={val}>
                       {val}
                     </MenuItem>
@@ -457,12 +454,12 @@ const NewRide = props => {
                 <InputLabel htmlFor="select-multiple"></InputLabel>
                 <Select
                   value={state.trip.price || ''}
-                  onChange={event => onFieldChange('price', event)}
+                  onChange={(event) => onFieldChange('price', event)}
                   input={<Input id="select-multiple" />}
                   MenuProps={MenuProps}
                   displayEmpty
                   className="selected-menu-field">
-                  {Array.from(Array(priceTip * 2 + 1).keys()).map(val => (
+                  {Array.from(Array(priceTip * 2 + 1).keys()).map((val) => (
                     <MenuItem key={val} value={val.toString()}>
                       ${val}
                     </MenuItem>
@@ -484,8 +481,8 @@ const NewRide = props => {
                 className="text-field"
                 margin="normal"
                 value={state.trip.name || ''}
-                onChange={event => onFieldChange('name', event)}
-                onKeyPress={event => {
+                onChange={(event) => onFieldChange('name', event)}
+                onKeyPress={(event) => {
                   if (event.key === 'Enter' || event.keyCode === 13) {
                     handleSaveTrip()
                   }
