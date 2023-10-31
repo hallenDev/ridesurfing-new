@@ -1,41 +1,52 @@
 import _ from 'underscore'
-import React, { useState, useEffect } from 'react'
+import React, {useState, useEffect} from 'react'
 import Dropzone from 'react-dropzone'
-import { confirmAlert } from 'react-confirm-alert'
+import {confirmAlert} from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import Lightbox from 'react-image-lightbox'
 import ReactLoading from 'react-loading'
 
 import close from '../images/close.png'
-import useSessionStore from '../store/SessionStore';
+import useSessionStore from '../store/SessionStore'
 
 const initial_state = {
   userId: null,
   lbOpen: false,
   photoIndex: 0,
-  isProcessing: false
+  isProcessing: false,
 }
 
 const ProfileImageSection = (props) => {
+  const sessionStore = useSessionStore()
 
-  const sessionStore = useSessionStore();
-
-  const currentUser = sessionStore.currentUser;
-  const isProcessing = sessionStore.isProcessing;
+  const currentUser = sessionStore.currentUser
+  const isProcessing = sessionStore.isProcessing
   // const profileErrors = sessionStore.profileErrors;
   // const profileSaved = sessionStore.profileSaved;
-  // const imageDeleted = sessionStore.imageDeleted;
+  const imageDeleted = sessionStore.imageDeleted
+  const imageUploaded = sessionStore.imageUploaded
 
-  
-  const [state, setState] = useState(initial_state);
-  const [profileImagesArr, setProfileImageArr] = useState([]);
+  const [state, setState] = useState(initial_state)
+  const [profileImagesArr, setProfileImageArr] = useState([])
+
+  useEffect(() => {
+    if (imageDeleted) {
+      window.location.reload(false)
+    }
+  }, [imageDeleted])
+
+  useEffect(() => {
+    if (imageUploaded) {
+      window.location.reload(false)
+    }
+  }, [imageUploaded])
 
   useEffect(() => {
     if (isProcessing || isProcessing === false) {
-      updateProfileImageState();
-      setState({ 
+      updateProfileImageState()
+      setState({
         ...state,
-        isProcessing: isProcessing 
+        isProcessing: isProcessing,
       })
     }
   }, [isProcessing])
@@ -47,24 +58,24 @@ const ProfileImageSection = (props) => {
   const onDrop = (files) => {
     setState({
       ...state,
-      files: files.map(file => ({
+      files: files.map((file) => ({
         ...file,
-        preview: URL.createObjectURL(file)
-      }))
-    });
+        preview: URL.createObjectURL(file),
+      })),
+    })
   }
 
   const onCancel = () => {
     setState({
       ...state,
-      files: []
+      files: [],
     })
   }
 
   const uploadImage = (files, imageType) => {
-    setState ({ 
+    setState({
       ...state,
-      isProcessing: true 
+      isProcessing: true,
     })
     sessionStore.setProcessingRequest()
 
@@ -73,7 +84,7 @@ const ProfileImageSection = (props) => {
     if (fileObj) {
       var FR = new FileReader()
 
-      FR.addEventListener("load", function(e) {
+      FR.addEventListener('load', function (e) {
         img = e.target.result
         sessionStore.uploadProfileImageRequest(imageType, img)
       })
@@ -83,11 +94,16 @@ const ProfileImageSection = (props) => {
   }
 
   const profileImages = () => {
-    const { profile } = props;
+    const {profile} = props
     if (profile && profile.relationships) {
-      const { images } = profile.relationships
+      const {images} = profile.relationships
 
-      const profileImages = _.filter(images, (img) => { return img.attributes.image_type === 'profile' || img.attributes.image_type === 'display' })
+      const profileImages = _.filter(images, (img) => {
+        return (
+          img.attributes.image_type === 'profile' ||
+          img.attributes.image_type === 'display'
+        )
+      })
       if (profileImages) {
         return profileImages
       } else {
@@ -100,7 +116,7 @@ const ProfileImageSection = (props) => {
 
   const updateProfileImageState = () => {
     const arr = profileImages()
-    setProfileImageArr(_.pluck(_.pluck(arr, 'attributes'), 'url')); 
+    setProfileImageArr(_.pluck(_.pluck(arr, 'attributes'), 'url'))
   }
 
   // const profileImagesArr = () => {
@@ -109,81 +125,106 @@ const ProfileImageSection = (props) => {
   // }
 
   const deleteImage = (imageId) => {
-
     confirmAlert({
       title: 'Alert!',
       message: 'Are you sure you want to delete this image?',
       buttons: [
         {
           label: 'Yes',
-          onClick: () => sessionStore.deleteProfileImageRequest(imageId)
+          onClick: () => sessionStore.deleteProfileImageRequest(imageId),
         },
         {
           label: 'No',
-          onClick: () => console.log('canceled')
-        }
-      ]
+          onClick: () => console.log('canceled'),
+        },
+      ],
     })
   }
 
   const renderProfileThumbs = () => {
-    const { user } = props;
+    const {user} = props
     const profile_images = profileImages()
     return _.map(profile_images, (img, index) => {
-
-      return <div className="imgWrapper" key={`photo${index}`}>
-        <img
-          src={img.attributes.url}
-          alt=""
-          className="responsive-img uploadPic"
-          onClick={() => setState({ 
-            ...state,
-            lbOpen: true 
-          })}
-        />
-        {/* eslint-disable-next-line */}
-        {user?.id == currentUser?.id && img.attributes.image_type !== 'display' && <a href="javascript:void(0)" className="removeImg" onClick={() => deleteImage(img?.id)} ><img src={close} alt="" className="close-icon" /></a>}
-      </div>
+      return (
+        <div className="imgWrapper" key={`photo${index}`}>
+          <img
+            src={img.attributes.url}
+            alt=""
+            className="responsive-img uploadPic"
+            onClick={() =>
+              setState({
+                ...state,
+                lbOpen: true,
+              })
+            }
+          />
+          {/* eslint-disable-next-line */}
+          {user?.id == currentUser?.id &&
+            img.attributes.image_type !== 'display' && (
+              <a
+                href="javascript:void(0)"
+                className="removeImg"
+                onClick={() => deleteImage(img?.id)}>
+                <img src={close} alt="" className="close-icon" />
+              </a>
+            )}
+        </div>
+      )
     })
   }
 
-  const { user } = props;
-  const { lbOpen, photoIndex } = state
+  const {user} = props
+  const {lbOpen, photoIndex} = state
 
   return (
     <div className="profile-photo-section">
-      <div className="car-profile-images">
-        {renderProfileThumbs()}
+      <div className="car-profile-images">{renderProfileThumbs()}</div>
+      <div className="bubble-container">
+        {!!state.isProcessing && (
+          <ReactLoading
+            type="bubbles"
+            color="#3399ff"
+            height="12%"
+            width="12%"
+          />
+        )}
       </div>
-      <div className='bubble-container'>
-        {!!state.isProcessing && <ReactLoading type='bubbles' color='#3399ff' height='12%' width='12%' />}
-      </div>
-      {currentUser?.id == user?.id && <div className="image image-dash mt40">
-        <Dropzone
-          onDrop={(files) => uploadImage(files, 'profile')}
-          onFileDialogCancel={() => onCancel()}
-          className="dropzone"
-        >
-          {({getRootProps, getInputProps}) => (
-            <section className="dropzone">
-              <div {...getRootProps()}>
-                <input {...getInputProps()} />
-                <div>Try dropping image here, or click to select image to upload.</div>
-              </div>
-            </section>
-          )}
-        </Dropzone>
-      </div>}
+      {currentUser?.id == user?.id && (
+        <div className="image image-dash mt40">
+          <Dropzone
+            onDrop={(files) => uploadImage(files, 'profile')}
+            onFileDialogCancel={() => onCancel()}
+            className="dropzone">
+            {({getRootProps, getInputProps}) => (
+              <section className="dropzone">
+                <div {...getRootProps()}>
+                  <input {...getInputProps()} />
+                  <div>
+                    Try dropping image here, or click to select image to upload.
+                  </div>
+                </div>
+              </section>
+            )}
+          </Dropzone>
+        </div>
+      )}
       {lbOpen && (
         <Lightbox
           mainSrc={profileImagesArr[photoIndex]}
           nextSrc={profileImagesArr[(photoIndex + 1) % profileImagesArr.length]}
-          prevSrc={profileImagesArr[(photoIndex + profileImagesArr.length - 1) % profileImagesArr.length]}
-          onCloseRequest={() => setState({ ...state, lbOpen: false })}
+          prevSrc={
+            profileImagesArr[
+              (photoIndex + profileImagesArr.length - 1) %
+                profileImagesArr.length
+            ]
+          }
+          onCloseRequest={() => setState({...state, lbOpen: false})}
           onMovePrevRequest={() =>
             setState({
               ...state,
-              photoIndex: (photoIndex + profileImagesArr.length - 1) % profileImagesArr.length,
+              photoIndex:
+                (photoIndex + profileImagesArr.length - 1) %
+                profileImagesArr.length,
             })
           }
           onMoveNextRequest={() =>
@@ -198,4 +239,4 @@ const ProfileImageSection = (props) => {
   )
 }
 
-export default (ProfileImageSection)
+export default ProfileImageSection

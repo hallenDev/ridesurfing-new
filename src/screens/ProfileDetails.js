@@ -34,6 +34,13 @@ const ProfileDetails = (props) => {
   }
 
   const [state, setState] = useState(initial_state)
+  const [active_tab, setActiveTab] = useState('one')
+
+  useEffect(() => {
+    let tmp = localStorage.getItem('currentTab')
+    if (!tmp) tmp = 'one'
+    setActiveTab(tmp)
+  }, [])
 
   useEffect(() => {
     if (currentUser && !userId) {
@@ -78,6 +85,10 @@ const ProfileDetails = (props) => {
     chatStore.getDirectChatUserRequest(userId, true)
 
     history.push('/chat')
+  }
+
+  const handleTab = (id) => {
+    localStorage.setItem('currentTab', id)
   }
 
   const {userId} = state
@@ -156,19 +167,31 @@ const ProfileDetails = (props) => {
           </div>
           <div className="col offset-l1 l8 s12">
             <div className="my-tablist">
-              <Tabs defaultTab="one">
+              <Tabs defaultTab={active_tab}>
                 <TabList>
-                  <Tab tabFor="one">Main</Tab>
-                  <Tab tabFor="two">Photos</Tab>
-                  <Tab tabFor="three">Car</Tab>
+                  <Tab tabFor="one" onClick={() => handleTab('one')}>
+                    Main
+                  </Tab>
+                  <Tab tabFor="two" onClick={() => handleTab('two')}>
+                    Photos
+                  </Tab>
+                  <Tab tabFor="three" onClick={() => handleTab('three')}>
+                    Car
+                  </Tab>
                   {(!userId || userId === currentUser.id) && (
-                    <Tab tabFor="four">Account</Tab>
+                    <Tab tabFor="four" onClick={() => handleTab('four')}>
+                      Account
+                    </Tab>
                   )}
                   {(!userId || userId === currentUser.id) && (
-                    <Tab tabFor="five">Payout</Tab>
+                    <Tab tabFor="five" onClick={() => handleTab('five')}>
+                      Payout
+                    </Tab>
                   )}
                   {(!userId || userId === currentUser.id) && (
-                    <Tab tabFor="six">Payment Method</Tab>
+                    <Tab tabFor="six" onClick={() => handleTab('six')}>
+                      Payment Method
+                    </Tab>
                   )}
                   {/* {(!userId || (userId === currentUser.id)) && <Tab tabFor="seven">Delete Account</Tab>} */}
                 </TabList>
