@@ -14712,3 +14712,10 @@ footer .card-img {
   font-size: 17px !important;
   font-weight: 600 !important;
 }
+
+.slider-control-centerleft{
+  display: none;
+}
+.slider-control-centerright {
+  display: none;
+}
