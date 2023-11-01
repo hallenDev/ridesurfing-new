@@ -28,6 +28,7 @@ const Chats = ({messages = [], onSend}) => {
       createdAt: message.createdAt,
       avatar:
         message?.user?.id !== currentUser?.id ? message?.user?.avatar : '',
+      user_id: message?.user?.id,
     }))
     .reverse()
 

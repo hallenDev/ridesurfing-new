@@ -9,8 +9,6 @@ import pet from '../images/pet.jpg'
 import kid from '../images/kid.jpg'
 import heater from '../images/ac-heater.jpg'
 import useSessionStore from '../store/SessionStore'
-import {confirmAlert} from 'react-confirm-alert'
-import {PrimaryButton} from '../components/Buttons'
 
 const ProfileMainSection = (props) => {
   const sessionStore = useSessionStore()
@@ -69,26 +67,6 @@ const ProfileMainSection = (props) => {
     } else {
       return <div className="rating-block">No Testimonials</div>
     }
-  }
-
-  const handleDeleteAction = () => {
-    confirmAlert({
-      title: 'Alert!',
-      message: 'Are you sure you delete your account?',
-      buttons: [
-        {
-          label: 'Yes',
-          onClick: () => {
-            sessionStore.deleteAccountRequest()
-            return (window.location.href = `/login`)
-          },
-        },
-        {
-          label: 'No',
-          onClick: () => console.log('canceled'),
-        },
-      ],
-    })
   }
 
   const {profile, user} = props
@@ -208,16 +186,6 @@ const ProfileMainSection = (props) => {
             <div className="col s12">
               <h5 className="mt40 mb20">Users Testimonials/Feedback</h5>
               {renderTestimonials(user)}
-            </div>
-          </div>
-          <div className="row">
-            <div class="col s12 m12">
-              <PrimaryButton
-                color="primary"
-                buttonName={'Delete Account'}
-                className="lg-primary"
-                handleButtonClick={() => handleDeleteAction()}
-              />
             </div>
           </div>
         </div>
