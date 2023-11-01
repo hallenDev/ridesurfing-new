@@ -65,7 +65,6 @@ const TripCard = (props) => {
   }
 
   const {trip} = props
-  console.log(trip)
   const user = trip.relationships.profile.user.attributes
 
   let mouse_enter_cb = () => {}
